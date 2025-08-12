@@ -37,7 +37,7 @@ export function Header() {
       <div className="container flex h-14 items-center px-4">
         {/* Logo/Brand */}
         <div className="mr-4 hidden md:flex">
-          <h1 className="text-xl font-bold text-primary">Bem Vindo {user.name}</h1>
+          <h1 className="text-xl font-bold text-primary">Ola, {user.name}</h1>
         </div>
 
         {/* Search Bar */}
