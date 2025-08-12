@@ -1,0 +1,126 @@
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Types based on our database schema
+export interface User {
+  id: string
+  name: string
+  email: string
+  plan: 'basic' | 'professional'
+  registration_date: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Category {
+  id: string
+  user_id: string
+  name: string
+  type: 'income' | 'expense' | 'goal' | 'investment'
+  color: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Transaction {
+  id: string
+  user_id: string
+  description: string
+  amount: number
+  type: 'income' | 'expense'
+  category_id?: string
+  date: string
+  status: 'pending' | 'completed' | 'cancelled'
+  notes?: string
+  receipt_url?: string
+  merchant?: string
+  created_at: string
+  updated_at: string
+  category?: Category
+}
+
+export interface Goal {
+  id: string
+  user_id: string
+  title: string
+  description?: string
+  target_amount: number
+  current_amount: number
+  deadline?: string
+  category_id?: string
+  priority: 'low' | 'medium' | 'high'
+  is_completed: boolean
+  created_at: string
+  updated_at: string
+  category?: Category
+}
+
+export interface Investment {
+  id: string
+  user_id: string
+  asset_name: string
+  asset_type: 'stocks' | 'fii' | 'etf' | 'fixed_income' | 'crypto' | 'funds' | 'others'
+  quantity: number
+  avg_price: number
+  current_price?: number
+  broker?: string
+  category_id?: string
+  created_at: string
+  updated_at: string
+  category?: Category
+}
+
+export interface InvestmentTransaction {
+  id: string
+  user_id: string
+  investment_id?: string
+  operation_type: 'buy' | 'sell'
+  quantity: number
+  price: number
+  total_value: number
+  date: string
+  broker?: string
+  notes?: string
+  created_at: string
+  investment?: Investment
+}
+
+export interface BankAccount {
+  id: string
+  user_id: string
+  bank_name: string
+  account_type: string
+  account_number?: string
+  balance: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface AIInsight {
+  id: string
+  user_id: string
+  category: string
+  title: string
+  content: string
+  priority: string
+  potential_savings?: number
+  is_dismissed: boolean
+  created_at: string
+}
+
+export interface UserSettings {
+  id: string
+  user_id: string
+  ai_frequency: string
+  ai_detail_level: string
+  openai_api_key?: string
+  notifications_enabled: boolean
+  theme: string
+  created_at: string
+  updated_at: string
+}
