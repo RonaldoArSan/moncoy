@@ -28,76 +28,76 @@ export default function Dashboard() {
       <div className="gradient-hero rounded-xl p-8 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-shadow-md">Bem-vindo de volta!</h1>
-            <p className="text-blue-100 mt-2">Aqui está um resumo das suas finanças hoje</p>
+            <h1 className="text-3xl font-bold text-white text-shadow-md">Bem-vindo de volta!</h1>
+            <p className="text-white/80 mt-2 text-base">Aqui está um resumo das suas finanças hoje</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-blue-200">Saldo Total</p>
-            <p className="text-3xl font-bold text-shadow-md">R$ 12.450,00</p>
+            <p className="text-sm text-white/70 font-medium">Saldo Total</p>
+            <p className="text-3xl font-bold text-white text-shadow-md">R$ 12.450,00</p>
           </div>
         </div>
       </div>
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-success-200 dark:border-success-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
+        <Card className="border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-success-700 dark:text-success-300">Receitas</CardTitle>
-            <div className="p-2 bg-success-100 dark:bg-success-900 rounded-lg">
-              <TrendingUp className="h-4 w-4 text-success-600 dark:text-success-400" />
+            <CardTitle className="text-sm font-semibold text-green-700 dark:text-green-300">Receitas</CardTitle>
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success-600 dark:text-success-400">R$ 8.500,00</div>
-            <p className="text-xs text-success-600 dark:text-success-400 flex items-center mt-1">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">R$ 8.500,00</div>
+            <p className="text-xs text-green-600/80 dark:text-green-400/80 flex items-center mt-1 font-medium">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               +12% em relação ao mês passado
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-danger-200 dark:border-danger-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
+        <Card className="border-red-200 dark:border-red-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-danger-700 dark:text-danger-300">Despesas</CardTitle>
-            <div className="p-2 bg-danger-100 dark:bg-danger-900 rounded-lg">
-              <TrendingDown className="h-4 w-4 text-danger-600 dark:text-danger-400" />
+            <CardTitle className="text-sm font-semibold text-red-700 dark:text-red-300">Despesas</CardTitle>
+            <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+              <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-danger-600 dark:text-danger-400">R$ 3.200,00</div>
-            <p className="text-xs text-danger-600 dark:text-danger-400 flex items-center mt-1">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">R$ 3.200,00</div>
+            <p className="text-xs text-red-600/80 dark:text-red-400/80 flex items-center mt-1 font-medium">
               <ArrowDownRight className="h-3 w-3 mr-1" />
               -5% em relação ao mês passado
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-primary-200 dark:border-primary-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
+        <Card className="border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-primary-700 dark:text-primary-300">Investimentos</CardTitle>
-            <div className="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
-              <DollarSign className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+            <CardTitle className="text-sm font-semibold text-blue-700 dark:text-blue-300">Investimentos</CardTitle>
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">R$ 25.800,00</div>
-            <p className="text-xs text-primary-600 dark:text-primary-400 flex items-center mt-1">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">R$ 25.800,00</div>
+            <p className="text-xs text-blue-600/80 dark:text-blue-400/80 flex items-center mt-1 font-medium">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               +8.5% este mês
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-warning-200 dark:border-warning-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
+        <Card className="border-amber-200 dark:border-amber-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-warning-700 dark:text-warning-300">Economia</CardTitle>
-            <div className="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
-              <PiggyBank className="h-4 w-4 text-warning-600 dark:text-warning-400" />
+            <CardTitle className="text-sm font-semibold text-amber-700 dark:text-amber-300">Economia</CardTitle>
+            <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
+              <PiggyBank className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning-600 dark:text-warning-400">R$ 5.300,00</div>
-            <p className="text-xs text-warning-600 dark:text-warning-400 flex items-center mt-1">
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">R$ 5.300,00</div>
+            <p className="text-xs text-amber-600/80 dark:text-amber-400/80 flex items-center mt-1 font-medium">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               Meta: 62% atingida
             </p>
@@ -109,11 +109,11 @@ export default function Dashboard() {
         {/* Transações Recentes */}
         <Card className="hover:shadow-lg transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground font-semibold">
+              <CreditCard className="h-5 w-5 text-primary" />
               Transações Recentes
             </CardTitle>
-            <CardDescription>Suas últimas movimentações financeiras</CardDescription>
+            <CardDescription className="text-muted-foreground font-medium">Suas últimas movimentações financeiras</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -141,15 +141,15 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium">{transacao.desc}</p>
-                    <p className="text-sm text-muted-foreground">{transacao.data}</p>
+                    <p className="font-semibold text-foreground">{transacao.desc}</p>
+                    <p className="text-sm text-muted-foreground font-medium">{transacao.data}</p>
                   </div>
                 </div>
                 <span
-                  className={`font-semibold ${
+                  className={`font-bold text-base ${
                     transacao.tipo === "receita"
-                      ? "text-success-600 dark:text-success-400"
-                      : "text-danger-600 dark:text-danger-400"
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
                   }`}
                 >
                   {transacao.valor}
@@ -162,11 +162,11 @@ export default function Dashboard() {
         {/* Orçamento Mensal */}
         <Card className="hover:shadow-lg transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground font-semibold">
+              <Target className="h-5 w-5 text-primary" />
               Orçamento Mensal
             </CardTitle>
-            <CardDescription>Acompanhe seus gastos por categoria</CardDescription>
+            <CardDescription className="text-muted-foreground font-medium">Acompanhe seus gastos por categoria</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -177,8 +177,8 @@ export default function Dashboard() {
             ].map((item, index) => (
               <div key={index} className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="font-medium">{item.categoria}</span>
-                  <span className="text-muted-foreground">
+                  <span className="font-semibold text-foreground">{item.categoria}</span>
+                  <span className="text-muted-foreground font-medium">
                     R$ {item.gasto} / R$ {item.limite}
                   </span>
                 </div>
@@ -196,40 +196,40 @@ export default function Dashboard() {
       {/* Insights de IA */}
       <Card className="border-secondary-200 dark:border-secondary-800 hover:shadow-lg transition-all duration-300">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-secondary-600 dark:text-secondary-400" />
+          <CardTitle className="flex items-center gap-2 text-foreground font-semibold">
+            <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             Insights Personalizados
           </CardTitle>
-          <CardDescription>Recomendações baseadas em IA para otimizar suas finanças</CardDescription>
+          <CardDescription className="text-muted-foreground font-medium">Recomendações baseadas em IA para otimizar suas finanças</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-success-50 dark:bg-success-950 border border-success-200 dark:border-success-800">
+            <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="h-5 w-5 text-success-600 dark:text-success-400" />
-                <span className="font-medium text-success-700 dark:text-success-300">Parabéns!</span>
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <span className="font-semibold text-green-700 dark:text-green-300">Parabéns!</span>
               </div>
-              <p className="text-sm text-success-600 dark:text-success-400">
+              <p className="text-sm text-green-700 dark:text-green-300 font-medium">
                 Você economizou 15% mais este mês comparado ao anterior.
               </p>
             </div>
 
-            <div className="p-4 rounded-lg bg-warning-50 dark:bg-warning-950 border border-warning-200 dark:border-warning-800">
+            <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="h-5 w-5 text-warning-600 dark:text-warning-400" />
-                <span className="font-medium text-warning-700 dark:text-warning-300">Dica</span>
+                <Lightbulb className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <span className="font-semibold text-amber-700 dark:text-amber-300">Dica</span>
               </div>
-              <p className="text-sm text-warning-600 dark:text-warning-400">
+              <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
                 Considere investir R$ 500 extras em renda fixa este mês.
               </p>
             </div>
 
-            <div className="p-4 rounded-lg bg-primary-50 dark:bg-primary-950 border border-primary-200 dark:border-primary-800">
+            <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
               <div className="flex items-center gap-2 mb-2">
-                <Zap className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                <span className="font-medium text-primary-700 dark:text-primary-300">Oportunidade</span>
+                <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <span className="font-semibold text-blue-700 dark:text-blue-300">Oportunidade</span>
               </div>
-              <p className="text-sm text-primary-600 dark:text-primary-400">
+              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
                 Seus investimentos estão performando 12% acima da média.
               </p>
             </div>

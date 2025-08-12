@@ -87,7 +87,7 @@ export default function GoalsPage() {
         <div className="flex justify-between items-center ml-12 md:ml-0">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Metas Financeiras</h1>
-            <p className="text-muted-foreground">Acompanhe o progresso dos seus objetivos</p>
+            <p className="text-muted-foreground font-medium">Acompanhe o progresso dos seus objetivos</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -104,12 +104,12 @@ export default function GoalsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Metas</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-semibold text-foreground">Total de Metas</CardTitle>
+              <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{goals.length}</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-2xl font-bold text-foreground">{goals.length}</div>
+              <p className="text-xs text-muted-foreground font-medium">
                 {goals.filter((g) => (g.currentAmount / g.targetAmount) * 100 >= 100).length} concluídas
               </p>
             </CardContent>
@@ -117,17 +117,17 @@ export default function GoalsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-semibold text-foreground">Valor Total</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 R${" "}
                 {goals
                   .reduce((sum, goal) => sum + goal.targetAmount, 0)
                   .toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-medium">
                 R${" "}
                 {goals
                   .reduce((sum, goal) => sum + goal.currentAmount, 0)
@@ -139,17 +139,17 @@ export default function GoalsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Progresso Médio</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-semibold text-foreground">Progresso Médio</CardTitle>
+              <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {(
                   goals.reduce((sum, goal) => sum + (goal.currentAmount / goal.targetAmount) * 100, 0) / goals.length
                 ).toFixed(1)}
                 %
               </div>
-              <p className="text-xs text-muted-foreground">Média de todas as metas</p>
+              <p className="text-xs text-muted-foreground font-medium">Média de todas as metas</p>
             </CardContent>
           </Card>
         </div>
@@ -168,10 +168,10 @@ export default function GoalsPage() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">{goal.title}</CardTitle>
-                      <CardDescription>{goal.description}</CardDescription>
+                      <CardTitle className="text-lg font-semibold text-foreground">{goal.title}</CardTitle>
+                      <CardDescription className="font-medium">{goal.description}</CardDescription>
                     </div>
-                    <Badge variant="outline" className={`${getPriorityColor(goal.priority)} text-white`}>
+                    <Badge variant="outline" className={`${getPriorityColor(goal.priority)} text-white font-medium`}>
                       {getPriorityText(goal.priority)}
                     </Badge>
                   </div>
@@ -179,8 +179,8 @@ export default function GoalsPage() {
                 <CardContent className="space-y-4">
                   <div>
                     <div className="flex justify-between text-sm mb-2">
-                      <span>Progresso: {progress.toFixed(1)}%</span>
-                      <span>
+                      <span className="font-semibold text-foreground">Progresso: {progress.toFixed(1)}%</span>
+                      <span className="font-medium text-muted-foreground">
                         R$ {goal.currentAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} / R${" "}
                         {goal.targetAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </span>
@@ -190,14 +190,20 @@ export default function GoalsPage() {
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Faltam</p>
-                      <p className="font-semibold">
+                      <p className="text-muted-foreground font-medium">Faltam</p>
+                      <p className="font-bold text-red-600 dark:text-red-400">
                         R$ {remaining.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Prazo</p>
-                      <p className="font-semibold flex items-center">
+                      <p className="text-muted-foreground font-medium">Prazo</p>
+                      <p className={`font-bold flex items-center ${
+                        daysUntilDeadline > 30 
+                          ? "text-green-600 dark:text-green-400" 
+                          : daysUntilDeadline > 0 
+                          ? "text-amber-600 dark:text-amber-400" 
+                          : "text-red-600 dark:text-red-400"
+                      }`}>
                         <Calendar className="w-3 h-3 mr-1" />
                         {daysUntilDeadline > 0 ? `${daysUntilDeadline} dias` : "Vencido"}
                       </p>
@@ -205,8 +211,8 @@ export default function GoalsPage() {
                   </div>
 
                   <div className="flex justify-between items-center pt-2">
-                    <Badge variant="secondary">{goal.category}</Badge>
-                    <Button size="sm" variant="outline">
+                    <Badge variant="secondary" className="font-medium">{goal.category}</Badge>
+                    <Button size="sm" variant="outline" className="font-medium">
                       Adicionar Valor
                     </Button>
                   </div>
