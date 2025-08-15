@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Eye, EyeOff, Mail, Lock, Chrome, User, Phone, Building2, Check } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, Chrome, User, Phone, Building2, Check, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { PhoneInput } from "@/components/ui/phone-input"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,9 +27,10 @@ export default function RegisterPage() {
     plan: "basic" as "basic" | "professional",
     openaiKey: "",
   })
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const [step, setStep] = useState(1)
   const router = useRouter()
+  const { loading, signUp, signInWithGoogle } = useAuth()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -35,26 +38,64 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setError("")
 
-    // Simular registro
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/")
-    }, 2000)
+    if (formData.password !== formData.confirmPassword) {
+      setError("As senhas não coincidem")
+      return
+    }
+
+    if (formData.password.length < 8) {
+      setError("A senha deve ter pelo menos 8 caracteres")
+      return
+    }
+
+    const result = await signUp({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      plan: formData.plan,
+      openaiKey: formData.openaiKey || undefined
+    })
+    
+    if (result.success) {
+      alert("Conta criada com sucesso! Verifique seu email para confirmar.")
+      router.push("/login")
+    } else {
+      setError(result.error || "Erro ao criar conta")
+    }
   }
 
   const handleGoogleRegister = async () => {
-    setIsLoading(true)
-
-    // Simular registro com Google
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/")
-    }, 1500)
+    setError("")
+    
+    const result = await signInWithGoogle()
+    
+    if (!result.success) {
+      setError(result.error || "Erro ao registrar com Google")
+    }
+    // Google OAuth will redirect automatically on success
   }
 
   const nextStep = () => {
+    setError("")
+    
+    if (step === 1) {
+      // Validate step 1
+      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+        setError("Preencha todos os campos")
+        return
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError("As senhas não coincidem")
+        return
+      }
+      if (formData.password.length < 8) {
+        setError("A senha deve ter pelo menos 8 caracteres")
+        return
+      }
+    }
+    
     if (step < 3) setStep(step + 1)
   }
 
@@ -67,7 +108,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary mb-2">FinanceApp</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">Moncoy</h1>
           <p className="text-muted-foreground">Crie sua conta e comece a gerenciar suas finanças</p>
         </div>
 
@@ -93,6 +134,12 @@ export default function RegisterPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                {error}
+              </div>
+            )}
+            
             {step === 1 && (
               <>
                 {/* Google Register Button */}
@@ -100,10 +147,14 @@ export default function RegisterPage() {
                   variant="outline"
                   className="w-full h-11 bg-transparent"
                   onClick={handleGoogleRegister}
-                  disabled={isLoading}
+                  disabled={loading}
                 >
-                  <Chrome className="mr-2 h-4 w-4" />
-                  {isLoading ? "Conectando..." : "Continuar com Google"}
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Chrome className="mr-2 h-4 w-4" />
+                  )}
+                  {loading ? "Conectando..." : "Continuar com Google"}
                 </Button>
 
                 <div className="relative">
@@ -128,6 +179,7 @@ export default function RegisterPage() {
                         value={formData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
                         className="pl-10"
+                        autoComplete="name"
                         required
                       />
                     </div>
@@ -144,6 +196,7 @@ export default function RegisterPage() {
                         value={formData.email}
                         onChange={(e) => handleInputChange("email", e.target.value)}
                         className="pl-10"
+                        autoComplete="email"
                         required
                       />
                     </div>
@@ -152,13 +205,11 @@ export default function RegisterPage() {
                   <div className="space-y-2">
                     <Label htmlFor="phone">Telefone</Label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground z-10" />
+                      <PhoneInput
                         id="phone"
-                        type="tel"
-                        placeholder="(11) 99999-9999"
                         value={formData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        onChange={(formatted, unformatted) => handleInputChange("phone", formatted)}
                         className="pl-10"
                         required
                       />
@@ -176,6 +227,7 @@ export default function RegisterPage() {
                         value={formData.password}
                         onChange={(e) => handleInputChange("password", e.target.value)}
                         className="pl-10 pr-10"
+                        autoComplete="new-password"
                         required
                       />
                       <Button
@@ -201,6 +253,7 @@ export default function RegisterPage() {
                         value={formData.confirmPassword}
                         onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                         className="pl-10 pr-10"
+                        autoComplete="new-password"
                         required
                       />
                       <Button
@@ -319,6 +372,7 @@ export default function RegisterPage() {
                       placeholder="sk-..."
                       value={formData.openaiKey}
                       onChange={(e) => handleInputChange("openaiKey", e.target.value)}
+                      autoComplete="off"
                     />
                     <p className="text-xs text-muted-foreground">
                       Necessária para funcionalidades de IA. Pode ser adicionada depois nas configurações.
@@ -350,8 +404,15 @@ export default function RegisterPage() {
                   <Button variant="outline" onClick={prevStep} className="flex-1 bg-transparent">
                     Voltar
                   </Button>
-                  <Button type="submit" className="flex-1" disabled={isLoading}>
-                    {isLoading ? "Criando conta..." : "Criar conta"}
+                  <Button type="submit" className="flex-1" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Criando conta...
+                      </>
+                    ) : (
+                      "Criar conta"
+                    )}
                   </Button>
                 </div>
               </form>

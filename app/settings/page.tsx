@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { AddBankAccountModal } from "@/components/modals/add-bank-account-modal"
 import { Setup2FAModal } from "@/components/modals/setup-2fa-modal"
 import { ExportDataModal } from "@/components/modals/export-data-modal"
@@ -25,16 +26,114 @@ import {
   Brain,
   Eye,
   EyeOff,
+  Save,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSettings } from "@/hooks/use-settings"
 
 export default function SettingsPage() {
-  const [isProfessional] = useState(true) // Simulating professional plan
+  const { user, settings, loading, updateUser, updateSettings, getBankAccounts } = useSettings()
   const [showApiKey, setShowApiKey] = useState(false)
   const [showAddBankModal, setShowAddBankModal] = useState(false)
   const [show2FAModal, setShow2FAModal] = useState(false)
-  const [is2FAEnabled, setIs2FAEnabled] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
+  const [bankAccounts, setBankAccounts] = useState<any[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    email: ''
+  })
+  
+  const [settingsData, setSettingsData] = useState({
+    ai_frequency: 'daily',
+    ai_detail_level: 'advanced',
+    openai_api_key: '',
+    notifications_enabled: true,
+    theme: 'system'
+  })
+  
+  const isProfessional = user?.plan === 'professional'
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || ''
+      })
+    }
+  }, [user])
+  
+  useEffect(() => {
+    if (settings) {
+      setSettingsData({
+        ai_frequency: settings.ai_frequency || 'daily',
+        ai_detail_level: settings.ai_detail_level || 'advanced',
+        openai_api_key: settings.openai_api_key || '',
+        notifications_enabled: settings.notifications_enabled ?? true,
+        theme: settings.theme || 'system'
+      })
+    }
+  }, [settings])
+  
+  useEffect(() => {
+    const loadBankAccounts = async () => {
+      const accounts = await getBankAccounts()
+      setBankAccounts(accounts)
+    }
+    if (user) {
+      loadBankAccounts()
+    }
+  }, [user, getBankAccounts])
+  
+  const handleSaveProfile = async () => {
+    try {
+      setIsSaving(true)
+      await updateUser(formData)
+      alert('Perfil atualizado com sucesso!')
+    } catch (error) {
+      alert('Erro ao atualizar perfil')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+  
+  const handleSaveSettings = async (newSettings: Partial<typeof settingsData>) => {
+    try {
+      await updateSettings(newSettings)
+      setSettingsData(prev => ({ ...prev, ...newSettings }))
+    } catch (error) {
+      alert('Erro ao atualizar configurações')
+    }
+  }
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-64" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
@@ -60,22 +159,52 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" defaultValue="João Silva" />
+                <Input 
+                  id="name" 
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
-                <Input id="email" type="email" defaultValue="joao.silva@email.com" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" defaultValue="(11) 99999-9999" />
+                <Label htmlFor="registration-date">Data de Registro</Label>
+                <Input 
+                  id="registration-date" 
+                  value={user?.registration_date ? new Date(user.registration_date).toLocaleDateString('pt-BR') : ''}
+                  disabled
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="document">CPF/CNPJ</Label>
-                <Input id="document" defaultValue="123.456.789-00" />
+                <Label htmlFor="plan">Plano Atual</Label>
+                <Input 
+                  id="plan" 
+                  value={user?.plan === 'professional' ? 'Profissional' : 'Básico'}
+                  disabled
+                />
               </div>
             </div>
-            <Button className="bg-blue-600 hover:bg-blue-700">Salvar Alterações</Button>
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700" 
+              onClick={handleSaveProfile}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <>
+                  <Save className="w-4 h-4 mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                'Salvar Alterações'
+              )}
+            </Button>
           </CardContent>
         </Card>
 
@@ -93,10 +222,10 @@ export default function SettingsPage() {
               <div className="space-y-1">
                 <Label>Plano Atual</Label>
                 <p className="text-sm text-muted-foreground">
-                  {isProfessional ? "Plano Profissional" : "Plano Pessoal Premium"}
+                  {isProfessional ? "Plano Profissional" : "Plano Básico"}
                 </p>
               </div>
-              <Badge variant="secondary">Ativo</Badge>
+              <Badge variant={isProfessional ? "default" : "secondary"}>Ativo</Badge>
             </div>
             <div className="space-y-2">
               <Label htmlFor="account-type">Tipo de Conta</Label>
@@ -135,28 +264,36 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="ai-model">Modelo de IA</Label>
-                <Select defaultValue="chatgpt">
+                <Label htmlFor="ai-frequency">Frequência de Análise</Label>
+                <Select 
+                  value={settingsData.ai_frequency} 
+                  onValueChange={(value) => {
+                    const newSettings = { ai_frequency: value }
+                    setSettingsData(prev => ({ ...prev, ...newSettings }))
+                    handleSaveSettings(newSettings)
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="v0">v0 (Vercel)</SelectItem>
-                    <SelectItem value="chatgpt">ChatGPT (OpenAI)</SelectItem>
-                    <SelectItem value="gemini">Gemini (Google)</SelectItem>
-                    <SelectItem value="claude">Claude (Anthropic)</SelectItem>
+                    <SelectItem value="daily">Diário</SelectItem>
+                    <SelectItem value="weekly">Semanal</SelectItem>
+                    <SelectItem value="monthly">Mensal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="api-key">Chave API</Label>
+                <Label htmlFor="api-key">Chave API OpenAI</Label>
                 <div className="relative">
                   <Input
                     id="api-key"
                     type={showApiKey ? "text" : "password"}
                     placeholder="sk-..."
-                    defaultValue="sk-1234567890abcdef"
+                    value={settingsData.openai_api_key}
+                    onChange={(e) => setSettingsData(prev => ({ ...prev, openai_api_key: e.target.value }))}
+                    onBlur={() => handleSaveSettings({ openai_api_key: settingsData.openai_api_key })}
                   />
                   <Button
                     type="button"
@@ -173,46 +310,46 @@ export default function SettingsPage() {
                 </p>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>Análise Automática de Comprovantes</Label>
-                  <p className="text-sm text-muted-foreground">Use IA para extrair dados de recibos e comprovantes</p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>Conselhos Financeiros Personalizados</Label>
-                  <p className="text-sm text-muted-foreground">Receba insights e recomendações baseadas em IA</p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>Detecção de Anomalias</Label>
-                  <p className="text-sm text-muted-foreground">Alertas automáticos para gastos incomuns</p>
-                </div>
-                <Switch defaultChecked />
+              <div className="space-y-2">
+                <Label htmlFor="ai-detail">Nível de Detalhamento</Label>
+                <Select 
+                  value={settingsData.ai_detail_level} 
+                  onValueChange={(value) => {
+                    const newSettings = { ai_detail_level: value }
+                    setSettingsData(prev => ({ ...prev, ...newSettings }))
+                    handleSaveSettings(newSettings)
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Básico</SelectItem>
+                    <SelectItem value="intermediate">Intermediário</SelectItem>
+                    <SelectItem value="advanced">Avançado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <Separator />
 
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div className="space-y-1">
-                  <Label className="text-sm font-medium">Status da Conexão</Label>
-                  <p className="text-xs text-muted-foreground">Última verificação: há 2 minutos</p>
+                  <Label className="text-sm font-medium">Status da IA</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {settingsData.openai_api_key ? 'Chave API configurada' : 'Configure sua chave API'}
+                  </p>
                 </div>
                 <Badge
                   variant="secondary"
-                  className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  className={settingsData.openai_api_key ? 
+                    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
+                    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  }
                 >
-                  Conectado
+                  {settingsData.openai_api_key ? 'Configurado' : 'Pendente'}
                 </Badge>
               </div>
-
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">Testar Conexão</Button>
             </CardContent>
           </Card>
         )}
@@ -277,31 +414,37 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label>E-mail</Label>
-                <p className="text-sm text-muted-foreground">Receber notificações por e-mail</p>
+                <Label>Notificações Gerais</Label>
+                <p className="text-sm text-muted-foreground">Receber notificações do sistema</p>
               </div>
-              <Switch defaultChecked />
+              <Switch 
+                checked={settingsData.notifications_enabled}
+                onCheckedChange={(checked) => {
+                  const newSettings = { notifications_enabled: checked }
+                  setSettingsData(prev => ({ ...prev, ...newSettings }))
+                  handleSaveSettings(newSettings)
+                }}
+              />
             </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Push Notifications</Label>
-                <p className="text-sm text-muted-foreground">Notificações no navegador e mobile</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Lembretes de Pagamento</Label>
-                <p className="text-sm text-muted-foreground">Alertas para contas próximas do vencimento</p>
-              </div>
-              <Switch />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Relatórios Mensais</Label>
-                <p className="text-sm text-muted-foreground">Resumo financeiro mensal por e-mail</p>
-              </div>
-              <Switch />
+            <div className="space-y-2">
+              <Label htmlFor="theme">Tema</Label>
+              <Select 
+                value={settingsData.theme} 
+                onValueChange={(value) => {
+                  const newSettings = { theme: value }
+                  setSettingsData(prev => ({ ...prev, ...newSettings }))
+                  handleSaveSettings(newSettings)
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Claro</SelectItem>
+                  <SelectItem value="dark">Escuro</SelectItem>
+                  <SelectItem value="system">Sistema</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -317,42 +460,29 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                    <Building className="w-4 h-4 text-green-600" />
+              {bankAccounts.map((account) => (
+                <div key={account.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                      <Building className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{account.bank_name}</p>
+                      <p className="text-sm text-muted-foreground">{account.account_type}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">Banco do Brasil</p>
-                    <p className="text-sm text-muted-foreground">Conta corrente conectada</p>
-                  </div>
+                  <Badge
+                    variant="secondary"
+                    className={account.is_active ? 
+                      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
+                      "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                    }
+                  >
+                    {account.is_active ? 'Ativo' : 'Inativo'}
+                  </Badge>
                 </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                >
-                  Conectado
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                    <CreditCard className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Nubank</p>
-                    <p className="text-sm text-muted-foreground">Cartão de crédito</p>
-                  </div>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                >
-                  Conectado
-                </Badge>
-              </div>
-
+              ))}
+              
               <div className="flex items-center justify-between p-3 border rounded-lg border-dashed">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
@@ -360,7 +490,7 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <p className="font-medium">Adicionar Nova Conta</p>
-                    <p className="text-sm text-muted-foreground">Conecte mais bancos via Open Finance</p>
+                    <p className="text-sm text-muted-foreground">Conecte mais bancos</p>
                   </div>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => setShowAddBankModal(true)}>
@@ -385,21 +515,16 @@ export default function SettingsPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Label>Autenticação de Dois Fatores</Label>
-                  {is2FAEnabled && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    >
-                      Ativo
-                    </Badge>
-                  )}
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                    Em Breve
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {is2FAEnabled ? "Sua conta está protegida com 2FA via SMS" : "Adicione uma camada extra de segurança"}
+                  Funcionalidade em desenvolvimento
                 </p>
               </div>
-              <Button variant={is2FAEnabled ? "outline" : "default"} size="sm" onClick={() => setShow2FAModal(true)}>
-                {is2FAEnabled ? "Gerenciar" : "Configurar"}
+              <Button variant="outline" size="sm" disabled>
+                Configurar
               </Button>
             </div>
             <Separator />

@@ -2,9 +2,10 @@
 
 import type React from "react"
 
-import { Bell, Check, X, AlertCircle, TrendingUp, CreditCard, Target } from "lucide-react"
+import { Bell, Check, X, AlertCircle, TrendingUp, CreditCard, Target, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,70 +13,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useState } from "react"
-
-interface Notification {
-  id: string
-  type: "info" | "warning" | "success" | "error"
-  title: string
-  message: string
-  time: string
-  read: boolean
-  icon: React.ReactNode
-}
+import { useNotifications } from "@/hooks/use-notifications"
 
 export function NotificationsDropdown() {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      type: "warning",
-      title: "Orçamento Excedido",
-      message: "Você excedeu 90% do orçamento de Alimentação este mês",
-      time: "2 min atrás",
-      read: false,
-      icon: <AlertCircle className="h-4 w-4 text-warning-500" />,
-    },
-    {
-      id: "2",
-      type: "success",
-      title: "Meta Atingida",
-      message: "Parabéns! Você atingiu sua meta de economia mensal",
-      time: "1 hora atrás",
-      read: false,
-      icon: <Target className="h-4 w-4 text-success-500" />,
-    },
-    {
-      id: "3",
-      type: "info",
-      title: "Investimento Valorizado",
-      message: "Suas ações da PETR4 subiram 5% hoje",
-      time: "3 horas atrás",
-      read: false,
-      icon: <TrendingUp className="h-4 w-4 text-primary-500" />,
-    },
-    {
-      id: "4",
-      type: "info",
-      title: "Fatura do Cartão",
-      message: "Fatura do cartão Nubank vence em 3 dias",
-      time: "1 dia atrás",
-      read: true,
-      icon: <CreditCard className="h-4 w-4 text-primary-500" />,
-    },
-  ])
+  const { 
+    notifications, 
+    loading, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead, 
+    deleteNotification,
+    generateSmartNotifications
+  } = useNotifications()
 
-  const unreadCount = notifications.filter((n) => !n.read).length
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'warning':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />
+      case 'success':
+        return <Target className="h-4 w-4 text-green-500" />
+      case 'error':
+        return <X className="h-4 w-4 text-red-500" />
+      default:
+        return <Info className="h-4 w-4 text-blue-500" />
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-  }
-
-  const removeNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    
+    if (diffInMinutes < 1) return 'Agora'
+    if (diffInMinutes < 60) return `${diffInMinutes} min atrás`
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} h atrás`
+    return `${Math.floor(diffInMinutes / 1440)} dia(s) atrás`
   }
 
   return (
@@ -93,17 +65,47 @@ export function NotificationsDropdown() {
       <DropdownMenuContent className="w-80" align="end">
         <div className="flex items-center justify-between p-4">
           <h3 className="font-semibold">Notificações</h3>
-          {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-              <Check className="h-4 w-4 mr-1" />
-              Marcar todas como lidas
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={generateSmartNotifications}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Bell className="h-4 w-4" />
+              )}
             </Button>
-          )}
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                <Check className="h-4 w-4 mr-1" />
+                Marcar todas como lidas
+              </Button>
+            )}
+          </div>
         </div>
         <DropdownMenuSeparator />
         <ScrollArea className="h-96">
-          {notifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">Nenhuma notificação</div>
+          {loading ? (
+            <div className="space-y-4 p-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-start space-x-3">
+                  <Skeleton className="h-4 w-4 rounded-full mt-1" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="p-4 text-center text-muted-foreground">
+              <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>Nenhuma notificação</p>
+            </div>
           ) : (
             notifications.map((notification) => (
               <div
@@ -113,7 +115,7 @@ export function NotificationsDropdown() {
                 }`}
               >
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 mt-1">{notification.icon}</div>
+                  <div className="flex-shrink-0 mt-1">{getIcon(notification.type)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p
@@ -125,14 +127,14 @@ export function NotificationsDropdown() {
                         variant="ghost"
                         size="sm"
                         className="h-6 w-6 p-0"
-                        onClick={() => removeNotification(notification.id)}
+                        onClick={() => deleteNotification(notification.id)}
                       >
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-muted-foreground">{notification.time}</span>
+                      <span className="text-xs text-muted-foreground">{getTimeAgo(notification.created_at)}</span>
                       {!notification.read && (
                         <Button
                           variant="ghost"

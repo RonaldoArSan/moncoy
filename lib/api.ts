@@ -1,5 +1,5 @@
-import { supabase } from './supabase'
-import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User } from './supabase'
+import supabase from './supabase'
+import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction } from './supabase'
 
 // User API functions
 export const userApi = {
@@ -11,22 +11,24 @@ export const userApi = {
       .from('users')
       .select('*')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
     if (error) {
-      // If user doesn't exist in public.users, create profile
-      if (error.code === 'PGRST116') {
-        return await userApi.createUserProfile(user)
-      }
       throw error
     }
+    
+    if (!data) {
+      // If user doesn't exist in public.users, create profile
+      return await userApi.createUserProfile(user)
+    }
+    
     return data
   },
 
   async createUserProfile(authUser: any): Promise<User> {
     const userData = {
       id: authUser.id,
-      name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário',
+      name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário',
       email: authUser.email,
       plan: 'basic' as const,
       registration_date: authUser.created_at
@@ -34,14 +36,19 @@ export const userApi = {
 
     const { data, error } = await supabase
       .from('users')
-      .insert(userData)
+      .upsert(userData, { onConflict: 'id' })
       .select()
       .single()
 
     if (error) throw error
 
-    // Create default categories and settings
-    await userApi.createDefaultData(authUser.id)
+    // Create default categories and settings (only if they don't exist)
+    try {
+      await userApi.createDefaultData(authUser.id)
+    } catch (err) {
+      // Ignore conflicts - data might already exist
+      console.log('Default data already exists or error creating:', err)
+    }
     
     return data
   },
@@ -57,14 +64,15 @@ export const userApi = {
       { name: 'Ações', type: 'investment', color: 'green' }
     ]
 
+    // Use upsert to avoid conflicts
     await supabase
       .from('categories')
-      .insert(defaultCategories.map(cat => ({ ...cat, user_id: userId })))
+      .upsert(defaultCategories.map(cat => ({ ...cat, user_id: userId })), { onConflict: 'user_id,name' })
 
-    // Create default user settings
+    // Create default user settings with upsert
     await supabase
       .from('user_settings')
-      .insert({ user_id: userId })
+      .upsert({ user_id: userId }, { onConflict: 'user_id' })
   },
 
   async updateUser(updates: Partial<User>): Promise<User> {
@@ -87,7 +95,7 @@ export const userApi = {
 export const categoriesApi = {
   async getCategories(type?: string): Promise<Category[]> {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    if (!user) return []
 
     let query = supabase
       .from('categories')
@@ -144,7 +152,7 @@ export const categoriesApi = {
 export const transactionsApi = {
   async getTransactions(limit?: number): Promise<Transaction[]> {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    if (!user) return []
 
     let query = supabase
       .from('transactions')
@@ -210,7 +218,7 @@ export const transactionsApi = {
 export const goalsApi = {
   async getGoals(): Promise<Goal[]> {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    if (!user) return []
 
     const { data, error } = await supabase
       .from('goals')
@@ -271,7 +279,7 @@ export const goalsApi = {
 export const investmentsApi = {
   async getInvestments(): Promise<Investment[]> {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    if (!user) return []
 
     const { data, error } = await supabase
       .from('investments')
@@ -335,6 +343,149 @@ export const investmentsApi = {
 
     if (error) throw error
     return data
+  }
+}
+
+// Recurring Transactions API functions
+export const recurringTransactionsApi = {
+  async getRecurringTransactions(): Promise<RecurringTransaction[]> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data, error } = await supabase
+      .from('recurring_transactions')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  },
+
+  async createRecurringTransaction(transaction: Omit<RecurringTransaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<RecurringTransaction> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('recurring_transactions')
+      .insert({ ...transaction, user_id: user.id })
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async updateRecurringTransaction(id: string, updates: Partial<RecurringTransaction>): Promise<RecurringTransaction> {
+    const { data, error } = await supabase
+      .from('recurring_transactions')
+      .update(updates)
+      .eq('id', id)
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async deleteRecurringTransaction(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('recurring_transactions')
+      .update({ is_active: false })
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  async generateRecurringTransactions(month: number, year: number): Promise<Transaction[]> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    // Get active recurring transactions
+    const { data: recurring, error } = await supabase
+      .from('recurring_transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+
+    if (error) throw error
+    if (!recurring) return []
+
+    const generatedTransactions: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>[] = []
+    const currentDate = new Date(year, month - 1, 1)
+    const endOfMonth = new Date(year, month, 0)
+
+    for (const rec of recurring) {
+      const startDate = new Date(rec.start_date)
+      const endDate = rec.end_date ? new Date(rec.end_date) : null
+
+      // Skip if recurring transaction hasn't started yet or has ended
+      if (startDate > endOfMonth || (endDate && endDate < currentDate)) {
+        continue
+      }
+
+      let transactionDate: Date | null = null
+
+      if (rec.frequency === 'monthly' && rec.day_of_month) {
+        const day = Math.min(rec.day_of_month, endOfMonth.getDate())
+        transactionDate = new Date(year, month - 1, day)
+      } else if (rec.frequency === 'weekly' && rec.day_of_week !== null) {
+        // Find all occurrences of the day in the month
+        const firstDay = new Date(year, month - 1, 1)
+        const firstDayOfWeek = firstDay.getDay()
+        const targetDay = rec.day_of_week
+        
+        let dayDiff = targetDay - firstDayOfWeek
+        if (dayDiff < 0) dayDiff += 7
+        
+        const firstOccurrence = new Date(year, month - 1, 1 + dayDiff)
+        if (firstOccurrence <= endOfMonth) {
+          transactionDate = firstOccurrence
+        }
+      } else if (rec.frequency === 'yearly') {
+        const recurringMonth = startDate.getMonth()
+        const recurringDay = startDate.getDate()
+        
+        if (recurringMonth === month - 1) {
+          transactionDate = new Date(year, month - 1, recurringDay)
+        }
+      }
+
+      if (transactionDate && transactionDate >= startDate && (!endDate || transactionDate <= endDate)) {
+        generatedTransactions.push({
+          description: rec.description,
+          amount: rec.amount,
+          type: rec.type,
+          category_id: rec.category_id,
+          date: transactionDate.toISOString().split('T')[0],
+          status: 'pending',
+          notes: `Transação recorrente: ${rec.notes || ''}`.trim()
+        })
+      }
+    }
+
+    // Create the transactions
+    const createdTransactions: Transaction[] = []
+    for (const transaction of generatedTransactions) {
+      try {
+        const created = await transactionsApi.createTransaction(transaction)
+        createdTransactions.push(created)
+      } catch (error) {
+        console.error('Erro ao criar transação recorrente:', error)
+      }
+    }
+
+    return createdTransactions
   }
 }
 

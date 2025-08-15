@@ -4,13 +4,10 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { NewTransactionModal } from "@/components/modals/new-transaction-modal"
+import { FinancialSummary } from "@/components/financial-summary"
 import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
   Target,
   CreditCard,
-  PiggyBank,
   CheckCircle,
   ArrowUpRight,
   ArrowDownRight,
@@ -18,9 +15,20 @@ import {
   Lightbulb,
   Zap,
 } from "lucide-react"
+import { useFinancialSummary } from "@/hooks/use-financial-summary"
+import { useTransactions } from "@/hooks/use-transactions"
+import { useBudget } from "@/hooks/use-budget"
+import { useInsights } from "@/hooks/use-insights"
 
 export default function Dashboard() {
   const [showNewTransaction, setShowNewTransaction] = useState(false)
+  const summary = useFinancialSummary()
+  const { transactions, loading: transactionsLoading } = useTransactions()
+  const { budgetItems, loading: budgetLoading } = useBudget()
+  const { insights, loading: insightsLoading } = useInsights()
+  
+  // Pegar as 4 transações mais recentes
+  const recentTransactions = transactions.slice(0, 4)
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -33,77 +41,19 @@ export default function Dashboard() {
           </div>
           <div className="text-right">
             <p className="text-sm text-white/70 font-medium">Saldo Total</p>
-            <p className="text-3xl font-bold text-white text-shadow-md">R$ 12.450,00</p>
+            <p className="text-3xl font-bold text-white text-shadow-md">
+              {summary.loading ? "Carregando..." : new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+              }).format(summary.totalBalance)}
+            </p>
+
           </div>
         </div>
       </div>
 
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-green-700 dark:text-green-300">Receitas</CardTitle>
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">R$ 8.500,00</div>
-            <p className="text-xs text-green-600/80 dark:text-green-400/80 flex items-center mt-1 font-medium">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              +12% em relação ao mês passado
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-200 dark:border-red-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-red-700 dark:text-red-300">Despesas</CardTitle>
-            <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-              <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">R$ 3.200,00</div>
-            <p className="text-xs text-red-600/80 dark:text-red-400/80 flex items-center mt-1 font-medium">
-              <ArrowDownRight className="h-3 w-3 mr-1" />
-              -5% em relação ao mês passado
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-blue-700 dark:text-blue-300">Investimentos</CardTitle>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">R$ 25.800,00</div>
-            <p className="text-xs text-blue-600/80 dark:text-blue-400/80 flex items-center mt-1 font-medium">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              +8.5% este mês
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-amber-200 dark:border-amber-800 hover:shadow-lg transition-all duration-300 animate-slide-up">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-amber-700 dark:text-amber-300">Economia</CardTitle>
-            <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
-              <PiggyBank className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">R$ 5.300,00</div>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80 flex items-center mt-1 font-medium">
-              <ArrowUpRight className="h-3 w-3 mr-1" />
-              Meta: 62% atingida
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Cards de Resumo Financeiro */}
+      <FinancialSummary />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Transações Recentes */}
@@ -116,46 +66,81 @@ export default function Dashboard() {
             <CardDescription className="text-muted-foreground font-medium">Suas últimas movimentações financeiras</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { desc: "Salário - Empresa XYZ", valor: "+R$ 5.500,00", tipo: "receita", data: "Hoje" },
-              { desc: "Supermercado ABC", valor: "-R$ 280,50", tipo: "despesa", data: "Ontem" },
-              { desc: "Dividendos ITUB4", valor: "+R$ 45,20", tipo: "receita", data: "2 dias" },
-              { desc: "Conta de Luz", valor: "-R$ 120,00", tipo: "despesa", data: "3 dias" },
-            ].map((transacao, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-full ${
-                      transacao.tipo === "receita"
-                        ? "bg-success-100 dark:bg-success-900"
-                        : "bg-danger-100 dark:bg-danger-900"
-                    }`}
-                  >
-                    {transacao.tipo === "receita" ? (
-                      <ArrowUpRight className="h-4 w-4 text-success-600 dark:text-success-400" />
-                    ) : (
-                      <ArrowDownRight className="h-4 w-4 text-danger-600 dark:text-danger-400" />
-                    )}
+            {transactionsLoading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                      <div className="h-3 w-16 bg-muted animate-pulse rounded" />
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{transacao.desc}</p>
-                    <p className="text-sm text-muted-foreground font-medium">{transacao.data}</p>
-                  </div>
+                  <div className="h-5 w-20 bg-muted animate-pulse rounded" />
                 </div>
-                <span
-                  className={`font-bold text-base ${
-                    transacao.tipo === "receita"
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
-                  }`}
-                >
-                  {transacao.valor}
-                </span>
+              ))
+            ) : recentTransactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nenhuma transação encontrada</p>
               </div>
-            ))}
+            ) : (
+              recentTransactions.map((transaction) => {
+                const transactionDate = new Date(transaction.date)
+                const today = new Date()
+                const diffTime = Math.abs(today.getTime() - transactionDate.getTime())
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                
+                let dateText = ''
+                if (diffDays === 1) {
+                  dateText = 'Hoje'
+                } else if (diffDays === 2) {
+                  dateText = 'Ontem'
+                } else {
+                  dateText = `${diffDays - 1} dias atrás`
+                }
+                
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`p-2 rounded-full ${
+                          transaction.type === "income"
+                            ? "bg-success-100 dark:bg-success-900"
+                            : "bg-danger-100 dark:bg-danger-900"
+                        }`}
+                      >
+                        {transaction.type === "income" ? (
+                          <ArrowUpRight className="h-4 w-4 text-success-600 dark:text-success-400" />
+                        ) : (
+                          <ArrowDownRight className="h-4 w-4 text-danger-600 dark:text-danger-400" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">{transaction.description}</p>
+                        <p className="text-sm text-muted-foreground font-medium">{dateText}</p>
+                      </div>
+                    </div>
+                    <span
+                      className={`font-bold text-base ${
+                        transaction.type === "income"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {transaction.type === "income" ? "+" : "-"}
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(Math.abs(transaction.amount))}
+                    </span>
+                  </div>
+                )
+              })
+            )}
           </CardContent>
         </Card>
 
@@ -169,26 +154,51 @@ export default function Dashboard() {
             <CardDescription className="text-muted-foreground font-medium">Acompanhe seus gastos por categoria</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { categoria: "Alimentação", gasto: 850, limite: 1200, cor: "bg-primary-500" },
-              { categoria: "Transporte", gasto: 420, limite: 600, cor: "bg-secondary-500" },
-              { categoria: "Lazer", gasto: 280, limite: 400, cor: "bg-warning-500" },
-              { categoria: "Saúde", gasto: 150, limite: 300, cor: "bg-success-500" },
-            ].map((item, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-foreground">{item.categoria}</span>
-                  <span className="text-muted-foreground font-medium">
-                    R$ {item.gasto} / R$ {item.limite}
-                  </span>
+            {budgetLoading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                  </div>
+                  <div className="h-2 w-full bg-muted animate-pulse rounded" />
+                  <div className="flex justify-between">
+                    <div className="h-3 w-16 bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-20 bg-muted animate-pulse rounded" />
+                  </div>
                 </div>
-                <Progress value={(item.gasto / item.limite) * 100} className="h-2" />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{Math.round((item.gasto / item.limite) * 100)}% usado</span>
-                  <span>R$ {item.limite - item.gasto} restante</span>
-                </div>
+              ))
+            ) : budgetItems.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nenhum dado de orçamento disponível</p>
               </div>
-            ))}
+            ) : (
+              budgetItems.map((item, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-semibold text-foreground">{item.categoria}</span>
+                    <span className="text-muted-foreground font-medium">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(item.gasto)} / {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(item.limite)}
+                    </span>
+                  </div>
+                  <Progress value={(item.gasto / item.limite) * 100} className="h-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{Math.round((item.gasto / item.limite) * 100)}% usado</span>
+                    <span>{new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format(item.limite - item.gasto)} restante</span>
+                  </div>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
@@ -204,35 +214,69 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                <span className="font-semibold text-green-700 dark:text-green-300">Parabéns!</span>
+            {insightsLoading ? (
+              // Loading skeleton
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="p-4 rounded-lg bg-muted/50 border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-5 h-5 bg-muted animate-pulse rounded" />
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-full bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-3/4 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+              ))
+            ) : insights.length === 0 ? (
+              <div className="col-span-3 text-center py-8 text-muted-foreground">
+                <p>Nenhum insight disponível</p>
               </div>
-              <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                Você economizou 15% mais este mês comparado ao anterior.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
-              <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                <span className="font-semibold text-amber-700 dark:text-amber-300">Dica</span>
-              </div>
-              <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
-                Considere investir R$ 500 extras em renda fixa este mês.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span className="font-semibold text-blue-700 dark:text-blue-300">Oportunidade</span>
-              </div>
-              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-                Seus investimentos estão performando 12% acima da média.
-              </p>
-            </div>
+            ) : (
+              insights.map((insight, index) => {
+                const getInsightStyles = (type: string) => {
+                  switch (type) {
+                    case 'success':
+                      return {
+                        bg: 'bg-green-50 dark:bg-green-950',
+                        border: 'border-green-200 dark:border-green-800',
+                        iconColor: 'text-green-600 dark:text-green-400',
+                        textColor: 'text-green-700 dark:text-green-300'
+                      }
+                    case 'warning':
+                      return {
+                        bg: 'bg-amber-50 dark:bg-amber-950',
+                        border: 'border-amber-200 dark:border-amber-800',
+                        iconColor: 'text-amber-600 dark:text-amber-400',
+                        textColor: 'text-amber-700 dark:text-amber-300'
+                      }
+                    default:
+                      return {
+                        bg: 'bg-blue-50 dark:bg-blue-950',
+                        border: 'border-blue-200 dark:border-blue-800',
+                        iconColor: 'text-blue-600 dark:text-blue-400',
+                        textColor: 'text-blue-700 dark:text-blue-300'
+                      }
+                  }
+                }
+                
+                const styles = getInsightStyles(insight.type)
+                const IconComponent = insight.icon === 'CheckCircle' ? CheckCircle : 
+                                   insight.icon === 'Lightbulb' ? Lightbulb : Zap
+                
+                return (
+                  <div key={index} className={`p-4 rounded-lg ${styles.bg} border ${styles.border}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <IconComponent className={`h-5 w-5 ${styles.iconColor}`} />
+                      <span className={`font-semibold ${styles.textColor}`}>{insight.title}</span>
+                    </div>
+                    <p className={`text-sm ${styles.textColor} font-medium`}>
+                      {insight.message}
+                    </p>
+                  </div>
+                )
+              })
+            )}
           </div>
         </CardContent>
       </Card>

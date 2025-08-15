@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -14,8 +14,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar, Target, Settings } from "lucide-react"
+import { Calendar, Target, Settings, Loader2 } from "lucide-react"
 import { ManageCategoriesModal } from "./manage-categories-modal"
+import { useGoals } from "@/hooks/use-goals"
 
 interface NewGoalModalProps {
   open: boolean
@@ -23,20 +24,17 @@ interface NewGoalModalProps {
 }
 
 export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [targetAmount, setTargetAmount] = useState('')
+  const [currentAmount, setCurrentAmount] = useState('')
+  const [deadline, setDeadline] = useState('')
+  const [categoryId, setCategoryId] = useState('')
   const [priority, setPriority] = useState<"high" | "medium" | "low">("medium")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
-  const categories = [
-    "Emergência",
-    "Viagem",
-    "Imóvel",
-    "Veículo",
-    "Educação",
-    "Investimento",
-    "Aposentadoria",
-    "Lazer",
-    "Outros",
-  ]
+  const { categories, createGoal } = useGoals()
 
   const getPriorityColor = (p: string) => {
     switch (p) {
@@ -51,6 +49,55 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
     }
   }
 
+  const handleSubmit = async () => {
+    if (!title || !targetAmount) {
+      alert('Preencha os campos obrigatórios')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await createGoal({
+        title,
+        description: description || undefined,
+        target_amount: parseFloat(targetAmount),
+        current_amount: parseFloat(currentAmount) || 0,
+        deadline: deadline || undefined,
+        category_id: categoryId || undefined,
+        priority,
+        is_completed: false
+      })
+      
+      // Reset form
+      setTitle('')
+      setDescription('')
+      setTargetAmount('')
+      setCurrentAmount('')
+      setDeadline('')
+      setCategoryId('')
+      setPriority('medium')
+      
+      onOpenChange(false)
+    } catch (error) {
+      alert('Erro ao criar meta')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!open) {
+      // Reset form when modal closes
+      setTitle('')
+      setDescription('')
+      setTargetAmount('')
+      setCurrentAmount('')
+      setDeadline('')
+      setCategoryId('')
+      setPriority('medium')
+    }
+  }, [open])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -64,29 +111,58 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="title">Título da Meta</Label>
-            <Input id="title" placeholder="Ex: Reserva de emergência, Viagem..." />
+            <Input 
+              id="title" 
+              placeholder="Ex: Reserva de emergência, Viagem..." 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="description">Descrição</Label>
-            <Textarea id="description" placeholder="Descreva sua meta em detalhes..." />
+            <Textarea 
+              id="description" 
+              placeholder="Descreva sua meta em detalhes..." 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="target-amount">Valor Alvo</Label>
-              <Input id="target-amount" type="number" placeholder="0,00" step="0.01" />
+              <Input 
+                id="target-amount" 
+                type="number" 
+                placeholder="0,00" 
+                step="0.01" 
+                value={targetAmount}
+                onChange={(e) => setTargetAmount(e.target.value)}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="current-amount">Valor Atual</Label>
-              <Input id="current-amount" type="number" placeholder="0,00" step="0.01" />
+              <Input 
+                id="current-amount" 
+                type="number" 
+                placeholder="0,00" 
+                step="0.01" 
+                value={currentAmount}
+                onChange={(e) => setCurrentAmount(e.target.value)}
+              />
             </div>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="deadline">Data Limite</Label>
             <div className="relative">
-              <Input id="deadline" type="date" />
+              <Input 
+                id="deadline" 
+                type="date" 
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+              />
               <Calendar className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             </div>
           </div>
@@ -104,14 +180,14 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
                 Gerenciar
               </Button>
             </div>
-            <Select>
+            <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
-                  <SelectItem key={category} value={category.toLowerCase()}>
-                    {category}
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -152,8 +228,19 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button className={getPriorityColor(priority)} onClick={() => onOpenChange(false)}>
-            Criar Meta
+          <Button 
+            className={getPriorityColor(priority)} 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              'Criar Meta'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

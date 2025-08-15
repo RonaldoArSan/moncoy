@@ -5,99 +5,38 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { NewTransactionModal } from "@/components/modals/new-transaction-modal"
 import { ExportModal } from "@/components/modals/export-modal"
-import { Search, Download, PlusCircle } from "lucide-react"
+import { Search, Download, PlusCircle, Trash2 } from "lucide-react"
 import { useState } from "react"
+import { useTransactions } from "@/hooks/use-transactions"
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCategory, setFilterCategory] = useState("all")
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
-
-  const transactions = [
-    {
-      id: 1,
-      date: "2024-01-15",
-      description: "Salário",
-      category: "Receita",
-      amount: 8500.0,
-      type: "income",
-      status: "completed",
-    },
-    {
-      id: 2,
-      date: "2024-01-14",
-      description: "Supermercado Extra",
-      category: "Alimentação",
-      amount: -320.5,
-      type: "expense",
-      status: "completed",
-    },
-    {
-      id: 3,
-      date: "2024-01-13",
-      description: "Posto Shell",
-      category: "Transporte",
-      amount: -180.0,
-      type: "expense",
-      status: "completed",
-    },
-    {
-      id: 4,
-      date: "2024-01-12",
-      description: "Freelance Design",
-      category: "Receita Extra",
-      amount: 1200.0,
-      type: "income",
-      status: "completed",
-    },
-    {
-      id: 5,
-      date: "2024-01-11",
-      description: "Netflix",
-      category: "Entretenimento",
-      amount: -29.9,
-      type: "expense",
-      status: "completed",
-    },
-    {
-      id: 6,
-      date: "2024-01-10",
-      description: "Farmácia",
-      category: "Saúde",
-      amount: -85.3,
-      type: "expense",
-      status: "completed",
-    },
-    {
-      id: 7,
-      date: "2024-01-09",
-      description: "Restaurante",
-      category: "Alimentação",
-      amount: -120.0,
-      type: "expense",
-      status: "completed",
-    },
-    {
-      id: 8,
-      date: "2024-01-08",
-      description: "Uber",
-      category: "Transporte",
-      amount: -25.5,
-      type: "expense",
-      status: "completed",
-    },
-  ]
-
-  const categories = ["all", "Receita", "Alimentação", "Transporte", "Entretenimento", "Saúde", "Receita Extra"]
+  
+  const { transactions, categories, loading, deleteTransaction, refreshTransactions } = useTransactions()
+  
+  const categoryOptions = ["all", ...categories.map(c => c.name)]
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = filterCategory === "all" || transaction.category === filterCategory
+    const matchesCategory = filterCategory === "all" || transaction.category?.name === filterCategory
     return matchesSearch && matchesCategory
   })
+
+  const handleDeleteTransaction = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir esta transação?')) {
+      try {
+        await deleteTransaction(id)
+      } catch (error) {
+        alert('Erro ao excluir transação')
+      }
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
@@ -143,7 +82,7 @@ export default function TransactionsPage() {
                   <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
+                  {categoryOptions.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category === "all" ? "Todas as categorias" : category}
                     </SelectItem>
@@ -165,47 +104,90 @@ export default function TransactionsPage() {
             <CardDescription>{filteredTransactions.length} transação(ões) encontrada(s)</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {filteredTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={`w-3 h-3 rounded-full ${transaction.type === "income" ? "bg-green-500" : "bg-red-500"}`}
-                    />
-                    <div>
-                      <p className="font-medium">{transaction.description}</p>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>{transaction.date}</span>
-                        <span>•</span>
-                        <Badge variant="secondary" className="text-xs">
-                          {transaction.category}
-                        </Badge>
+            {loading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <Skeleton className="w-3 h-3 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24" />
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div
-                      className={`font-bold text-lg ${transaction.type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                    >
-                      {transaction.type === "income" ? "+" : ""}R${" "}
-                      {Math.abs(transaction.amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    <div className="text-right space-y-2">
+                      <Skeleton className="h-5 w-20" />
+                      <Skeleton className="h-4 w-16" />
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      {transaction.status === "completed" ? "Concluída" : "Pendente"}
-                    </Badge>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : filteredTransactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nenhuma transação encontrada</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTransactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div
+                        className={`w-3 h-3 rounded-full ${transaction.type === "income" ? "bg-green-500" : "bg-red-500"}`}
+                      />
+                      <div>
+                        <p className="font-medium">{transaction.description}</p>
+                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                          <span>{new Date(transaction.date).toLocaleDateString('pt-BR')}</span>
+                          <span>•</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {transaction.category?.name || 'Sem categoria'}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <div
+                          className={`font-bold text-lg ${transaction.type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                        >
+                          {transaction.type === "income" ? "+" : "-"}R${" "}
+                          {Math.abs(transaction.amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {transaction.status === "completed" ? "Concluída" : "Pendente"}
+                        </Badge>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteTransaction(transaction.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
       {/* Modals */}
-      <NewTransactionModal open={isTransactionModalOpen} onOpenChange={setIsTransactionModalOpen} />
+      <NewTransactionModal 
+        open={isTransactionModalOpen} 
+        onOpenChange={(open) => {
+          setIsTransactionModalOpen(open)
+          if (!open) {
+            // Recarregar transações quando o modal for fechado
+            refreshTransactions()
+          }
+        }}
+      />
       <ExportModal
         open={isExportModalOpen}
         onOpenChange={setIsExportModalOpen}

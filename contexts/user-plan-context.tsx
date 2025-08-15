@@ -53,7 +53,7 @@ const planFeatures: Record<UserPlan, UserPlanFeatures> = {
 const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined)
 
 export function UserPlanProvider({ children }: { children: React.ReactNode }) {
-  const [currentPlan, setCurrentPlan] = useState<UserPlan>("professional")
+  const [currentPlan, setCurrentPlan] = useState<UserPlan>("basic")
 
   const features = planFeatures[currentPlan]
 
@@ -85,7 +85,7 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Simulate loading user plan from API
+    // Load user plan from localStorage only
     const savedPlan = localStorage.getItem("userPlan") as UserPlan
     if (savedPlan && (savedPlan === "basic" || savedPlan === "professional")) {
       setCurrentPlan(savedPlan)

@@ -1,14 +1,14 @@
-import type React from "react"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import ClientLayout from "./client-layout"
+import type React from "react";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import ClientLayout from "./client-layout";
 
-import "./globals.css"
+import "./globals.css";
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
@@ -25,9 +25,9 @@ html {
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
-  )
+  );
 }
 
 export const metadata = {
-      generator: 'v0.dev'
-    };
+  generator: "v0.dev",
+};

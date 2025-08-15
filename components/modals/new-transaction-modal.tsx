@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, Upload, Camera, FileText, Loader2, Crown, X, Settings } from "lucide-react"
 import { ManageCategoriesModal } from "./manage-categories-modal"
 import { useUserPlan, useFeatureAccess } from "@/contexts/user-plan-context"
+import { useTransactions } from "@/hooks/use-transactions"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface NewTransactionModalProps {
   open: boolean
@@ -27,6 +29,17 @@ interface NewTransactionModalProps {
 
 export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalProps) {
   const [type, setType] = useState<"income" | "expense">("expense")
+  const [description, setDescription] = useState("")
+  const [amount, setAmount] = useState("")
+  const [categoryId, setCategoryId] = useState("")
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [notes, setNotes] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRecurring, setIsRecurring] = useState(false)
+  const [frequency, setFrequency] = useState<"monthly" | "weekly" | "yearly">("monthly")
+  const [dayOfMonth, setDayOfMonth] = useState(1)
+  const [dayOfWeek, setDayOfWeek] = useState(0)
+  const [endDate, setEndDate] = useState("")
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [extractedData, setExtractedData] = useState<any>(null)
@@ -34,11 +47,9 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
 
   const { currentPlan } = useUserPlan()
   const hasReceiptAnalysis = useFeatureAccess("receiptAnalysis")
-
-  const categories = {
-    income: ["Salário", "Freelance", "Investimentos", "Outros"],
-    expense: ["Alimentação", "Transporte", "Moradia", "Lazer", "Saúde", "Educação", "Outros"],
-  }
+  const { categories, createTransaction, refreshCategories, createRecurringTransaction } = useTransactions()
+  
+  const filteredCategories = categories.filter(c => c.type === type)
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -70,10 +81,98 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
 
   const applyExtractedData = () => {
     if (extractedData) {
-      // In a real app, this would populate the form fields
-      console.log("Applying extracted data:", extractedData)
+      setDescription(extractedData.description)
+      setAmount(extractedData.amount.toString())
+      setDate(extractedData.date)
     }
   }
+
+  const handleSubmit = async () => {
+    if (!description || !amount || !date) {
+      alert('Preencha todos os campos obrigatórios')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      if (isRecurring) {
+        // Criar a recorrência
+        await createRecurringTransaction({
+          description,
+          amount: parseFloat(amount),
+          type,
+          category_id: categoryId || undefined,
+          frequency,
+          start_date: date,
+          end_date: endDate || undefined,
+          day_of_month: frequency === 'monthly' ? dayOfMonth : undefined,
+          day_of_week: frequency === 'weekly' ? dayOfWeek : undefined,
+          is_active: true,
+          notes: notes || undefined
+        })
+        
+        // Criar também a primeira transação
+        const newTransaction = await createTransaction({
+          description,
+          amount: parseFloat(amount),
+          type,
+          category_id: categoryId || undefined,
+          date,
+          status: 'completed',
+          notes: `Transação recorrente: ${notes || ''}`.trim()
+        })
+      } else {
+        const newTransaction = await createTransaction({
+          description,
+          amount: parseFloat(amount),
+          type,
+          category_id: categoryId || undefined,
+          date,
+          status: 'completed',
+          notes: notes || undefined
+        })
+      }
+      
+      // Reset form
+      setDescription('')
+      setAmount('')
+      setCategoryId('')
+      setDate(new Date().toISOString().split('T')[0])
+      setNotes('')
+      setIsRecurring(false)
+      setFrequency('monthly')
+      setDayOfMonth(1)
+      setDayOfWeek(0)
+      setEndDate('')
+      setUploadedFile(null)
+      setExtractedData(null)
+      
+      onOpenChange(false)
+    } catch (error) {
+      alert('Erro ao criar transação')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!open) {
+      // Reset form when modal closes
+      setDescription('')
+      setAmount('')
+      setCategoryId('')
+      setDate(new Date().toISOString().split('T')[0])
+      setNotes('')
+      setIsRecurring(false)
+      setFrequency('monthly')
+      setDayOfMonth(1)
+      setDayOfWeek(0)
+      setEndDate('')
+      setUploadedFile(null)
+      setExtractedData(null)
+      setType('expense')
+    }
+  }, [open])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -205,12 +304,24 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
 
           <div className="grid gap-2">
             <Label htmlFor="description">Descrição</Label>
-            <Input id="description" placeholder="Ex: Supermercado, Salário..." />
+            <Input 
+              id="description" 
+              placeholder="Ex: Supermercado, Salário..." 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="amount">Valor</Label>
-            <Input id="amount" type="number" placeholder="0,00" step="0.01" />
+            <Input 
+              id="amount" 
+              type="number" 
+              placeholder="0,00" 
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
           </div>
 
           <div className="grid gap-2">
@@ -226,14 +337,14 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
                 Gerenciar
               </Button>
             </div>
-            <Select>
+            <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
-                {categories[type].map((category) => (
-                  <SelectItem key={category} value={category.toLowerCase()}>
-                    {category}
+                {filteredCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -243,14 +354,101 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           <div className="grid gap-2">
             <Label htmlFor="date">Data</Label>
             <div className="relative">
-              <Input id="date" type="date" />
+              <Input 
+                id="date" 
+                type="date" 
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
               <Calendar className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             </div>
           </div>
 
           <div className="grid gap-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="recurring" 
+                checked={isRecurring}
+                onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
+              />
+              <Label htmlFor="recurring">Transação recorrente</Label>
+            </div>
+          </div>
+
+          {isRecurring && (
+            <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+              <h4 className="font-medium">Configurações de Recorrência</h4>
+              
+              <div className="grid gap-2">
+                <Label>Frequência</Label>
+                <Select value={frequency} onValueChange={(value: "monthly" | "weekly" | "yearly") => setFrequency(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Mensal</SelectItem>
+                    <SelectItem value="weekly">Semanal</SelectItem>
+                    <SelectItem value="yearly">Anual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {frequency === 'monthly' && (
+                <div className="grid gap-2">
+                  <Label>Dia do mês</Label>
+                  <Select value={dayOfMonth.toString()} onValueChange={(value) => setDayOfMonth(parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                        <SelectItem key={day} value={day.toString()}>Dia {day}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {frequency === 'weekly' && (
+                <div className="grid gap-2">
+                  <Label>Dia da semana</Label>
+                  <Select value={dayOfWeek.toString()} onValueChange={(value) => setDayOfWeek(parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Domingo</SelectItem>
+                      <SelectItem value="1">Segunda</SelectItem>
+                      <SelectItem value="2">Terça</SelectItem>
+                      <SelectItem value="3">Quarta</SelectItem>
+                      <SelectItem value="4">Quinta</SelectItem>
+                      <SelectItem value="5">Sexta</SelectItem>
+                      <SelectItem value="6">Sábado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div className="grid gap-2">
+                <Label htmlFor="end-date">Data de término (opcional)</Label>
+                <Input 
+                  id="end-date" 
+                  type="date" 
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="grid gap-2">
             <Label htmlFor="notes">Observações (opcional)</Label>
-            <Textarea id="notes" placeholder="Adicione detalhes sobre esta transação..." />
+            <Textarea 
+              id="notes" 
+              placeholder="Adicione detalhes sobre esta transação..." 
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>
@@ -259,13 +457,31 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           </Button>
           <Button
             className={type === "income" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
-            onClick={() => onOpenChange(false)}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
           >
-            Adicionar {type === "income" ? "Receita" : "Despesa"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              `Adicionar ${isRecurring ? 'Recorrência' : (type === "income" ? "Receita" : "Despesa")}`
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
-      <ManageCategoriesModal open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen} type={type} />
+      <ManageCategoriesModal 
+        open={isCategoryModalOpen} 
+        onOpenChange={(open) => {
+          setIsCategoryModalOpen(open)
+          if (!open) {
+            // Recarregar categorias quando o modal for fechado
+            refreshCategories()
+          }
+        }} 
+        type={type} 
+      />
     </Dialog>
   )
 }

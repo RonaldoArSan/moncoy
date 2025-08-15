@@ -8,36 +8,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, Mail, Lock, Chrome } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, Chrome, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const router = useRouter()
+  const { loading, signIn, signInWithGoogle } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setError("")
 
-    // Simular login
-    setTimeout(() => {
-      setIsLoading(false)
+    const result = await signIn(email, password)
+    
+    if (result.success) {
       router.push("/")
-    }, 2000)
+    } else {
+      setError(result.error || "Erro ao fazer login")
+    }
   }
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true)
-
-    // Simular login com Google
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/")
-    }, 1500)
+    setError("")
+    
+    const result = await signInWithGoogle()
+    
+    if (!result.success) {
+      setError(result.error || "Erro ao fazer login com Google")
+    }
+    // Google OAuth will redirect automatically on success
   }
 
   return (
@@ -45,7 +50,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary mb-2">FinanceApp</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">Moncoy</h1>
           <p className="text-muted-foreground">Gerencie suas finanças com inteligência</p>
         </div>
 
@@ -55,15 +60,25 @@ export default function LoginPage() {
             <CardDescription className="text-center">Entre com seu email e senha ou use o Google</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                {error}
+              </div>
+            )}
+            
             {/* Google Login Button */}
             <Button
               variant="outline"
               className="w-full h-11 bg-transparent"
               onClick={handleGoogleLogin}
-              disabled={isLoading}
+              disabled={loading}
             >
-              <Chrome className="mr-2 h-4 w-4" />
-              {isLoading ? "Conectando..." : "Continuar com Google"}
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Chrome className="mr-2 h-4 w-4" />
+              )}
+              {loading ? "Conectando..." : "Continuar com Google"}
             </Button>
 
             <div className="relative">
@@ -88,6 +103,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
+                    autoComplete="email"
                     required
                   />
                 </div>
@@ -104,6 +120,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10"
+                    autoComplete="current-password"
                     required
                   />
                   <Button
@@ -124,8 +141,15 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full h-11" disabled={isLoading}>
-                {isLoading ? "Entrando..." : "Entrar"}
+              <Button type="submit" className="w-full h-11" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
               </Button>
             </form>
 

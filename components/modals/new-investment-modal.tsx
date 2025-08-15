@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -14,8 +14,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar, TrendingUp, Settings } from "lucide-react"
+import { Calendar, TrendingUp, Settings, Loader2 } from "lucide-react"
 import { ManageCategoriesModal } from "./manage-categories-modal"
+import { useInvestments } from "@/hooks/use-investments"
 
 interface NewInvestmentModalProps {
   open: boolean
@@ -23,10 +24,72 @@ interface NewInvestmentModalProps {
 }
 
 export function NewInvestmentModal({ open, onOpenChange }: NewInvestmentModalProps) {
-  const [type, setType] = useState<"buy" | "sell">("buy")
+  const [assetName, setAssetName] = useState('')
+  const [assetType, setAssetType] = useState('')
+  const [quantity, setQuantity] = useState('')
+  const [price, setPrice] = useState('')
+  const [broker, setBroker] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
-  const investmentTypes = ["Ações", "FII", "ETF", "Renda Fixa", "Criptomoedas", "Fundos", "Outros"]
+  const { categories, createInvestment } = useInvestments()
+  
+  const assetTypes = [
+    { value: 'stocks', label: 'Ações' },
+    { value: 'fii', label: 'FII' },
+    { value: 'etf', label: 'ETF' },
+    { value: 'fixed_income', label: 'Renda Fixa' },
+    { value: 'crypto', label: 'Criptomoedas' },
+    { value: 'funds', label: 'Fundos' },
+    { value: 'others', label: 'Outros' }
+  ]
+
+  const handleSubmit = async () => {
+    if (!assetName || !assetType || !quantity || !price) {
+      alert('Preencha todos os campos obrigatórios')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await createInvestment({
+        asset_name: assetName,
+        asset_type: assetType as any,
+        quantity: parseInt(quantity),
+        avg_price: parseFloat(price),
+        current_price: parseFloat(price),
+        broker: broker || undefined,
+        category_id: categoryId || undefined
+      })
+      
+      // Reset form
+      setAssetName('')
+      setAssetType('')
+      setQuantity('')
+      setPrice('')
+      setBroker('')
+      setCategoryId('')
+      
+      onOpenChange(false)
+    } catch (error) {
+      alert('Erro ao criar investimento')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!open) {
+      // Reset form when modal closes
+      setAssetName('')
+      setAssetType('')
+      setQuantity('')
+      setPrice('')
+      setBroker('')
+      setCategoryId('')
+    }
+  }, [open])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,26 +104,15 @@ export function NewInvestmentModal({ open, onOpenChange }: NewInvestmentModalPro
 
         <div className="flex-1 overflow-y-auto px-1">
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant={type === "buy" ? "default" : "outline"}
-                onClick={() => setType("buy")}
-                className={type === "buy" ? "bg-green-600 hover:bg-green-700" : ""}
-              >
-                Compra
-              </Button>
-              <Button
-                variant={type === "sell" ? "default" : "outline"}
-                onClick={() => setType("sell")}
-                className={type === "sell" ? "bg-red-600 hover:bg-red-700" : ""}
-              >
-                Venda
-              </Button>
-            </div>
 
             <div className="grid gap-2">
               <Label htmlFor="asset-name">Nome do Ativo</Label>
-              <Input id="asset-name" placeholder="Ex: PETR4, HASH11, IVVB11..." />
+              <Input 
+                id="asset-name" 
+                placeholder="Ex: PETR4, HASH11, IVVB11..." 
+                value={assetName}
+                onChange={(e) => setAssetName(e.target.value)}
+              />
             </div>
 
             <div className="grid gap-2">
@@ -76,14 +128,14 @@ export function NewInvestmentModal({ open, onOpenChange }: NewInvestmentModalPro
                   Gerenciar
                 </Button>
               </div>
-              <Select>
+              <Select value={assetType} onValueChange={setAssetType}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {investmentTypes.map((investmentType) => (
-                    <SelectItem key={investmentType} value={investmentType.toLowerCase()}>
-                      {investmentType}
+                  {assetTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -93,35 +145,76 @@ export function NewInvestmentModal({ open, onOpenChange }: NewInvestmentModalPro
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="quantity">Quantidade</Label>
-                <Input id="quantity" type="number" placeholder="0" step="1" />
+                <Input 
+                  id="quantity" 
+                  type="number" 
+                  placeholder="0" 
+                  step="1" 
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="price">Preço Unitário</Label>
-                <Input id="price" type="number" placeholder="0,00" step="0.01" />
+                <Input 
+                  id="price" 
+                  type="number" 
+                  placeholder="0,00" 
+                  step="0.01" 
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
               </div>
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="total-value">Valor Total</Label>
-              <Input id="total-value" type="number" placeholder="0,00" step="0.01" />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="date">Data da Operação</Label>
-              <div className="relative">
-                <Input id="date" type="date" />
-                <Calendar className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-              </div>
+              <Input 
+                id="total-value" 
+                type="number" 
+                placeholder="0,00" 
+                step="0.01" 
+                value={quantity && price ? (parseFloat(quantity) * parseFloat(price)).toFixed(2) : ''}
+                readOnly
+                className="bg-muted"
+              />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="broker">Corretora</Label>
-              <Input id="broker" placeholder="Ex: XP, Rico, Clear..." />
+              <Input 
+                id="broker" 
+                placeholder="Ex: XP, Rico, Clear..." 
+                value={broker}
+                onChange={(e) => setBroker(e.target.value)}
+              />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="notes">Observações (opcional)</Label>
-              <Textarea id="notes" placeholder="Adicione detalhes sobre esta operação..." className="min-h-[60px]" />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="category">Categoria</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  className="h-6 px-2 text-xs"
+                >
+                  <Settings className="w-3 h-3 mr-1" />
+                  Gerenciar
+                </Button>
+              </div>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -131,10 +224,18 @@ export function NewInvestmentModal({ open, onOpenChange }: NewInvestmentModalPro
             Cancelar
           </Button>
           <Button
-            className={type === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
-            onClick={() => onOpenChange(false)}
+            className="bg-green-600 hover:bg-green-700"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
           >
-            Registrar {type === "buy" ? "Compra" : "Venda"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              'Registrar Investimento'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -42,7 +42,7 @@ export function Sidebar() {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-center h-16 px-4 border-b">
-            <h2 className="text-lg font-semibold">FinanceApp</h2>
+            <h2 className="text-lg font-semibold">MONCOY</h2>
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-2">

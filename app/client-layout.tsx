@@ -3,6 +3,7 @@
 import type React from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { UserPlanProvider } from "@/contexts/user-plan-context"
+import { SettingsProvider } from "@/contexts/settings-context"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { usePathname } from "next/navigation"
@@ -23,10 +24,10 @@ export default function ClientLayout({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      {/* <CHANGE> Added UserPlanProvider to wrap the entire app */}
-      <UserPlanProvider>
-        {isAuthPage ? (
-          <main className="min-h-screen bg-background">{children}</main>
+      <SettingsProvider>
+        <UserPlanProvider>
+          {isAuthPage ? (
+            <main className="min-h-screen bg-background">{children}</main>
         ) : (
           <div className="flex h-screen bg-background">
             <Sidebar />
@@ -36,7 +37,8 @@ export default function ClientLayout({
             </div>
           </div>
         )}
-      </UserPlanProvider>
+        </UserPlanProvider>
+      </SettingsProvider>
     </ThemeProvider>
   )
 }

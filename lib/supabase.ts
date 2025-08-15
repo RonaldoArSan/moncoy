@@ -1,9 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
-
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Types based on our database schema
 export interface User {
@@ -124,3 +122,24 @@ export interface UserSettings {
   created_at: string
   updated_at: string
 }
+
+export interface RecurringTransaction {
+  id: string
+  user_id: string
+  description: string
+  amount: number
+  type: 'income' | 'expense'
+  category_id?: string
+  frequency: 'monthly' | 'weekly' | 'yearly'
+  start_date: string
+  end_date?: string
+  day_of_month?: number
+  day_of_week?: number
+  is_active: boolean
+  notes?: string
+  created_at: string
+  updated_at: string
+  category?: Category
+}
+
+export default supabase

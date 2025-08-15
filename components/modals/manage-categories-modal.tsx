@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, X, Edit2, Save, DeleteIcon as Cancel } from "lucide-react"
+import { Plus, X, Edit2, Save, DeleteIcon as Cancel, Loader2 } from "lucide-react"
+import { categoriesApi } from "@/lib/api"
+import type { Category } from "@/lib/supabase"
 
 interface ManageCategoriesModalProps {
   open: boolean
@@ -25,53 +27,9 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
   const [newCategory, setNewCategory] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState("")
-
-  // Mock categories data - in real app this would come from state/API
-  const [categories, setCategories] = useState(() => {
-    switch (type) {
-      case "income":
-        return [
-          { id: "1", name: "Salário", color: "green" },
-          { id: "2", name: "Freelance", color: "blue" },
-          { id: "3", name: "Investimentos", color: "purple" },
-          { id: "4", name: "Outros", color: "gray" },
-        ]
-      case "expense":
-        return [
-          { id: "1", name: "Alimentação", color: "orange" },
-          { id: "2", name: "Transporte", color: "blue" },
-          { id: "3", name: "Moradia", color: "green" },
-          { id: "4", name: "Lazer", color: "purple" },
-          { id: "5", name: "Saúde", color: "red" },
-          { id: "6", name: "Educação", color: "indigo" },
-          { id: "7", name: "Outros", color: "gray" },
-        ]
-      case "goal":
-        return [
-          { id: "1", name: "Emergência", color: "red" },
-          { id: "2", name: "Viagem", color: "blue" },
-          { id: "3", name: "Imóvel", color: "green" },
-          { id: "4", name: "Veículo", color: "orange" },
-          { id: "5", name: "Educação", color: "indigo" },
-          { id: "6", name: "Investimento", color: "purple" },
-          { id: "7", name: "Aposentadoria", color: "gray" },
-          { id: "8", name: "Lazer", color: "pink" },
-          { id: "9", name: "Outros", color: "gray" },
-        ]
-      case "investment":
-        return [
-          { id: "1", name: "Ações", color: "green" },
-          { id: "2", name: "FII", color: "blue" },
-          { id: "3", name: "ETF", color: "purple" },
-          { id: "4", name: "Renda Fixa", color: "orange" },
-          { id: "5", name: "Criptomoedas", color: "yellow" },
-          { id: "6", name: "Fundos", color: "indigo" },
-          { id: "7", name: "Outros", color: "gray" },
-        ]
-      default:
-        return []
-    }
-  })
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const colorOptions = [
     { value: "red", label: "Vermelho", class: "bg-red-500" },
@@ -86,6 +44,12 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
   ]
 
   const [selectedColor, setSelectedColor] = useState("blue")
+
+  useEffect(() => {
+    if (open) {
+      loadCategories()
+    }
+  }, [open, type])
 
   const getTypeTitle = () => {
     switch (type) {
@@ -102,34 +66,72 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
     }
   }
 
-  const addCategory = () => {
-    if (newCategory.trim()) {
-      const newCat = {
-        id: Date.now().toString(),
-        name: newCategory.trim(),
-        color: selectedColor,
-      }
-      setCategories([...categories, newCat])
-      setNewCategory("")
-      setSelectedColor("blue")
+  const loadCategories = async () => {
+    try {
+      setLoading(true)
+      const data = await categoriesApi.getCategories(type)
+      setCategories(data)
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const removeCategory = (id: string) => {
-    setCategories(categories.filter((cat) => cat.id !== id))
+  const addCategory = async () => {
+    if (!newCategory.trim()) return
+    
+    try {
+      setSubmitting(true)
+      const newCat = await categoriesApi.createCategory({
+        name: newCategory.trim(),
+        type,
+        color: selectedColor
+      })
+      setCategories([...categories, newCat])
+      setNewCategory("")
+      setSelectedColor("blue")
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error)
+      alert('Erro ao criar categoria')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const startEditing = (category: any) => {
+  const removeCategory = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta categoria?')) return
+    
+    try {
+      await categoriesApi.deleteCategory(id)
+      setCategories(categories.filter((cat) => cat.id !== id))
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error)
+      alert('Erro ao excluir categoria')
+    }
+  }
+
+  const startEditing = (category: Category) => {
     setEditingId(category.id)
     setEditingName(category.name)
   }
 
-  const saveEdit = () => {
-    if (editingName.trim()) {
-      setCategories(categories.map((cat) => (cat.id === editingId ? { ...cat, name: editingName.trim() } : cat)))
+  const saveEdit = async () => {
+    if (!editingName.trim() || !editingId) return
+    
+    try {
+      const updatedCategory = await categoriesApi.updateCategory(editingId, {
+        name: editingName.trim()
+      })
+      setCategories(categories.map((cat) => 
+        cat.id === editingId ? updatedCategory : cat
+      ))
+      setEditingId(null)
+      setEditingName("")
+    } catch (error) {
+      console.error('Erro ao atualizar categoria:', error)
+      alert('Erro ao atualizar categoria')
     }
-    setEditingId(null)
-    setEditingName("")
   }
 
   const cancelEdit = () => {
@@ -193,9 +195,13 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={addCategory} className="w-full" disabled={!newCategory.trim()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Categoria
+              <Button onClick={addCategory} className="w-full" disabled={!newCategory.trim() || submitting}>
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Plus className="w-4 h-4 mr-2" />
+                )}
+                {submitting ? 'Adicionando...' : 'Adicionar Categoria'}
               </Button>
             </div>
           </div>
@@ -204,53 +210,63 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
           <div className="space-y-3">
             <h4 className="font-medium">Categorias Existentes ({categories.length})</h4>
             <div className="space-y-2 max-h-60 overflow-y-auto">
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full ${getColorClass(category.color)}`} />
-                    {editingId === category.id ? (
-                      <Input
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        className="h-8 w-40"
-                        onKeyPress={(e) => e.key === "Enter" && saveEdit()}
-                        autoFocus
-                      />
-                    ) : (
-                      <span className="font-medium">{category.name}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {editingId === category.id ? (
-                      <>
-                        <Button variant="ghost" size="sm" onClick={saveEdit}>
-                          <Save className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={cancelEdit}>
-                          <Cancel className="w-4 h-4" />
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button variant="ghost" size="sm" onClick={() => startEditing(category)}>
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeCategory(category.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin" />
                 </div>
-              ))}
+              ) : categories.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Nenhuma categoria encontrada</p>
+                </div>
+              ) : (
+                categories.map((category) => (
+                  <div
+                    key={category.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full ${getColorClass(category.color)}`} />
+                      {editingId === category.id ? (
+                        <Input
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          className="h-8 w-40"
+                          onKeyPress={(e) => e.key === "Enter" && saveEdit()}
+                          autoFocus
+                        />
+                      ) : (
+                        <span className="font-medium">{category.name}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {editingId === category.id ? (
+                        <>
+                          <Button variant="ghost" size="sm" onClick={saveEdit}>
+                            <Save className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={cancelEdit}>
+                            <Cancel className="w-4 h-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="ghost" size="sm" onClick={() => startEditing(category)}>
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeCategory(category.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

@@ -16,20 +16,22 @@ import Link from "next/link"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import { SearchDropdown } from "@/components/search-dropdown"
 import { PlanBadge } from "@/components/plan-upgrade-card"
-import { useUserPlan, usePlanInfo } from "@/contexts/user-plan-context"
+import { useSettingsContext } from "@/contexts/settings-context"
+import { useAuth } from "@/hooks/use-auth"
 
 export function Header() {
-  const user = {
-    name: "João Silva",
-    email: "joao@exemplo.com",
+  const { user } = useSettingsContext()
+  const { signOut } = useAuth()
+  
+  const getPlanName = (plan: string) => {
+    return plan === 'professional' ? 'Plano Profissional' : 'Plano Básico'
   }
 
-  const { currentPlan } = useUserPlan()
-  const { name: planName } = usePlanInfo()
-
-  const handleLogout = () => {
-    // Clear user session/tokens here
-    window.location.href = "/login"
+  const handleLogout = async () => {
+    const result = await signOut()
+    if (result.success) {
+      window.location.href = "/login"
+    }
   }
 
   return (
@@ -37,7 +39,7 @@ export function Header() {
       <div className="container flex h-14 items-center px-4">
         {/* Logo/Brand */}
         <div className="mr-4 hidden md:flex">
-          <h1 className="text-xl font-bold text-primary">Ola, {user.name}</h1>
+          <h1 className="text-xl font-bold text-primary">Olá, {user?.name || 'Usuário'}</h1>
         </div>
 
         {/* Search Bar */}
@@ -68,10 +70,10 @@ export function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  <p className="text-sm font-medium leading-none">{user?.name || 'Usuário'}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email || ''}</p>
                   <Badge variant="outline" className="w-fit text-xs mt-1">
-                    {planName}
+                    {user ? getPlanName(user.plan) : 'Carregando...'}
                   </Badge>
                 </div>
               </DropdownMenuLabel>
