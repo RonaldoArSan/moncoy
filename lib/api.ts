@@ -122,7 +122,12 @@ export const categoriesApi = {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === '23505') {
+        throw new Error('Já existe uma categoria com este nome')
+      }
+      throw new Error(error.message || 'Erro ao criar categoria')
+    }
     return data
   },
 
@@ -134,7 +139,12 @@ export const categoriesApi = {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === '23505') {
+        throw new Error('Já existe uma categoria com este nome')
+      }
+      throw new Error(error.message || 'Erro ao atualizar categoria')
+    }
     return data
   },
 
@@ -144,7 +154,9 @@ export const categoriesApi = {
       .delete()
       .eq('id', id)
 
-    if (error) throw error
+    if (error) {
+      throw new Error(error.message || 'Erro ao excluir categoria')
+    }
   }
 }
 

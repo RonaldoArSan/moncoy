@@ -34,7 +34,7 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
-  const { categories, createGoal } = useGoals()
+  const { categories, createGoal, refreshCategories } = useGoals()
 
   const getPriorityColor = (p: string) => {
     switch (p) {
@@ -244,7 +244,17 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
           </Button>
         </DialogFooter>
       </DialogContent>
-      <ManageCategoriesModal open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen} type="goal" />
+      <ManageCategoriesModal 
+        open={isCategoryModalOpen} 
+        onOpenChange={(open) => {
+          setIsCategoryModalOpen(open)
+          if (!open) {
+            // Recarregar categorias quando o modal for fechado
+            refreshCategories()
+          }
+        }} 
+        type="goal" 
+      />
     </Dialog>
   )
 }

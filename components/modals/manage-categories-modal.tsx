@@ -93,7 +93,8 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
       setSelectedColor("blue")
     } catch (error) {
       console.error('Erro ao criar categoria:', error)
-      alert('Erro ao criar categoria')
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao criar categoria'
+      alert(`Erro ao criar categoria: ${errorMessage}`)
     } finally {
       setSubmitting(false)
     }
@@ -107,7 +108,8 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
       setCategories(categories.filter((cat) => cat.id !== id))
     } catch (error) {
       console.error('Erro ao excluir categoria:', error)
-      alert('Erro ao excluir categoria')
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao excluir categoria'
+      alert(`Erro ao excluir categoria: ${errorMessage}`)
     }
   }
 
@@ -130,7 +132,8 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
       setEditingName("")
     } catch (error) {
       console.error('Erro ao atualizar categoria:', error)
-      alert('Erro ao atualizar categoria')
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao atualizar categoria'
+      alert(`Erro ao atualizar categoria: ${errorMessage}`)
     }
   }
 

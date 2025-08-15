@@ -14,12 +14,15 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar, Download, FileText } from "lucide-react"
+import { exportTransactions } from "@/lib/export-utils"
+import type { Transaction } from "@/lib/supabase"
 
 interface ExportModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   title?: string
   description?: string
+  transactions?: Transaction[]
 }
 
 export function ExportModal({
@@ -27,10 +30,38 @@ export function ExportModal({
   onOpenChange,
   title = "Exportar Dados",
   description = "Escolha o formato e período para exportar seus dados.",
+  transactions = [],
 }: ExportModalProps) {
-  const [format, setFormat] = useState("pdf")
+  const [format, setFormat] = useState<'csv' | 'excel' | 'pdf'>("pdf")
   const [period, setPeriod] = useState("current-month")
   const [includeCharts, setIncludeCharts] = useState(true)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    if (period === 'custom' && (!startDate || !endDate)) {
+      alert('Por favor, selecione as datas inicial e final para o período personalizado.')
+      return
+    }
+
+    setIsExporting(true)
+    try {
+      exportTransactions(transactions, {
+        format,
+        period,
+        startDate,
+        endDate,
+        includeCharts
+      })
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Erro ao exportar:', error)
+      alert('Erro ao exportar transações. Tente novamente.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const formats = [
     { value: "pdf", label: "PDF", icon: FileText },
@@ -101,6 +132,8 @@ export function ExportModal({
                   <input
                     id="start-date"
                     type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <Calendar className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -112,6 +145,8 @@ export function ExportModal({
                   <input
                     id="end-date"
                     type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <Calendar className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -143,9 +178,13 @@ export function ExportModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => onOpenChange(false)}>
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700" 
+            onClick={handleExport}
+            disabled={isExporting}
+          >
             <Download className="w-4 h-4 mr-2" />
-            Exportar
+            {isExporting ? 'Exportando...' : 'Exportar'}
           </Button>
         </DialogFooter>
       </DialogContent>

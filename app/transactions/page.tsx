@@ -193,6 +193,7 @@ export default function TransactionsPage() {
         onOpenChange={setIsExportModalOpen}
         title="Exportar Transações"
         description="Exporte suas transações em diferentes formatos."
+        transactions={transactions}
       />
     </div>
   )

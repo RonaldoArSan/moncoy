@@ -72,6 +72,7 @@ export function useGoals() {
     createGoal,
     updateGoal,
     deleteGoal,
-    refreshGoals: loadGoals
+    refreshGoals: loadGoals,
+    refreshCategories: loadCategories
   }
 }
