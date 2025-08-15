@@ -17,27 +17,21 @@ const navigation = [
   { name: "Configurações", href: "/settings", icon: Settings },
 ]
 
-export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false)
+interface SidebarProps {
+  isOpen: boolean
+  setIsOpen: (open: boolean) => void
+}
+
+export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname()
 
   return (
     <>
-      {/* Mobile menu button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="md:hidden fixed top-4 left-4 z-50"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
-
       {/* Sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:inset-0",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
       >
         <div className="flex flex-col h-full">

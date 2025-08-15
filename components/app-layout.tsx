@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Sidebar } from '@/components/sidebar'
@@ -12,6 +13,7 @@ interface AppLayoutProps {
 const authPages = ['/login', '/register', '/forgot-password']
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const pathname = usePathname()
   const isAuthPage = authPages.includes(pathname)
 
@@ -21,9 +23,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div className="flex flex-1 flex-col">
-        <Header />
+        <Header onMenuClick={() => setIsSidebarOpen(prev => !prev)} />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>

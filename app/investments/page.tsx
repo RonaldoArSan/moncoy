@@ -49,22 +49,22 @@ export default function InvestmentsPage() {
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center ml-12 md:ml-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Investimentos</h1>
-            <p className="text-muted-foreground">Acompanhe sua carteira de investimentos</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Investimentos</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Acompanhe sua carteira de investimentos</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Calculator className="w-4 h-4 mr-2" />
-              Calcular IR
+              <span className="sm:inline">Calcular IR</span>
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 w-full sm:w-auto"
               onClick={() => setIsInvestmentModalOpen(true)}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
-              Novo Investimento
+              <span className="sm:inline">Novo Investimento</span>
             </Button>
           </div>
         </div>
@@ -192,7 +192,54 @@ export default function InvestmentsPage() {
                 <p>Nenhum investimento encontrado</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+                <div className="space-y-4 sm:hidden">
+                  {investments.map((investment) => {
+                    const currentPrice = investment.current_price || investment.avg_price
+                    const totalValue = investment.quantity * currentPrice
+                    const totalInvested = investment.quantity * investment.avg_price
+                    const gain = totalValue - totalInvested
+                    const gainPercentage = totalInvested > 0 ? (gain / totalInvested) * 100 : 0
+                    
+                    return (
+                      <div key={investment.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium">{investment.asset_name}</div>
+                            <Badge variant="secondary" className="text-xs mt-1">
+                              {getAssetTypeLabel(investment.asset_type)}
+                            </Badge>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">
+                              R$ {totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </div>
+                            <div className={`text-sm ${
+                              gainPercentage >= 0 ? "text-green-600" : "text-red-600"
+                            }`}>
+                              {gainPercentage >= 0 ? "+" : ""}{gainPercentage.toFixed(2)}%
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Qtd:</span> {investment.quantity}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Preço Médio:</span> R$ {investment.avg_price.toFixed(2)}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Preço Atual:</span> R$ {currentPrice.toFixed(2)}
+                          </div>
+                          <div className={gain >= 0 ? "text-green-600" : "text-red-600"}>
+                            <span className="text-muted-foreground">Ganho:</span> {gain >= 0 ? "+" : ""}R$ {gain.toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="overflow-x-auto hidden sm:block">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
@@ -249,7 +296,8 @@ export default function InvestmentsPage() {
                     })}
                   </tbody>
                 </table>
-              </div>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

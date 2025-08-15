@@ -53,7 +53,10 @@ export function exportToCSV(transactions: Transaction[]): void {
     t.category?.name || 'Sem categoria',
     t.type === 'income' ? 'Receita' : 'Despesa',
     `R$ ${t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-    t.status === 'completed' ? 'Concluída' : 'Pendente'
+    t.status === 'completed' ? 'Pago' :
+    t.status === 'pending' ? 'Pendente' :
+    t.status === 'overdue' ? 'Vencido' :
+    t.status === 'due_soon' ? 'A Vencer' : 'Pendente'
   ])
 
   const csvContent = [headers, ...rows]
@@ -74,7 +77,10 @@ export function exportToExcel(transactions: Transaction[]): void {
     'Categoria': t.category?.name || 'Sem categoria',
     'Tipo': t.type === 'income' ? 'Receita' : 'Despesa',
     'Valor': t.amount,
-    'Status': t.status === 'completed' ? 'Concluída' : 'Pendente'
+    'Status': t.status === 'completed' ? 'Pago' :
+              t.status === 'pending' ? 'Pendente' :
+              t.status === 'overdue' ? 'Vencido' :
+              t.status === 'due_soon' ? 'A Vencer' : 'Pendente'
   }))
 
   // Simple Excel export using data URI
@@ -126,7 +132,10 @@ export function exportToPDF(transactions: Transaction[]): void {
                 <td>${t.category?.name || 'Sem categoria'}</td>
                 <td>${t.type === 'income' ? 'Receita' : 'Despesa'}</td>
                 <td class="${t.type}">${t.type === 'income' ? '+' : '-'}R$ ${Math.abs(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                <td>${t.status === 'completed' ? 'Concluída' : 'Pendente'}</td>
+                <td>${t.status === 'completed' ? 'Pago' :
+                      t.status === 'pending' ? 'Pendente' :
+                      t.status === 'overdue' ? 'Vencido' :
+                      t.status === 'due_soon' ? 'A Vencer' : 'Pendente'}</td>
               </tr>
             `).join('')}
           </tbody>

@@ -44,6 +44,8 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
   const [isProcessing, setIsProcessing] = useState(false)
   const [extractedData, setExtractedData] = useState<any>(null)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [status, setStatus] = useState<"pending" | "completed" | "overdue" | "due_soon">("completed")
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium")
 
   const { currentPlan } = useUserPlan()
   const hasReceiptAnalysis = useFeatureAccess("receiptAnalysis")
@@ -118,7 +120,8 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           type,
           category_id: categoryId || undefined,
           date,
-          status: 'completed',
+          status: type === 'expense' ? status : 'completed',
+          priority,
           notes: `Transação recorrente: ${notes || ''}`.trim()
         })
       } else {
@@ -128,7 +131,8 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           type,
           category_id: categoryId || undefined,
           date,
-          status: 'completed',
+          status: type === 'expense' ? status : 'completed',
+          priority,
           notes: notes || undefined
         })
       }
@@ -171,6 +175,8 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
       setUploadedFile(null)
       setExtractedData(null)
       setType('expense')
+      setStatus('completed')
+      setPriority('medium')
     }
   }, [open])
 
@@ -362,6 +368,37 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
               />
               <Calendar className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             </div>
+          </div>
+
+          {type === "expense" && (
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="completed">Pago</SelectItem>
+                  <SelectItem value="overdue">Vencido</SelectItem>
+                  <SelectItem value="due_soon">A Vencer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="grid gap-2">
+            <Label htmlFor="priority">Prioridade</Label>
+            <Select value={priority} onValueChange={setPriority}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Baixa</SelectItem>
+                <SelectItem value="medium">Média</SelectItem>
+                <SelectItem value="high">Alta</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">

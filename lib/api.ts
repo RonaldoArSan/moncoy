@@ -201,7 +201,7 @@ export const transactionsApi = {
     return data
   },
 
-  async updateTransaction(id: string, updates: Partial<Transaction>): Promise<Transaction> {
+  async updateTransaction(id: string, updates: Partial<Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'category'>>): Promise<Transaction> {
     const { data, error } = await supabase
       .from('transactions')
       .update(updates)
@@ -212,7 +212,10 @@ export const transactionsApi = {
       `)
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error(error.message || 'Erro ao atualizar transação')
+    }
     return data
   },
 

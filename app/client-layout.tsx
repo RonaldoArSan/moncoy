@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useState } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { UserPlanProvider } from "@/contexts/user-plan-context"
 import { SettingsProvider } from "@/contexts/settings-context"
@@ -14,6 +15,7 @@ export default function ClientLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const pathname = usePathname()
 
   const isAuthPage =
@@ -30,9 +32,9 @@ export default function ClientLayout({
             <main className="min-h-screen bg-background">{children}</main>
         ) : (
           <div className="flex h-screen bg-background">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             <div className="flex flex-1 flex-col">
-              <Header />
+              <Header onMenuClick={() => setIsSidebarOpen(prev => !prev)} />
               <main className="flex-1 overflow-auto p-6">{children}</main>
             </div>
           </div>

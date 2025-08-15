@@ -1,6 +1,6 @@
 "use client"
 
-import { User } from "lucide-react"
+import { User, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -19,7 +19,11 @@ import { PlanBadge } from "@/components/plan-upgrade-card"
 import { useSettingsContext } from "@/contexts/settings-context"
 import { useAuth } from "@/hooks/use-auth"
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const { user } = useSettingsContext()
   const { signOut } = useAuth()
   
@@ -37,6 +41,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center px-4">
+        {/* Mobile menu button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="md:hidden mr-2"
+          onClick={onMenuClick}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
         {/* Logo/Brand */}
         <div className="mr-4 hidden md:flex">
           <h1 className="text-xl font-bold text-primary">Olá, {user?.name || 'Usuário'}</h1>

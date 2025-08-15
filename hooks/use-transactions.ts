@@ -50,6 +50,18 @@ export function useTransactions() {
     }
   }
 
+  const updateTransaction = async (id: string, updates: Partial<Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'category'>>) => {
+    try {
+      const updatedTransaction = await transactionsApi.updateTransaction(id, updates)
+      setTransactions(prev => prev.map(t => t.id === id ? updatedTransaction : t))
+      return updatedTransaction
+    } catch (error) {
+      console.error('Erro ao atualizar transação:', error)
+      alert(`Erro ao atualizar transação: ${error.message || 'Erro desconhecido'}`)
+      throw error
+    }
+  }
+
   const loadRecurringTransactions = async () => {
     try {
       const data = await recurringTransactionsApi.getRecurringTransactions()
@@ -95,6 +107,7 @@ export function useTransactions() {
     recurringTransactions,
     loading,
     createTransaction,
+    updateTransaction,
     deleteTransaction,
     createRecurringTransaction,
     generateRecurringTransactions,

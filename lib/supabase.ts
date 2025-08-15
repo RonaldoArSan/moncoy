@@ -32,7 +32,8 @@ export interface Transaction {
   type: 'income' | 'expense'
   category_id?: string
   date: string
-  status: 'pending' | 'completed' | 'cancelled'
+  status: 'pending' | 'completed' | 'cancelled' | 'overdue' | 'due_soon'
+  priority: 'low' | 'medium' | 'high'
   notes?: string
   receipt_url?: string
   merchant?: string

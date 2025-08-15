@@ -36,32 +36,32 @@ export default function ReportsPage() {
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center ml-12 md:ml-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Relatórios</h1>
-            <p className="text-muted-foreground">Análise detalhada das suas finanças</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Relatórios</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Análise detalhada das suas finanças</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Filter className="w-4 h-4 mr-2" />
-              Filtros
+              <span className="sm:inline">Filtros</span>
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Calendar className="w-4 h-4 mr-2" />
-              Período
+              <span className="sm:inline">Período</span>
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 w-full sm:w-auto"
               onClick={() => setIsExportModalOpen(true)}
             >
               <Download className="w-4 h-4 mr-2" />
-              Exportar
+              <span className="sm:inline">Exportar</span>
             </Button>
           </div>
         </div>
 
         {/* KPIs Principais */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <Card key={i}>
@@ -311,21 +311,21 @@ export default function ReportsPage() {
             ) : (
               <div className="space-y-4">
                 {topExpenses.map((expense, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border gap-3">
+                    <div className="flex items-center space-x-3 flex-1 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-medium">{index + 1}</span>
                       </div>
-                      <div>
-                        <div className="font-medium">{expense.description}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium truncate">{expense.description}</div>
                         <div className="text-sm text-muted-foreground">{expense.date}</div>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right flex-shrink-0">
                       <div className="font-semibold text-red-600">
                         -R$ {expense.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </div>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs mt-1">
                         {expense.category}
                       </Badge>
                     </div>
