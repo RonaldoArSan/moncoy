@@ -17,6 +17,7 @@ import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import { SearchDropdown } from "@/components/search-dropdown"
 import { PlanBadge } from "@/components/plan-upgrade-card"
 import { useSettingsContext } from "@/contexts/settings-context"
+import { useUserPlan } from "@/contexts/user-plan-context"
 import { useAuth } from "@/hooks/use-auth"
 
 interface HeaderProps {
@@ -25,6 +26,7 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user } = useSettingsContext()
+  const { currentPlan } = useUserPlan()
   const { signOut } = useAuth()
   
   const getPlanName = (plan: string) => {
@@ -65,7 +67,9 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center space-x-2">
           {/* Plan Badge */}
           <div className="hidden sm:inline-flex">
-            <PlanBadge />
+            <Badge variant={currentPlan === "professional" ? "default" : "secondary"}>
+              {currentPlan === "professional" ? "PRO" : "BÁSICO"}
+            </Badge>
           </div>
 
           {/* Notifications */}
@@ -87,7 +91,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                   <p className="text-sm font-medium leading-none">{user?.name || 'Usuário'}</p>
                   <p className="text-xs leading-none text-muted-foreground">{user?.email || ''}</p>
                   <Badge variant="outline" className="w-fit text-xs mt-1">
-                    {user ? getPlanName(user.plan) : 'Carregando...'}
+                    {currentPlan === 'professional' ? 'Plano Profissional' : 'Plano Básico'}
                   </Badge>
                 </div>
               </DropdownMenuLabel>

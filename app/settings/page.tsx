@@ -29,32 +29,23 @@ import {
   Save,
 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useSettings } from "@/hooks/use-settings"
+import { useSettingsContext } from "@/contexts/settings-context"
+import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function SettingsPage() {
-  const { user, settings, loading, updateUser, updateSettings, getBankAccounts } = useSettings()
+  const { user, loading } = useSettingsContext()
+  const { currentPlan, upgradeToProfessional } = useUserPlan()
   const [showApiKey, setShowApiKey] = useState(false)
   const [showAddBankModal, setShowAddBankModal] = useState(false)
   const [show2FAModal, setShow2FAModal] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
-  const [bankAccounts, setBankAccounts] = useState<any[]>([])
   const [isSaving, setIsSaving] = useState(false)
-  
-  // Form states
   const [formData, setFormData] = useState({
     name: '',
     email: ''
   })
   
-  const [settingsData, setSettingsData] = useState({
-    ai_frequency: 'daily',
-    ai_detail_level: 'advanced',
-    openai_api_key: '',
-    notifications_enabled: true,
-    theme: 'system'
-  })
-  
-  const isProfessional = user?.plan === 'professional'
+  const isProfessional = currentPlan === 'professional'
 
   useEffect(() => {
     if (user) {
@@ -65,47 +56,10 @@ export default function SettingsPage() {
     }
   }, [user])
   
-  useEffect(() => {
-    if (settings) {
-      setSettingsData({
-        ai_frequency: settings.ai_frequency || 'daily',
-        ai_detail_level: settings.ai_detail_level || 'advanced',
-        openai_api_key: settings.openai_api_key || '',
-        notifications_enabled: settings.notifications_enabled ?? true,
-        theme: settings.theme || 'system'
-      })
-    }
-  }, [settings])
-  
-  useEffect(() => {
-    const loadBankAccounts = async () => {
-      const accounts = await getBankAccounts()
-      setBankAccounts(accounts)
-    }
-    if (user) {
-      loadBankAccounts()
-    }
-  }, [user, getBankAccounts])
+
   
   const handleSaveProfile = async () => {
-    try {
-      setIsSaving(true)
-      await updateUser(formData)
-      alert('Perfil atualizado com sucesso!')
-    } catch (error) {
-      alert('Erro ao atualizar perfil')
-    } finally {
-      setIsSaving(false)
-    }
-  }
-  
-  const handleSaveSettings = async (newSettings: Partial<typeof settingsData>) => {
-    try {
-      await updateSettings(newSettings)
-      setSettingsData(prev => ({ ...prev, ...newSettings }))
-    } catch (error) {
-      alert('Erro ao atualizar configurações')
-    }
+    alert('Funcionalidade em desenvolvimento')
   }
   
   if (loading) {
@@ -184,26 +138,30 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="plan">Plano Atual</Label>
-                <Input 
-                  id="plan" 
-                  value={user?.plan === 'professional' ? 'Profissional' : 'Básico'}
-                  disabled
-                />
+                <div className="flex items-center gap-2">
+                  <Input 
+                    id="plan" 
+                    value={isProfessional ? 'Profissional' : 'Básico'}
+                    disabled
+                  />
+                  {!isProfessional && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={upgradeToProfessional}
+                    >
+                      Upgrade
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
             <Button 
               className="bg-blue-600 hover:bg-blue-700" 
               onClick={handleSaveProfile}
-              disabled={isSaving}
+              disabled
             >
-              {isSaving ? (
-                <>
-                  <Save className="w-4 h-4 mr-2 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar Alterações'
-              )}
+              Salvar Alterações
             </Button>
           </CardContent>
         </Card>
@@ -225,7 +183,9 @@ export default function SettingsPage() {
                   {isProfessional ? "Plano Profissional" : "Plano Básico"}
                 </p>
               </div>
-              <Badge variant={isProfessional ? "default" : "secondary"}>Ativo</Badge>
+              <Badge variant={isProfessional ? "default" : "secondary"}>
+                {isProfessional ? "PRO" : "BÁSICO"}
+              </Badge>
             </div>
             <div className="space-y-2">
               <Label htmlFor="account-type">Tipo de Conta</Label>
@@ -250,109 +210,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {isProfessional && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="w-5 h-5" />
-                Configurações de IA
-                <Badge variant="outline" className="ml-2">
-                  Profissional
-                </Badge>
-              </CardTitle>
-              <CardDescription>Configure sua chave API e modelo de IA preferido</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="ai-frequency">Frequência de Análise</Label>
-                <Select 
-                  value={settingsData.ai_frequency} 
-                  onValueChange={(value) => {
-                    const newSettings = { ai_frequency: value }
-                    setSettingsData(prev => ({ ...prev, ...newSettings }))
-                    handleSaveSettings(newSettings)
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Diário</SelectItem>
-                    <SelectItem value="weekly">Semanal</SelectItem>
-                    <SelectItem value="monthly">Mensal</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="api-key">Chave API OpenAI</Label>
-                <div className="relative">
-                  <Input
-                    id="api-key"
-                    type={showApiKey ? "text" : "password"}
-                    placeholder="sk-..."
-                    value={settingsData.openai_api_key}
-                    onChange={(e) => setSettingsData(prev => ({ ...prev, openai_api_key: e.target.value }))}
-                    onBlur={() => handleSaveSettings({ openai_api_key: settingsData.openai_api_key })}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                  >
-                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Sua chave API é criptografada e armazenada com segurança
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ai-detail">Nível de Detalhamento</Label>
-                <Select 
-                  value={settingsData.ai_detail_level} 
-                  onValueChange={(value) => {
-                    const newSettings = { ai_detail_level: value }
-                    setSettingsData(prev => ({ ...prev, ...newSettings }))
-                    handleSaveSettings(newSettings)
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="basic">Básico</SelectItem>
-                    <SelectItem value="intermediate">Intermediário</SelectItem>
-                    <SelectItem value="advanced">Avançado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium">Status da IA</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {settingsData.openai_api_key ? 'Chave API configurada' : 'Configure sua chave API'}
-                  </p>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className={settingsData.openai_api_key ? 
-                    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
-                    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  }
-                >
-                  {settingsData.openai_api_key ? 'Configurado' : 'Pendente'}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Configurações Financeiras */}
         <Card>
@@ -417,25 +275,11 @@ export default function SettingsPage() {
                 <Label>Notificações Gerais</Label>
                 <p className="text-sm text-muted-foreground">Receber notificações do sistema</p>
               </div>
-              <Switch 
-                checked={settingsData.notifications_enabled}
-                onCheckedChange={(checked) => {
-                  const newSettings = { notifications_enabled: checked }
-                  setSettingsData(prev => ({ ...prev, ...newSettings }))
-                  handleSaveSettings(newSettings)
-                }}
-              />
+              <Switch defaultChecked />
             </div>
             <div className="space-y-2">
               <Label htmlFor="theme">Tema</Label>
-              <Select 
-                value={settingsData.theme} 
-                onValueChange={(value) => {
-                  const newSettings = { theme: value }
-                  setSettingsData(prev => ({ ...prev, ...newSettings }))
-                  handleSaveSettings(newSettings)
-                }}
-              >
+              <Select defaultValue="system">
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -449,57 +293,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Integrações */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              Integrações
-            </CardTitle>
-            <CardDescription>Conecte suas contas bancárias e serviços</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {bankAccounts.map((account) => (
-                <div key={account.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                      <Building className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{account.bank_name}</p>
-                      <p className="text-sm text-muted-foreground">{account.account_type}</p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant="secondary"
-                    className={account.is_active ? 
-                      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
-                      "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                    }
-                  >
-                    {account.is_active ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </div>
-              ))}
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg border-dashed">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                    <Database className="w-4 h-4 text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Adicionar Nova Conta</p>
-                    <p className="text-sm text-muted-foreground">Conecte mais bancos</p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => setShowAddBankModal(true)}>
-                  Conectar
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Segurança */}
         <Card>
