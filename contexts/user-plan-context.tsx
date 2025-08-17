@@ -27,14 +27,14 @@ interface UserPlanContextType {
 
 const planFeatures: Record<UserPlan, UserPlanFeatures> = {
   basic: {
-    maxTransactions: 100,
+    maxTransactions: null, // unlimited
     aiAdvice: false,
     receiptAnalysis: false,
     advancedReports: false,
     prioritySupport: false,
     customCategories: true,
-    bankConnections: 2,
-    exportFormats: ["CSV"],
+    bankConnections: 0,
+    exportFormats: [],
     twoFactorAuth: false,
   },
   professional: {
@@ -45,7 +45,7 @@ const planFeatures: Record<UserPlan, UserPlanFeatures> = {
     prioritySupport: true,
     customCategories: true,
     bankConnections: null, // unlimited
-    exportFormats: ["CSV", "Excel", "PDF", "JSON"],
+    exportFormats: ["CSV", "Excel", "PDF"],
     twoFactorAuth: true,
   },
 }
@@ -135,7 +135,7 @@ export function usePlanInfo() {
     },
     professional: {
       name: "Plano Profissional",
-      price: "R$ 29,99/mês",
+      price: "R$ 29,90/mês",
       color: "default" as const,
     },
   }

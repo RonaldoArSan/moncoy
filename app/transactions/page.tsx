@@ -12,6 +12,7 @@ import { ExportModal } from "@/components/modals/export-modal"
 import { Search, Download, PlusCircle, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useTransactions } from "@/hooks/use-transactions"
+import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -22,6 +23,8 @@ export default function TransactionsPage() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   
   const { transactions, categories, loading, deleteTransaction, refreshTransactions } = useTransactions()
+  const { currentPlan } = useUserPlan()
+  const isProfessional = currentPlan === 'professional'
   
   const categoryOptions = ["all", ...categories.map(c => c.name)]
 
@@ -91,9 +94,14 @@ export default function TransactionsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="outline" onClick={() => setIsExportModalOpen(true)} className="w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível apenas no Plano Profissional')} 
+                  className="w-full sm:w-auto"
+                >
                   <Download className="w-4 h-4 mr-2" />
                   <span className="sm:inline">Exportar</span>
+                  {!isProfessional && <span className="ml-1 text-xs">PRO</span>}
                 </Button>
               </div>
             </div>

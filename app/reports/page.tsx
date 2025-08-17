@@ -21,11 +21,14 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { useReports } from "@/hooks/use-reports"
+import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function ReportsPage() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   
   const { loading, getMonthlyData, getCategoryExpenses, getTopExpenses, getKPIs } = useReports()
+  const { currentPlan } = useUserPlan()
+  const isProfessional = currentPlan === 'professional'
   
   const monthlyData = getMonthlyData()
   const categoryExpenses = getCategoryExpenses()
@@ -52,10 +55,11 @@ export default function ReportsPage() {
             </Button>
             <Button
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 w-full sm:w-auto"
-              onClick={() => setIsExportModalOpen(true)}
+              onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível apenas no Plano Profissional')}
             >
               <Download className="w-4 h-4 mr-2" />
               <span className="sm:inline">Exportar</span>
+              {!isProfessional && <span className="ml-1 text-xs">PRO</span>}
             </Button>
           </div>
         </div>

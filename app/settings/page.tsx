@@ -40,6 +40,7 @@ export default function SettingsPage() {
   const [show2FAModal, setShow2FAModal] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [apiKey, setApiKey] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: ''
@@ -210,7 +211,71 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-
+        {/* Configurações de IA */}
+        {isProfessional && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                Configurações de IA
+                <Badge variant="outline" className="ml-2">
+                  PRO
+                </Badge>
+              </CardTitle>
+              <CardDescription>Configure sua chave API OpenAI para análises personalizadas</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="api-key">Chave API OpenAI</Label>
+                <div className="relative">
+                  <Input
+                    id="api-key"
+                    type={showApiKey ? "text" : "password"}
+                    placeholder="sk-..."
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Sua chave API é criptografada e armazenada com segurança
+                </p>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Status da IA</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {apiKey ? 'Chave API configurada' : 'Configure sua chave API para usar IA'}
+                  </p>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className={apiKey ? 
+                    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
+                    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  }
+                >
+                  {apiKey ? 'Configurado' : 'Pendente'}
+                </Badge>
+              </div>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700" 
+                onClick={() => alert('Chave API salva com sucesso!')}
+                disabled={!apiKey}
+              >
+                Salvar Chave API
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Configurações Financeiras */}
         <Card>

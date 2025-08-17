@@ -9,12 +9,15 @@ import { ExportModal } from "@/components/modals/export-modal"
 import { TrendingUp, PlusCircle, DollarSign, BarChart3, Calculator, FileText, Eye, MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 import { useInvestments } from "@/hooks/use-investments"
+import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function InvestmentsPage() {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   
   const { investments, loading, calculatePortfolioSummary, getAssetTypeDistribution } = useInvestments()
+  const { currentPlan } = useUserPlan()
+  const isProfessional = currentPlan === 'professional'
   
   const portfolio = calculatePortfolioSummary()
   const assetDistribution = getAssetTypeDistribution()
@@ -165,9 +168,14 @@ export default function InvestmentsPage() {
                 <CardTitle>Posições</CardTitle>
                 <CardDescription>Detalhes dos seus investimentos</CardDescription>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setIsExportModalOpen(true)}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível apenas no Plano Profissional')}
+              >
                 <FileText className="w-4 h-4 mr-2" />
                 Exportar
+                {!isProfessional && <span className="ml-1 text-xs">PRO</span>}
               </Button>
             </div>
           </CardHeader>
