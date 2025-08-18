@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { useUserPlan } from '@/contexts/user-plan-context'
+import { useSettingsContext } from '@/contexts/settings-context'
 
 export function useAI() {
   const [loading, setLoading] = useState(false)
+  const [usage, setUsage] = useState({ remaining: 0, resetDate: new Date() })
   const { currentPlan } = useUserPlan()
+  const { user } = useSettingsContext()
 
   const analyzeTransactions = async (transactions: any[], type: string) => {
-    if (currentPlan !== 'professional') {
-      throw new Error('IA disponível apenas no Plano Profissional')
+    if (currentPlan === 'basic') {
+      // TODO: Verificar limite de 5 perguntas por semana
     }
 
     setLoading(true)
@@ -20,7 +23,8 @@ export function useAI() {
         body: JSON.stringify({
           transactions,
           type,
-          userPlan: currentPlan
+          userPlan: currentPlan,
+          userId: user?.id
         })
       })
 
@@ -30,6 +34,9 @@ export function useAI() {
       }
 
       const result = await response.json()
+      if (result.usage) {
+        setUsage(result.usage)
+      }
       return result.analysis
     } catch (error) {
       console.error('AI Analysis Error:', error)
@@ -42,6 +49,7 @@ export function useAI() {
   return {
     analyzeTransactions,
     loading,
-    isAvailable: currentPlan === 'professional'
+    usage,
+    isAvailable: ['basic', 'pro', 'premium'].includes(currentPlan)
   }
 }

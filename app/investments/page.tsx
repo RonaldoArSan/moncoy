@@ -17,7 +17,7 @@ export default function InvestmentsPage() {
   
   const { investments, loading, calculatePortfolioSummary, getAssetTypeDistribution } = useInvestments()
   const { currentPlan } = useUserPlan()
-  const isProfessional = currentPlan === 'professional'
+  const isProfessional = ['pro', 'premium'].includes(currentPlan)
   
   const portfolio = calculatePortfolioSummary()
   const assetDistribution = getAssetTypeDistribution()
@@ -171,7 +171,7 @@ export default function InvestmentsPage() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível apenas no Plano Profissional')}
+                onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível nos Planos Pro e Premium')}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Exportar

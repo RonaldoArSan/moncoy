@@ -67,8 +67,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center space-x-2">
           {/* Plan Badge */}
           <div className="hidden sm:inline-flex">
-            <Badge variant={currentPlan === "professional" ? "default" : "secondary"}>
-              {currentPlan === "professional" ? "PRO" : "BÁSICO"}
+            <Badge variant={currentPlan === "premium" ? "destructive" : currentPlan === "pro" ? "default" : "secondary"}>
+              {currentPlan === "premium" ? "PREMIUM" : currentPlan === "pro" ? "PRO" : "BÁSICO"}
             </Badge>
           </div>
 
@@ -91,7 +91,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                   <p className="text-sm font-medium leading-none">{user?.name || 'Usuário'}</p>
                   <p className="text-xs leading-none text-muted-foreground">{user?.email || ''}</p>
                   <Badge variant="outline" className="w-fit text-xs mt-1">
-                    {currentPlan === 'professional' ? 'Plano Profissional' : 'Plano Básico'}
+                    {currentPlan === 'premium' ? 'Premium' : currentPlan === 'pro' ? 'Pro' : 'Básico'}
                   </Badge>
                 </div>
               </DropdownMenuLabel>

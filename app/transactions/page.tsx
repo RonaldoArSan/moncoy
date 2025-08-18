@@ -24,7 +24,7 @@ export default function TransactionsPage() {
   
   const { transactions, categories, loading, deleteTransaction, refreshTransactions } = useTransactions()
   const { currentPlan } = useUserPlan()
-  const isProfessional = currentPlan === 'professional'
+  const isProfessional = ['pro', 'premium'].includes(currentPlan)
   
   const categoryOptions = ["all", ...categories.map(c => c.name)]
 
@@ -96,7 +96,7 @@ export default function TransactionsPage() {
                 </Select>
                 <Button 
                   variant="outline" 
-                  onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível apenas no Plano Profissional')} 
+                  onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível nos Planos Pro e Premium')} 
                   className="w-full sm:w-auto"
                 >
                   <Download className="w-4 h-4 mr-2" />

@@ -28,7 +28,7 @@ export default function ReportsPage() {
   
   const { loading, getMonthlyData, getCategoryExpenses, getTopExpenses, getKPIs } = useReports()
   const { currentPlan } = useUserPlan()
-  const isProfessional = currentPlan === 'professional'
+  const isProfessional = ['pro', 'premium'].includes(currentPlan)
   
   const monthlyData = getMonthlyData()
   const categoryExpenses = getCategoryExpenses()
@@ -55,7 +55,7 @@ export default function ReportsPage() {
             </Button>
             <Button
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 w-full sm:w-auto"
-              onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível apenas no Plano Profissional')}
+              onClick={() => isProfessional ? setIsExportModalOpen(true) : alert('Funcionalidade disponível nos Planos Pro e Premium')}
             >
               <Download className="w-4 h-4 mr-2" />
               <span className="sm:inline">Exportar</span>

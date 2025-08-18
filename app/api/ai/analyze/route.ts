@@ -1,42 +1,103 @@
 import { NextRequest, NextResponse } from 'next/server'
+import OpenAI from 'openai'
+import { checkAILimit, incrementAIUsage, getAIUsageKey, type AIUsage } from '@/lib/ai-limits'
+
+if (!process.env.OPENAI_API_KEY) {
+  console.error('OPENAI_API_KEY not found in environment variables')
+}
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const { transactions, type, userPlan } = await request.json()
+    const { transactions, type, userPlan, userId } = await request.json()
     
-    if (userPlan !== 'professional') {
+    // Check AI usage limits
+    const usageKey = getAIUsageKey(userId || 'anonymous')
+    const currentUsage: AIUsage = {
+      count: 0,
+      lastReset: new Date().toISOString(),
+      plan: userPlan,
+      ...JSON.parse(globalThis.localStorage?.getItem(usageKey) || '{}')
+    }
+    
+    const limitCheck = checkAILimit(userPlan, currentUsage)
+    
+    if (!limitCheck.allowed) {
       return NextResponse.json(
-        { error: 'IA disponível apenas no Plano Profissional' },
-        { status: 403 }
+        { 
+          error: `Limite de perguntas excedido. Próxima renovação: ${limitCheck.resetDate.toLocaleDateString('pt-BR')}`,
+          remaining: limitCheck.remaining,
+          resetDate: limitCheck.resetDate
+        },
+        { status: 429 }
       )
     }
 
-    // Simulação de análise de IA (substitua pela integração real com OpenAI)
-    let analysis = ''
+    let prompt = ''
     
     switch (type) {
       case 'spending_analysis':
-        analysis = `Análise de gastos: Você gastou R$ ${transactions.reduce((sum: number, t: any) => sum + (t.type === 'expense' ? t.amount : 0), 0).toFixed(2)} este mês. Principais categorias: alimentação e transporte.`
+        const totalExpenses = transactions.filter((t: any) => t.type === 'expense').reduce((sum: number, t: any) => sum + t.amount, 0)
+        prompt = `Analise estes gastos financeiros em português brasileiro e forneça insights úteis. Total gasto: R$ ${totalExpenses.toFixed(2)}. Transações: ${JSON.stringify(transactions.slice(0, 10))}. Seja conciso e prático.`
         break
       case 'budget_suggestions':
-        analysis = `Sugestão de orçamento: Com base nos seus gastos, recomendo um orçamento mensal de R$ ${(transactions.reduce((sum: number, t: any) => sum + (t.type === 'expense' ? t.amount : 0), 0) * 1.1).toFixed(2)}.`
+        prompt = `Com base nestas transações financeiras, sugira um orçamento mensal realista em português brasileiro: ${JSON.stringify(transactions.slice(0, 10))}. Seja específico com valores.`
         break
       case 'category_prediction':
-        analysis = `Categoria sugerida: ${transactions[0]?.description?.toLowerCase().includes('mercado') ? 'Alimentação' : 'Outros'}`
+        prompt = `Categorize esta transação financeira em português: "${transactions[0]?.description}". Responda apenas com a categoria sugerida.`
         break
       default:
-        analysis = 'Análise não disponível para este tipo.'
+        throw new Error('Tipo de análise não suportado')
     }
 
-    return NextResponse.json({
-      analysis,
-      timestamp: new Date().toISOString()
+    // Selecionar modelo baseado no plano
+    let model = 'gpt-4o-mini' // default
+    if (userPlan === 'premium') {
+      model = 'gpt-4o-mini' // Use gpt-4o when available
+    } else if (userPlan === 'pro' && type === 'advanced_analysis') {
+      model = 'gpt-4o-mini' // Limited GPT-4o for pro plan
+    }
+    
+    const completion = await openai.chat.completions.create({
+      model,
+      messages: [{
+        role: "system",
+        content: "Você é um consultor financeiro especializado em finanças pessoais brasileiras. Responda sempre em português brasileiro de forma clara e objetiva."
+      }, {
+        role: "user",
+        content: prompt
+      }],
+      max_tokens: 300,
+      temperature: 0.7
     })
 
-  } catch (error) {
+    // Increment usage count
+    const newUsage = incrementAIUsage({
+      ...currentUsage,
+      lastReset: limitCheck.resetDate.toISOString()
+    })
+    
+    // Store updated usage (in real app, this would be in database)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(usageKey, JSON.stringify(newUsage))
+    }
+    
+    return NextResponse.json({
+      analysis: completion.choices[0].message.content,
+      timestamp: new Date().toISOString(),
+      usage: {
+        remaining: limitCheck.remaining - 1,
+        resetDate: limitCheck.resetDate
+      }
+    })
+
+  } catch (error: any) {
     console.error('AI Analysis Error:', error)
     return NextResponse.json(
-      { error: 'Erro na análise de IA' },
+      { error: error.message || 'Erro na análise de IA' },
       { status: 500 }
     )
   }

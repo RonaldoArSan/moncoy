@@ -3,18 +3,18 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 
-export type UserPlan = "basic" | "professional"
+export type UserPlan = "basic" | "pro" | "premium"
 
 export interface UserPlanFeatures {
-  maxTransactions: number | null // null = unlimited
-  aiAdvice: boolean
-  receiptAnalysis: boolean
-  advancedReports: boolean
-  prioritySupport: boolean
-  customCategories: boolean
-  bankConnections: number | null // null = unlimited
-  exportFormats: string[]
-  twoFactorAuth: boolean
+  aiModel: string
+  aiQuestionsLimit: number | null // null = unlimited
+  monthlyReport: 'none' | 'simple' | 'detailed' | 'advanced'
+  advancedAnalysis: number // per month
+  conversationHistory: boolean
+  pdfReports: boolean
+  spendingAlerts: boolean
+  mobileAccess: boolean
+  supportLevel: 'email' | 'email_whatsapp' | 'priority'
 }
 
 interface UserPlanContextType {
@@ -27,27 +27,38 @@ interface UserPlanContextType {
 
 const planFeatures: Record<UserPlan, UserPlanFeatures> = {
   basic: {
-    maxTransactions: null, // unlimited
-    aiAdvice: false,
-    receiptAnalysis: false,
-    advancedReports: false,
-    prioritySupport: false,
-    customCategories: true,
-    bankConnections: 0,
-    exportFormats: [],
-    twoFactorAuth: false,
+    aiModel: 'gpt-4o-mini',
+    aiQuestionsLimit: 5, // per week
+    monthlyReport: 'simple',
+    advancedAnalysis: 0,
+    conversationHistory: false,
+    pdfReports: false,
+    spendingAlerts: false,
+    mobileAccess: false,
+    supportLevel: 'email'
   },
-  professional: {
-    maxTransactions: null, // unlimited
-    aiAdvice: true,
-    receiptAnalysis: true,
-    advancedReports: true,
-    prioritySupport: true,
-    customCategories: true,
-    bankConnections: null, // unlimited
-    exportFormats: ["CSV", "Excel", "PDF"],
-    twoFactorAuth: true,
+  pro: {
+    aiModel: 'gpt-4o-mini',
+    aiQuestionsLimit: 7, // per week (1 per day)
+    monthlyReport: 'detailed',
+    advancedAnalysis: 1,
+    conversationHistory: true,
+    pdfReports: true,
+    spendingAlerts: true,
+    mobileAccess: true,
+    supportLevel: 'email_whatsapp'
   },
+  premium: {
+    aiModel: 'gpt-4o',
+    aiQuestionsLimit: 50, // per month
+    monthlyReport: 'advanced',
+    advancedAnalysis: 1,
+    conversationHistory: true,
+    pdfReports: true,
+    spendingAlerts: true,
+    mobileAccess: true,
+    supportLevel: 'priority'
+  }
 }
 
 const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined)
@@ -74,20 +85,22 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
     return false
   }
 
-  const upgradeToProfessional = () => {
-    setCurrentPlan("professional")
-    // In real app, this would call API to upgrade plan
+  const upgradeToPro = () => {
+    setCurrentPlan("pro")
   }
 
-  const downgradeToBasic = () => {
-    setCurrentPlan("basic")
-    // In real app, this would call API to downgrade plan
+  const upgradeToPremium = () => {
+    setCurrentPlan("premium")
+  }
+
+  const downgradeTo = (plan: UserPlan) => {
+    setCurrentPlan(plan)
   }
 
   useEffect(() => {
     // Load user plan from localStorage only
     const savedPlan = localStorage.getItem("userPlan") as UserPlan
-    if (savedPlan && (savedPlan === "basic" || savedPlan === "professional")) {
+    if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
       setCurrentPlan(savedPlan)
     }
   }, [])
@@ -102,8 +115,9 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
         currentPlan,
         features,
         isFeatureAvailable,
-        upgradeToProfessional,
-        downgradeToBasic,
+        upgradeToPro,
+        upgradeToPremium,
+        downgradeTo,
       }}
     >
       {children}
@@ -129,20 +143,26 @@ export function usePlanInfo() {
 
   const planInfo = {
     basic: {
-      name: "Plano Básico",
-      price: "Gratuito",
+      name: "Básico",
+      price: "R$ 19,90/mês",
       color: "secondary" as const,
     },
-    professional: {
-      name: "Plano Profissional",
-      price: "R$ 29,90/mês",
+    pro: {
+      name: "Pro",
+      price: "R$ 49,90/mês",
       color: "default" as const,
+    },
+    premium: {
+      name: "Premium",
+      price: "R$ 59,90/mês",
+      color: "destructive" as const,
     },
   }
 
   return {
     ...planInfo[currentPlan],
-    isProfessional: currentPlan === "professional",
+    isPro: currentPlan === "pro",
+    isPremium: currentPlan === "premium",
     isBasic: currentPlan === "basic",
   }
 }
