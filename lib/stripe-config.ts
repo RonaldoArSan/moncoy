@@ -3,11 +3,10 @@ export const STRIPE_CONFIG = {
   publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
   
   // IDs dos preços do Stripe (price_xxx, não prod_xxx)
-  // IMPORTANTE: Substitua pelos IDs reais do seu Stripe Dashboard
   prices: {
-    BASIC: 'price_SEU_ID_BASICO_AQUI',     // R$ 19,90/mês
-    PRO: 'price_SEU_ID_PRO_AQUI',          // R$ 49,90/mês  
-    PREMIUM: 'price_SEU_ID_PREMIUM_AQUI'   // R$ 59,90/mês
+    BASIC: 'price_1RtvdYLhhuHU7ecWyxiz6zti',     // R$ 19,90/mês
+    PRO: 'price_1Rx7OBLhhuHU7ecWhotGOhi7',        // R$ 49,90/mês  
+    PREMIUM: 'price_1Rx7ZsLhhuHU7ecWtA3wXXXI'     // R$ 59,90/mês
   },
   
   // URLs de redirecionamento
