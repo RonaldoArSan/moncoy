@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,7 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { useAuth } from "@/hooks/use-auth"
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -113,8 +113,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-gray-900 dark:via-background dark:to-gray-800 p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-primary mb-2">Moncoy</h1>
@@ -466,7 +465,16 @@ export default function RegisterPage() {
             </Link>
           </div>
         </div>
-      </div>
+    </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-gray-900 dark:via-background dark:to-gray-800 p-4">
+      <Suspense fallback={<div>Carregando...</div>}>
+        <RegisterForm />
+      </Suspense>
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,7 +13,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 
-export default function LoginPage() {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -54,8 +54,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-gray-900 dark:via-background dark:to-gray-800 p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="w-full max-w-md space-y-8">
         {/* Logo/Brand */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-primary mb-2">Moncoy</h1>
@@ -187,7 +186,16 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
-      </div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-gray-900 dark:via-background dark:to-gray-800 p-4">
+      <Suspense fallback={<div>Carregando...</div>}>
+        <LoginForm />
+      </Suspense>
     </div>
   )
 }
