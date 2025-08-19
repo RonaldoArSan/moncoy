@@ -87,11 +87,19 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
 
   const upgradeToProfessional = async () => {
     try {
-      const { userApi } = await import('@/lib/api')
-      await userApi.updateUser({ plan: 'professional' })
-      setCurrentPlan("pro")
+      // Redirecionar para Stripe checkout em vez de atualizar diretamente
+      const { redirectToStripeCheckout, STRIPE_CONFIG } = await import('@/lib/stripe-config')
+      await redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)
     } catch (error) {
-      console.error('Erro ao atualizar plano:', error)
+      console.error('Erro ao redirecionar para checkout:', error)
+      // Fallback: tentar atualizar diretamente (para desenvolvimento)
+      try {
+        const { userApi } = await import('@/lib/api')
+        await userApi.updateUser({ plan: 'professional' })
+        setCurrentPlan("pro")
+      } catch (fallbackError) {
+        console.error('Erro ao atualizar plano:', fallbackError)
+      }
     }
   }
 
