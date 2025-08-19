@@ -222,7 +222,7 @@ function RegisterForm() {
                       <PhoneInput
                         id="phone"
                         value={formData.phone}
-                        onChange={(formatted, unformatted) => handleInputChange("phone", formatted)}
+                        onChange={(formatted) => handleInputChange("phone", formatted)}
                         className="pl-10"
                         required
                       />
