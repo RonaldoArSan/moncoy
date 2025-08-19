@@ -224,6 +224,7 @@ function RegisterForm() {
                         value={formData.phone}
                         onChange={(formatted) => handleInputChange("phone", formatted)}
                         className="pl-10"
+                        
                         required
                       />
                     </div>

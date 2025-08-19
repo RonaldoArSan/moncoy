@@ -5,8 +5,10 @@ export function formatPhoneNumber(value: string): string {
   const numbers = value.replace(/\D/g, '')
   
   // Aplica a máscara baseada no tamanho
-  if (numbers.length <= 2) {
-    return `(${numbers}`
+  if (numbers.length === 0) {
+    return ''
+  } else if (numbers.length <= 2) {
+    return `(${numbers})`
   } else if (numbers.length <= 6) {
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`
   } else if (numbers.length <= 10) {
