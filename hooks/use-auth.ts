@@ -23,27 +23,13 @@ export function useAuth() {
         options: {
           data: {
             name: data.name,
-            plan: data.plan
+            plan: data.plan,
+            openai_key: data.openaiKey
           }
         }
       })
 
       if (authError) throw authError
-
-      if (authData.user) {
-        // Create user profile
-        await userApi.createUserProfile(authData.user)
-        
-        // Update settings if OpenAI key provided
-        if (data.openaiKey && data.plan === 'professional') {
-          await supabase
-            .from('user_settings')
-            .upsert({
-              user_id: authData.user.id,
-              openai_api_key: data.openaiKey
-            })
-        }
-      }
 
       return { success: true, user: authData.user }
     } catch (error: any) {

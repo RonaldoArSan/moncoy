@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, Mail, Lock, Chrome, User, Phone, Building2, Check, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { PhoneInput } from "@/components/ui/phone-input"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -29,8 +29,17 @@ export default function RegisterPage() {
   })
   const [error, setError] = useState("")
   const [step, setStep] = useState(1)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { loading, signUp, signInWithGoogle } = useAuth()
+
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success') {
+      setPaymentSuccess(true)
+      setFormData(prev => ({ ...prev, plan: "professional" }))
+    }
+  }, [searchParams])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -134,6 +143,11 @@ export default function RegisterPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {paymentSuccess && (
+              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                ✅ Pagamento confirmado! Complete seu cadastro para acessar.
+              </div>
+            )}
             {error && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                 {error}
@@ -277,6 +291,67 @@ export default function RegisterPage() {
 
             {step === 2 && (
               <div className="space-y-6">
+                {paymentSuccess && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 className="font-medium text-green-800 mb-2">Plano Ativo</h4>
+                    <div className="flex items-center gap-2">
+                      <Check className="h-5 w-5 text-green-600" />
+                      <span className="text-sm text-green-700">Plano Profissional - Pago</span>
+                    </div>
+                  </div>
+                )}
+                
+                {!paymentSuccess && (
+                  <div className="space-y-3">
+                    <Label>Escolha seu plano</Label>
+                    <div className="space-y-3">
+                      <Card
+                        className={`cursor-pointer transition-all ${
+                          formData.plan === "basic" ? "ring-2 ring-primary" : ""
+                        }`}
+                        onClick={() => handleInputChange("plan", "basic")}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold">Plano Básico</h3>
+                                <Badge variant="secondary">Gratuito</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                Funcionalidades essenciais de gestão financeira
+                              </p>
+                            </div>
+                            {formData.plan === "basic" && <Check className="h-5 w-5 text-primary" />}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card
+                        className={`cursor-pointer transition-all ${
+                          formData.plan === "professional" ? "ring-2 ring-primary" : ""
+                        }`}
+                        onClick={() => handleInputChange("plan", "professional")}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold">Plano Profissional</h3>
+                                <Badge variant="default">R$ 29,99/mês</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                IA, análise de comprovantes e recursos avançados
+                              </p>
+                            </div>
+                            {formData.plan === "professional" && <Check className="h-5 w-5 text-primary" />}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
                 {/* Account Type */}
                 <div className="space-y-3">
                   <Label>Tipo de conta</Label>
@@ -297,56 +372,6 @@ export default function RegisterPage() {
                       <Building2 className="h-6 w-6 mb-2" />
                       <span>Empresarial</span>
                     </Button>
-                  </div>
-                </div>
-
-                {/* Plan Selection */}
-                <div className="space-y-3">
-                  <Label>Escolha seu plano</Label>
-                  <div className="space-y-3">
-                    <Card
-                      className={`cursor-pointer transition-all ${
-                        formData.plan === "basic" ? "ring-2 ring-primary" : ""
-                      }`}
-                      onClick={() => handleInputChange("plan", "basic")}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold">Plano Básico</h3>
-                              <Badge variant="secondary">Gratuito</Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              Funcionalidades essenciais de gestão financeira
-                            </p>
-                          </div>
-                          {formData.plan === "basic" && <Check className="h-5 w-5 text-primary" />}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card
-                      className={`cursor-pointer transition-all ${
-                        formData.plan === "professional" ? "ring-2 ring-primary" : ""
-                      }`}
-                      onClick={() => handleInputChange("plan", "professional")}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold">Plano Profissional</h3>
-                              <Badge variant="default">R$ 29,99/mês</Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              IA, análise de comprovantes e recursos avançados
-                            </p>
-                          </div>
-                          {formData.plan === "professional" && <Check className="h-5 w-5 text-primary" />}
-                        </div>
-                      </CardContent>
-                    </Card>
                   </div>
                 </div>
 
@@ -395,7 +420,7 @@ export default function RegisterPage() {
                     </p>
                     <p>
                       <span className="text-muted-foreground">Plano:</span>{" "}
-                      {formData.plan === "basic" ? "Básico (Gratuito)" : "Profissional (R$ 29,99/mês)"}
+                      {formData.plan === "basic" ? "Básico (Gratuito)" : paymentSuccess ? "Profissional (Pago)" : "Profissional (R$ 29,99/mês)"}
                     </p>
                   </div>
                 </div>
@@ -421,7 +446,7 @@ export default function RegisterPage() {
             {step === 1 && (
               <div className="text-center text-sm">
                 <span className="text-muted-foreground">Já tem uma conta? </span>
-                <Link href="/login" className="text-primary hover:underline">
+                <Link href={paymentSuccess ? "/login?payment=success" : "/login"} className="text-primary hover:underline">
                   Fazer login
                 </Link>
               </div>
