@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { NewInvestmentModal } from "@/components/modals/new-investment-modal"
 import { ExportModal } from "@/components/modals/export-modal"
-import { TrendingUp, PlusCircle, DollarSign, BarChart3, Calculator, FileText, Eye, MoreHorizontal } from "lucide-react"
+import { TrendingUp, PlusCircle, DollarSign, BarChart3, Calculator, FileText, Eye, MoreHorizontal, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useInvestments } from "@/hooks/use-investments"
 import { useUserPlan } from "@/contexts/user-plan-context"
@@ -15,7 +15,7 @@ export default function InvestmentsPage() {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   
-  const { investments, loading, calculatePortfolioSummary, getAssetTypeDistribution } = useInvestments()
+  const { investments, loading, calculatePortfolioSummary, getAssetTypeDistribution, deleteInvestment } = useInvestments()
   const { currentPlan } = useUserPlan()
   const isProfessional = ['pro', 'premium'].includes(currentPlan)
   
@@ -218,15 +218,25 @@ export default function InvestmentsPage() {
                               {getAssetTypeLabel(investment.asset_type)}
                             </Badge>
                           </div>
-                          <div className="text-right">
-                            <div className="font-medium">
-                              R$ {totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          <div className="flex items-center gap-2">
+                            <div className="text-right">
+                              <div className="font-medium">
+                                R$ {totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className={`text-sm ${
+                                gainPercentage >= 0 ? "text-green-600" : "text-red-600"
+                              }`}>
+                                {gainPercentage >= 0 ? "+" : ""}{gainPercentage.toFixed(2)}%
+                              </div>
                             </div>
-                            <div className={`text-sm ${
-                              gainPercentage >= 0 ? "text-green-600" : "text-red-600"
-                            }`}>
-                              {gainPercentage >= 0 ? "+" : ""}{gainPercentage.toFixed(2)}%
-                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteInvestment(investment.id)}
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -258,6 +268,7 @@ export default function InvestmentsPage() {
                       <th className="text-right py-2">Valor Total</th>
                       <th className="text-right py-2">Ganho/Perda</th>
                       <th className="text-right py-2">%</th>
+                      <th className="text-right py-2">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -298,6 +309,16 @@ export default function InvestmentsPage() {
                           >
                             {gainPercentage >= 0 ? "+" : ""}
                             {gainPercentage.toFixed(2)}%
+                          </td>
+                          <td className="text-right py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteInvestment(investment.id)}
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </td>
                         </tr>
                       )
