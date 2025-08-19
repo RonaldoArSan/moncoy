@@ -29,11 +29,12 @@ import {
   Save,
 } from "lucide-react"
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { useSettingsContext } from "@/contexts/settings-context"
 import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function SettingsPage() {
-  const { user, loading } = useSettingsContext()
+  const { user, loading, updateUser } = useSettingsContext()
   const { currentPlan, upgradeToProfessional } = useUserPlan()
   const [showAddBankModal, setShowAddBankModal] = useState(false)
   const [show2FAModal, setShow2FAModal] = useState(false)
@@ -58,7 +59,25 @@ export default function SettingsPage() {
 
   
   const handleSaveProfile = async () => {
-    alert('Funcionalidade em desenvolvimento')
+    try {
+      setIsSaving(true)
+      const emailChanged = formData.email !== user?.email
+      
+      await updateUser({
+        name: formData.name,
+        email: formData.email
+      })
+      
+      if (emailChanged) {
+        alert('Perfil atualizado! Verifique seu novo email para confirmar a alteração.')
+      } else {
+        alert('Perfil atualizado com sucesso!')
+      }
+    } catch (error: any) {
+      alert(error.message || 'Erro ao salvar alterações')
+    } finally {
+      setIsSaving(false)
+    }
   }
   
   if (loading) {
@@ -140,17 +159,18 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-2">
                   <Input 
                     id="plan" 
-                    value={isProfessional ? 'Profissional' : 'Básico'}
+                    value={user?.plan === 'professional' ? 'Profissional' : 'Básico'}
                     disabled
                   />
-                  {!isProfessional && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={upgradeToProfessional}
-                    >
-                      Upgrade
-                    </Button>
+                  {user?.plan !== 'professional' && (
+                    <Link href="/plans">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                      >
+                        Upgrade
+                      </Button>
+                    </Link>
                   )}
                 </div>
               </div>
@@ -158,9 +178,9 @@ export default function SettingsPage() {
             <Button 
               className="bg-blue-600 hover:bg-blue-700" 
               onClick={handleSaveProfile}
-              disabled
+              disabled={isSaving}
             >
-              Salvar Alterações
+              {isSaving ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
           </CardContent>
         </Card>
@@ -179,11 +199,11 @@ export default function SettingsPage() {
               <div className="space-y-1">
                 <Label>Plano Atual</Label>
                 <p className="text-sm text-muted-foreground">
-                  {isProfessional ? "Plano Profissional" : "Plano Básico"}
+                  {user?.plan === 'professional' ? "Plano Profissional" : "Plano Básico"}
                 </p>
               </div>
-              <Badge variant={isProfessional ? "default" : "secondary"}>
-                {isProfessional ? "PRO" : "BÁSICO"}
+              <Badge variant={user?.plan === 'professional' ? "default" : "secondary"}>
+                {user?.plan === 'professional' ? "PRO" : "BÁSICO"}
               </Badge>
             </div>
             <div className="space-y-2">
@@ -210,7 +230,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Configurações de IA */}
-        {isProfessional && (
+        {user?.plan === 'professional' && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

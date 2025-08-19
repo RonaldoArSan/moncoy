@@ -45,12 +45,24 @@ export function useSettings() {
   const updateUser = async (updates: Partial<User>) => {
     try {
       if (!user) return
+      
+      // Se está atualizando email, atualizar no Supabase Auth também
+      if (updates.email && updates.email !== user.email) {
+        const { error: authError } = await supabase.auth.updateUser({
+          email: updates.email
+        })
+        if (authError) throw authError
+      }
+      
       const updatedUser = await userApi.updateUser(updates)
       setUser(updatedUser)
       return updatedUser
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar usuário:', error)
-      throw error
+      if (error.code === '23505') {
+        throw new Error('Este email já está em uso por outro usuário')
+      }
+      throw new Error(error.message || 'Erro ao atualizar usuário')
     }
   }
 
