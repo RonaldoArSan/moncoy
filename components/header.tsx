@@ -19,6 +19,7 @@ import { PlanBadge } from "@/components/plan-upgrade-card"
 import { useSettingsContext } from "@/contexts/settings-context"
 import { useUserPlan } from "@/contexts/user-plan-context"
 import { useAuth } from "@/hooks/use-auth"
+import supabase from "@/lib/supabase"
 
 interface HeaderProps {
   onMenuClick?: () => void
@@ -34,8 +35,12 @@ export function Header({ onMenuClick }: HeaderProps) {
   }
 
   const handleLogout = async () => {
-    const result = await signOut()
-    if (result.success) {
+    try {
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error('Erro no logout:', error)
+    } finally {
+      localStorage.clear()
       window.location.href = "/login"
     }
   }

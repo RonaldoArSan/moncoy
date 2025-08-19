@@ -21,6 +21,7 @@ export function useSettings() {
       }
 
       const userData = await userApi.getCurrentUser()
+
       setUser(userData)
 
       if (userData) {

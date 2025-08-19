@@ -30,7 +30,7 @@ export const userApi = {
       id: authUser.id,
       name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário',
       email: authUser.email,
-      plan: 'basic' as const,
+      plan: authUser.user_metadata?.plan || 'basic' as const,
       registration_date: authUser.created_at
     }
 
