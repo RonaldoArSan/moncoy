@@ -89,9 +89,12 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
     try {
       // Redirecionar para Stripe checkout em vez de atualizar diretamente
       const { redirectToStripeCheckout, STRIPE_CONFIG } = await import('@/lib/stripe-config')
+      if (!STRIPE_CONFIG?.prices?.PRO) {
+        throw new Error('Configuração do Stripe não encontrada')
+      }
       await redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)
     } catch (error) {
-      console.error('Erro ao redirecionar para checkout:', error)
+      console.error('Erro ao processar plano:', error)
       // Fallback: tentar atualizar diretamente (para desenvolvimento)
       try {
         const { userApi } = await import('@/lib/api')
