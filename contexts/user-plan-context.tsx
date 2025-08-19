@@ -87,11 +87,19 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
 
   const upgradeToProfessional = async () => {
     try {
-      // Redirecionar para Stripe checkout em vez de atualizar diretamente
+      // Verificar se estamos no browser
+      if (typeof window === 'undefined') {
+        throw new Error('Checkout só pode ser iniciado no cliente')
+      }
+
+      // Redirecionar para Stripe checkout
       const { redirectToStripeCheckout, STRIPE_CONFIG } = await import('@/lib/stripe-config')
+      
       if (!STRIPE_CONFIG?.prices?.PRO) {
         throw new Error('Configuração do Stripe não encontrada')
       }
+
+      // Iniciar checkout
       await redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)
     } catch (error) {
       console.error('Erro ao processar plano:', error)
