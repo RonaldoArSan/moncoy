@@ -21,8 +21,8 @@ interface UserPlanContextType {
   currentPlan: UserPlan
   features: UserPlanFeatures
   isFeatureAvailable: (feature: keyof UserPlanFeatures) => boolean
-  upgradeToProfessional: () => void
-  downgradeToBasic: () => void
+  upgradeToProfessional: () => Promise<void>
+  downgradeToBasic: () => Promise<void>
 }
 
 const planFeatures: Record<UserPlan, UserPlanFeatures> = {
@@ -85,24 +85,53 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
     return false
   }
 
-  const upgradeToPro = () => {
-    setCurrentPlan("pro")
+  const upgradeToProfessional = async () => {
+    try {
+      const { userApi } = await import('@/lib/api')
+      await userApi.updateUser({ plan: 'professional' })
+      setCurrentPlan("pro")
+    } catch (error) {
+      console.error('Erro ao atualizar plano:', error)
+    }
   }
 
-  const upgradeToPremium = () => {
-    setCurrentPlan("premium")
-  }
-
-  const downgradeTo = (plan: UserPlan) => {
-    setCurrentPlan(plan)
+  const downgradeToBasic = async () => {
+    try {
+      const { userApi } = await import('@/lib/api')
+      await userApi.updateUser({ plan: 'basic' })
+      setCurrentPlan("basic")
+    } catch (error) {
+      console.error('Erro ao atualizar plano:', error)
+    }
   }
 
   useEffect(() => {
-    // Load user plan from localStorage only
-    const savedPlan = localStorage.getItem("userPlan") as UserPlan
-    if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
-      setCurrentPlan(savedPlan)
+    // Load user plan from Supabase
+    async function loadUserPlan() {
+      try {
+        const { userApi } = await import('@/lib/api')
+        const user = await userApi.getCurrentUser()
+        if (user?.plan) {
+          // Map database plan to context plan
+          const planMapping: Record<string, UserPlan> = {
+            'basic': 'basic',
+            'professional': 'pro',
+            'premium': 'premium'
+          }
+          const mappedPlan = planMapping[user.plan] || 'basic'
+          setCurrentPlan(mappedPlan)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar plano do usuário:', error)
+        // Fallback to localStorage
+        const savedPlan = localStorage.getItem("userPlan") as UserPlan
+        if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
+          setCurrentPlan(savedPlan)
+        }
+      }
     }
+    
+    loadUserPlan()
   }, [])
 
   useEffect(() => {
@@ -115,9 +144,8 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
         currentPlan,
         features,
         isFeatureAvailable,
-        upgradeToPro,
-        upgradeToPremium,
-        downgradeTo,
+        upgradeToProfessional,
+        downgradeToBasic,
       }}
     >
       {children}
