@@ -326,6 +326,15 @@ export const investmentsApi = {
     return data
   },
 
+  async deleteInvestment(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('investments')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
   async getInvestmentTransactions(): Promise<InvestmentTransaction[]> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')

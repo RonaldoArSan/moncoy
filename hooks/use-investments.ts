@@ -39,6 +39,20 @@ export function useInvestments() {
     }
   }
 
+  const deleteInvestment = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este investimento?')) {
+      return
+    }
+    
+    try {
+      await investmentsApi.deleteInvestment(id)
+      setInvestments(prev => prev.filter(inv => inv.id !== id))
+    } catch (error) {
+      console.error('Erro ao excluir investimento:', error)
+      alert('Erro ao excluir investimento')
+    }
+  }
+
   const calculatePortfolioSummary = () => {
     const totalInvested = investments.reduce((sum, inv) => sum + (inv.quantity * inv.avg_price), 0)
     const totalValue = investments.reduce((sum, inv) => sum + (inv.quantity * (inv.current_price || inv.avg_price)), 0)
@@ -84,6 +98,7 @@ export function useInvestments() {
     categories,
     loading,
     createInvestment,
+    deleteInvestment,
     calculatePortfolioSummary,
     getAssetTypeDistribution,
     refreshInvestments: loadInvestments
