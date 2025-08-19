@@ -1,2 +1,0 @@
-id,user_id,asset_name,asset_type,quantity,avg_price,current_price,broker,category_id,created_at,updated_at
-550e8400-e29b-41d4-a716-446655440401,550e8400-e29b-41d4-a716-446655440003,PETR4,stocks,100.000000,28.50,32.10,XP Investimentos,550e8400-e29b-41d4-a716-446655440106,2024-11-25 10:00:00+00,2024-11-25 10:00:00+00

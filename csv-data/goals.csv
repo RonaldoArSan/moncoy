@@ -1,2 +1,0 @@
-id,user_id,title,description,target_amount,current_amount,deadline,category_id,priority,is_completed,created_at,updated_at
-550e8400-e29b-41d4-a716-446655440301,550e8400-e29b-41d4-a716-446655440003,Reserva de Emergência,6 meses de despesas,50000.00,15000.00,2024-12-31,550e8400-e29b-41d4-a716-446655440105,high,false,2024-11-25 10:00:00+00,2024-11-25 10:00:00+00
