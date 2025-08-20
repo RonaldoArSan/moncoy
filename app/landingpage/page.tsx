@@ -59,7 +59,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">M</span>
               </div>
-              <span className="ml-3 text-2xl font-bold text-gray-900">Moncoy Finance</span>
+              <span className="ml-3 text-2xl font-bold text-gray-900">Moncoy <span className="text-yellow-300">Finance</span></span>
             </div>
             <button 
               onClick={() => redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)}
