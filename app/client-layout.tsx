@@ -22,7 +22,8 @@ export default function ClientLayout({
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
-    pathname?.startsWith("/admin/login")
+    pathname?.startsWith("/admin/login") ||
+    pathname === "/landingpage"
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
@@ -30,15 +31,15 @@ export default function ClientLayout({
         <UserPlanProvider>
           {isAuthPage ? (
             <main className="min-h-screen bg-background">{children}</main>
-        ) : (
-          <div className="flex h-screen bg-background">
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-            <div className="flex flex-1 flex-col">
-              <Header onMenuClick={() => setIsSidebarOpen(prev => !prev)} />
-              <main className="flex-1 overflow-auto p-6">{children}</main>
+          ) : (
+            <div className="flex h-screen bg-background">
+              <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+              <div className="flex flex-1 flex-col">
+                <Header onMenuClick={() => setIsSidebarOpen(prev => !prev)} />
+                <main className="flex-1 overflow-auto p-6">{children}</main>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         </UserPlanProvider>
       </SettingsProvider>
     </ThemeProvider>

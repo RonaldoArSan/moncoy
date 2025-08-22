@@ -45,7 +45,7 @@ export default function SettingsPage() {
     email: ''
   })
   
-  const isProfessional = currentPlan === 'professional'
+  const isProfessional = currentPlan === 'pro'
 
   useEffect(() => {
     if (user) {
