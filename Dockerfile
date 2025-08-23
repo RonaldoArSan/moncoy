@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # Etapa 1: deps
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 WORKDIR /app
+RUN apk update && apk upgrade && rm -rf /var/cache/apk/*
 COPY package.json pnpm-lock.yaml* package-lock.json* yarn.lock* ./
 RUN --mount=type=cache,target=/root/.npm \
     if [ -f pnpm-lock.yaml ]; then \
@@ -16,8 +17,9 @@ RUN --mount=type=cache,target=/root/.npm \
     fi
 
 # Etapa 2: builder
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
+RUN apk update && apk upgrade && rm -rf /var/cache/apk/*
 ENV NODE_ENV=production
 ENV STANDALONE=true
 COPY --from=deps /app/node_modules ./node_modules
@@ -29,8 +31,8 @@ RUN --mount=type=cache,target=/root/.npm \
       npm run build; \
     fi
 
-# Etapa 3: runner
-FROM node:20-alpine AS runner
+# Etapa 3: runner - using distroless for security
+FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
@@ -42,4 +44,5 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+# Distroless images use "node" as entrypoint; just pass the script
+CMD ["server.js"]
