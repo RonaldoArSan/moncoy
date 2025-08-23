@@ -35,7 +35,7 @@ import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function SettingsPage() {
   const { user, loading, updateUser } = useSettingsContext()
-  const { currentPlan, upgradeToProfessional } = useUserPlan()
+  const { currentPlan } = useUserPlan()
   const [showAddBankModal, setShowAddBankModal] = useState(false)
   const [show2FAModal, setShow2FAModal] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
