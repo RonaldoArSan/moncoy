@@ -28,8 +28,8 @@ export const redirectToStripeCheckout = async (priceId: string) => {
         quantity: 1,
       }],
       mode: 'subscription',
-      successUrl: `${origin}/dashboard?upgrade=success`,
-      cancelUrl: `${origin}/plans?upgrade=cancelled`,
+      successUrl: `${origin}/success`,
+      cancelUrl: `${origin}/cancel`,
     })
 
     if (error) {

@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+Dockerfile*
+README.md
+*.log
+.env*
+tmp
+.vscode
+.DS_Store
