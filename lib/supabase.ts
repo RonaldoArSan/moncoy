@@ -144,4 +144,26 @@ export interface RecurringTransaction {
   category?: Category
 }
 
+export interface SupportSettings {
+  id: string
+  support_email?: string | null
+  phones: string[]
+  whatsapp?: string | null
+  business_hours?: string | null
+  chat_url?: string | null
+  knowledge_base_url?: string | null
+  updated_at: string
+}
+
+export interface SupportTicket {
+  id: string
+  user_id: string
+  subject: string
+  description?: string | null
+  priority: 'Baixa' | 'Média' | 'Alta' | 'Urgente'
+  status: 'Aberto' | 'Em andamento' | 'Resolvido' | 'Fechado'
+  created_at: string
+  updated_at: string
+}
+
 export default supabase
