@@ -10,8 +10,21 @@ export const STRIPE_CONFIG = {
   }
 }
 
+// Validação defensiva: nunca permitir sk_ no cliente
+if (
+  typeof window !== 'undefined' &&
+  STRIPE_CONFIG.publishableKey &&
+  !STRIPE_CONFIG.publishableKey.startsWith('pk_')
+) {
+  // Não expor a chave, apenas orientar
+  console.error('Chave Stripe inválida no cliente. Use NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY começando com "pk_".');
+}
+
 export const redirectToStripeCheckout = async (priceId: string) => {
   try {
+    if (!STRIPE_CONFIG.publishableKey || !STRIPE_CONFIG.publishableKey.startsWith('pk_')) {
+      throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ausente ou inválida (deve iniciar com pk_)')
+    }
     const { loadStripe } = await import('@stripe/stripe-js')
     const stripe = await loadStripe(STRIPE_CONFIG.publishableKey)
     
