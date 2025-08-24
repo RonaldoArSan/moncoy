@@ -64,9 +64,31 @@ export default function PlansPage() {
   const handlePlanChange = async (planId: string) => {
     try {
       if (planId === 'pro' && currentPlan === 'basic') {
-        await redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)
+        await fetch('/api/stripe/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priceId: STRIPE_CONFIG.prices.PRO, plan: 'professional' })
+        }).then(async (res) => {
+          if (!res.ok) throw new Error('Falha ao criar sessão')
+          const { sessionId } = await res.json()
+          const { loadStripe } = await import('@stripe/stripe-js')
+          const stripe = await loadStripe(STRIPE_CONFIG.publishableKey)
+          if (!stripe) throw new Error('Stripe não carregou')
+          await stripe.redirectToCheckout({ sessionId })
+        })
       } else if (planId === 'premium') {
-        await redirectToStripeCheckout(STRIPE_CONFIG.prices.PREMIUM)
+        await fetch('/api/stripe/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priceId: STRIPE_CONFIG.prices.PREMIUM, plan: 'premium' })
+        }).then(async (res) => {
+          if (!res.ok) throw new Error('Falha ao criar sessão')
+          const { sessionId } = await res.json()
+          const { loadStripe } = await import('@stripe/stripe-js')
+          const stripe = await loadStripe(STRIPE_CONFIG.publishableKey)
+          if (!stripe) throw new Error('Stripe não carregou')
+          await stripe.redirectToCheckout({ sessionId })
+        })
       } else if (planId === 'basic' && (currentPlan === 'pro' || currentPlan === 'premium')) {
         await downgradeToBasic()
       }

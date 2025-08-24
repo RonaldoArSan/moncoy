@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'STRIPE_SECRET_KEY ausente ou inválida no servidor.' }, { status: 500 })
     }
 
-    const { priceId, customerEmail, metadata } = await req.json().catch(() => ({}))
+  const { priceId, customerEmail, metadata, plan } = await req.json().catch(() => ({}))
     if (!priceId || typeof priceId !== 'string') {
       return NextResponse.json({ error: 'priceId é obrigatório.' }, { status: 400 })
     }
@@ -27,7 +27,10 @@ export async function POST(req: NextRequest) {
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       customer_email: typeof customerEmail === 'string' ? customerEmail : undefined,
-      metadata: typeof metadata === 'object' && metadata !== null ? metadata : undefined,
+      metadata: {
+        ...(typeof metadata === 'object' && metadata !== null ? metadata : {}),
+        plan: typeof plan === 'string' ? plan : undefined,
+      },
     })
 
     return NextResponse.json({ sessionId: session.id })

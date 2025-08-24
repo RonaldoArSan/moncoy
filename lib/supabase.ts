@@ -8,10 +8,11 @@ export interface User {
   id: string
   name: string
   email: string
-  plan: 'basic' | 'professional'
+  plan: 'basic' | 'professional' | 'premium'
   registration_date: string
   created_at: string
   updated_at: string
+  stripe_customer_id?: string | null
 }
 
 export interface Category {

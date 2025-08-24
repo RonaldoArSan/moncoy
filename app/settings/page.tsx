@@ -40,6 +40,7 @@ export default function SettingsPage() {
   const [show2FAModal, setShow2FAModal] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isPortalLoading, setIsPortalLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: ''
@@ -205,6 +206,39 @@ export default function SettingsPage() {
               <Badge variant={user?.plan === 'professional' ? "default" : "secondary"}>
                 {user?.plan === 'professional' ? "PRO" : "BÁSICO"}
               </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              {user?.plan !== 'professional' && (
+                <Link href="/plans">
+                  <Button variant="outline" size="sm">Upgrade</Button>
+                </Link>
+              )}
+              {user?.stripe_customer_id && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      setIsPortalLoading(true)
+                      const res = await fetch('/api/stripe/billing-portal', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ customerId: user.stripe_customer_id })
+                      })
+                      if (!res.ok) throw new Error('Falha ao abrir Portal de Cobrança')
+                      const { url } = await res.json()
+                      window.location.href = url
+                    } catch (e: any) {
+                      alert(e.message || 'Erro ao abrir Portal de Cobrança')
+                    } finally {
+                      setIsPortalLoading(false)
+                    }
+                  }}
+                  disabled={isPortalLoading}
+                >
+                  {isPortalLoading ? 'Abrindo...' : 'Gerenciar assinatura'}
+                </Button>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="account-type">Tipo de Conta</Label>
