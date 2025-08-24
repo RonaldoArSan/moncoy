@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import stripe from '@/lib/stripe'
 import type Stripe from 'stripe'
+import { getPublicBaseUrl } from '@/lib/url'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'priceId é obrigatório.' }, { status: 400 })
     }
 
-    const origin = req.headers.get('origin') || process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const origin = getPublicBaseUrl(req)
 
     const params: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
