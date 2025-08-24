@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import stripe from '@/lib/stripe'
+import type Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
-    const session = await stripe.checkout.sessions.create({
+    const params: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       line_items: [
         { price: priceId, quantity: 1 },
@@ -26,12 +27,19 @@ export async function POST(req: NextRequest) {
       cancel_url: `${origin}/cancel`,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
-      customer_email: typeof customerEmail === 'string' ? customerEmail : undefined,
-      metadata: {
+    }
+
+    if (typeof customerEmail === 'string') {
+      params.customer_email = customerEmail
+    }
+    if (typeof plan === 'string' || (typeof metadata === 'object' && metadata !== null)) {
+      params.metadata = {
         ...(typeof metadata === 'object' && metadata !== null ? metadata : {}),
-        plan: typeof plan === 'string' ? plan : undefined,
-      },
-    })
+        ...(typeof plan === 'string' ? { plan } : {}),
+      }
+    }
+
+    const session = await stripe.checkout.sessions.create(params)
 
     return NextResponse.json({ sessionId: session.id })
   } catch (err: any) {
