@@ -25,26 +25,27 @@ export const redirectToStripeCheckout = async (priceId: string) => {
     if (!STRIPE_CONFIG.publishableKey || !STRIPE_CONFIG.publishableKey.startsWith('pk_')) {
       throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ausente ou inválida (deve iniciar com pk_)')
     }
-    const { loadStripe } = await import('@stripe/stripe-js')
-    const stripe = await loadStripe(STRIPE_CONFIG.publishableKey)
-    
-    if (!stripe) {
-      throw new Error('Stripe não carregou')
-    }
 
-    // Garantir que temos uma origem válida
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-    
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{
-        price: priceId,
-        quantity: 1,
-      }],
-      mode: 'subscription',
-      successUrl: `${origin}/success`,
-      cancelUrl: `${origin}/cancel`,
+    // 1) Cria a sessão no servidor
+    const res = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId }),
     })
 
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error(data.error || 'Falha ao criar sessão do checkout')
+    }
+
+    const { sessionId } = await res.json()
+
+    // 2) Redireciona via Stripe.js
+    const { loadStripe } = await import('@stripe/stripe-js')
+    const stripe = await loadStripe(STRIPE_CONFIG.publishableKey)
+    if (!stripe) throw new Error('Stripe não carregou')
+
+    const { error } = await stripe.redirectToCheckout({ sessionId })
     if (error) {
       console.error('Erro no checkout:', error)
       throw error
