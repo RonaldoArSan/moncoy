@@ -31,7 +31,8 @@ export const userApi = {
       name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário',
       email: authUser.email,
       plan: authUser.user_metadata?.plan || 'basic' as const,
-      registration_date: authUser.created_at
+      registration_date: authUser.created_at,
+      photo_url: authUser.user_metadata?.avatar_url || null // Foto do Google
     }
 
     const { data, error } = await supabase
