@@ -1,6 +1,9 @@
 "use client"
 
 import type React from "react"
+import { useTransactions } from "@/hooks/use-transactions"
+import { useGoals } from "@/hooks/use-goals"
+import { useInvestments } from "@/hooks/use-investments"
 
 import { Search, Clock, TrendingUp, Target, CreditCard, DollarSign } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -30,48 +33,42 @@ export function SearchDropdown() {
   const [query, setQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
+  const { transactions } = useTransactions()
+  const { goals } = useGoals()
+  const { investments } = useInvestments()
 
-  // Mock search data
+  // Monta dados reais para busca
   const searchData: SearchResult[] = [
-    {
-      id: "1",
-      type: "transaction",
-      title: "Supermercado Extra",
-      subtitle: "Alimentação • Hoje",
-      value: "R$ 156,80",
-      href: "/transactions",
-      icon: <DollarSign className="h-4 w-4 text-danger-500" />,
-    },
-    {
-      id: "2",
-      type: "transaction",
-      title: "Salário",
-      subtitle: "Receita • 01/12",
-      value: "R$ 5.500,00",
-      href: "/transactions",
-      icon: <DollarSign className="h-4 w-4 text-success-500" />,
-    },
-    {
-      id: "3",
-      type: "goal",
-      title: "Viagem para Europa",
-      subtitle: "Meta • 65% concluída",
-      value: "R$ 6.500,00",
-      href: "/goals",
+    ...transactions.map(tx => ({
+      id: tx.id,
+      type: "transaction" as const,
+      title: tx.description,
+      subtitle: `${tx.type === "income" ? "Receita" : "Despesa"}${tx.category ? ` • ${tx.category.name}` : ""} • ${new Date(tx.date).toLocaleDateString("pt-BR")}`,
+      value: `R$ ${tx.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      href: `/transactions/${tx.id}`,
+      icon: <DollarSign className={`h-4 w-4 ${tx.type === "income" ? "text-success-500" : "text-danger-500"}`} />,
+    })),
+    ...goals.map(goal => ({
+      id: goal.id,
+      type: "goal" as const,
+      title: goal.title,
+      subtitle: `Meta • ${(goal.current_amount / goal.target_amount * 100).toFixed(0)}% concluída`,
+      value: `R$ ${goal.target_amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      href: `/goals/${goal.id}`,
       icon: <Target className="h-4 w-4 text-primary-500" />,
-    },
-    {
-      id: "4",
-      type: "investment",
-      title: "PETR4",
-      subtitle: "Ações • +2,5%",
-      value: "R$ 2.340,00",
-      href: "/investments",
+    })),
+    ...investments.map(inv => ({
+      id: inv.id,
+      type: "investment" as const,
+      title: inv.asset_name,
+      subtitle: `Investimento • ${inv.asset_type}${inv.broker ? ` • ${inv.broker}` : ""}`,
+      value: inv.current_price ? `R$ ${inv.current_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : undefined,
+      href: `/investments/${inv.id}`,
       icon: <TrendingUp className="h-4 w-4 text-success-500" />,
-    },
+    })),
     {
-      id: "5",
-      type: "page",
+      id: "reports",
+      type: "page" as const,
       title: "Relatórios",
       subtitle: "Análises financeiras",
       href: "/reports",
