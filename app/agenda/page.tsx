@@ -100,9 +100,9 @@ export default function AgendaPage() {
                   <div className="flex items-center justify-between px-2 py-1 rounded-t-lg border-b"
                     style={{ background: 'var(--sidebar)', color: 'var(--sidebar-foreground)', borderColor: 'var(--sidebar-border)' }}>
                     <div className="flex gap-1">
-                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate && props.onNavigate('PREV')}>{(props.messages && props.messages.previous) ? props.messages.previous : 'Anterior'}</button>
-                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate && props.onNavigate('TODAY')}>{(props.messages && props.messages.today) ? props.messages.today : 'Hoje'}</button>
-                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate && props.onNavigate('NEXT')}>{(props.messages && props.messages.next) ? props.messages.next : 'Próximo'}</button>
+                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate('PREV')}>{(props.messages && props.messages.previous) ? props.messages.previous : 'Anterior'}</button>
+                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate('TODAY')}>{(props.messages && props.messages.today) ? props.messages.today : 'Hoje'}</button>
+                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate('NEXT')}>{(props.messages && props.messages.next) ? props.messages.next : 'Próximo'}</button>
                     </div>
                     <span className="font-bold text-lg" style={{ color: 'var(--sidebar-primary)' }}>{props.label}</span>
                     <div className="flex gap-1">
@@ -113,7 +113,7 @@ export default function AgendaPage() {
                             background: props.view === view ? 'var(--primary)' : 'var(--secondary)',
                             color: props.view === view ? 'var(--primary-foreground)' : 'var(--secondary-foreground)'
                           }}
-                          onClick={() => props.onView && props.onView(view)}>
+                          onClick={() => props.onView(view)}>
                           {view === 'month' ? 'Mês' : view === 'week' ? 'Semana' : view === 'day' ? 'Dia' : view}
                         </button>
                       ))}
