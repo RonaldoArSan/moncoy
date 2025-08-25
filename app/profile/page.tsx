@@ -36,6 +36,29 @@ export default function ProfilePage() {
   }, [user?.registration_date])
 
   const initials = (user?.name || "Usuário").split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase()
+  const [photoUploading, setPhotoUploading] = useState(false)
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user?.id) return
+    setPhotoUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('userId', user.id)
+    try {
+      const res = await fetch('/api/user/upload-photo', {
+        method: 'POST',
+        body: formData,
+      })
+      if (!res.ok) throw new Error('Falha ao enviar foto')
+      const { photoUrl } = await res.json()
+      await updateUser?.({ photo_url: photoUrl })
+      alert('Foto atualizada!')
+    } catch (e: any) {
+      alert(e.message || 'Erro ao enviar foto')
+    } finally {
+      setPhotoUploading(false)
+    }
+  }
 
   const handleSave = async () => {
     try {
@@ -71,7 +94,16 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Meu Perfil</h1>
+        <div className="flex items-center gap-4">
+          <Avatar className="w-16 h-16">
+            <AvatarImage src={user?.photo_url || undefined} alt={user?.name || 'Foto de perfil'} />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <input type="file" accept="image/*" onChange={handlePhotoChange} disabled={photoUploading} />
+            {photoUploading && <span className="text-xs text-gray-500 ml-2">Enviando...</span>}
+          </div>
+        </div>
         <Badge variant="secondary" className="text-sm">
           <CreditCard className="w-4 h-4 mr-1" />
           Plano {planLabel}

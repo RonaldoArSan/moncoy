@@ -13,6 +13,7 @@ export interface User {
   created_at: string
   updated_at: string
   stripe_customer_id?: string | null
+  photo_url?: string | null // URL da foto do usuário
 }
 
 export interface Category {
