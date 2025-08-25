@@ -4,11 +4,12 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, CreditCard, Target, TrendingUp, FileText, Settings, Menu, X, Brain } from "lucide-react"
+import { LayoutDashboard, CreditCard, Target, TrendingUp, FileText, Settings, Menu, X, Brain, Calendar } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Transações", href: "/transactions", icon: CreditCard },
+  { name: "Agenda", href: "/agenda", icon: Calendar },
   { name: "Metas", href: "/goals", icon: Target },
   { name: "Investimentos", href: "/investments", icon: TrendingUp },
   { name: "Relatórios", href: "/reports", icon: FileText },

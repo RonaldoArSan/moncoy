@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTransactions } from './use-transactions'
 import supabase from '@/lib/supabase'
 import { useReports } from './use-reports'
 import { useGoals } from './use-goals'
@@ -18,6 +19,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true)
   const { getKPIs, getCategoryExpenses } = useReports()
   const { goals } = useGoals()
+  const { transactions } = useTransactions()
 
   const loadNotifications = async () => {
     try {
@@ -134,6 +136,29 @@ export function useNotifications() {
             read: false
           })
         }
+      }
+
+      // Notificação de transações próximas do vencimento
+      if (transactions && transactions.length > 0) {
+        const now = new Date()
+  transactions.forEach(async (tx: import('@/lib/supabase').Transaction) => {
+          if (tx.status === 'due_soon') {
+            await createNotification({
+              type: 'warning',
+              title: 'Transação próxima do vencimento',
+              message: `A transação "${tx.description}" vence em breve (data: ${new Date(tx.date).toLocaleDateString('pt-BR')}).`,
+              read: false
+            })
+          }
+          if (tx.status === 'overdue') {
+            await createNotification({
+              type: 'error',
+              title: 'Transação atrasada',
+              message: `A transação "${tx.description}" está atrasada (data: ${new Date(tx.date).toLocaleDateString('pt-BR')}).`,
+              read: false
+            })
+          }
+        })
       }
 
       // Notificação de metas próximas de serem atingidas
