@@ -9,7 +9,14 @@ export function useAI() {
   const { user } = useSettingsContext()
 
   const analyzeTransactions = async (transactions: any[], type: string) => {
-    if (currentPlan === 'basic') {
+    // Verificação de tempo de uso para plano básico
+    if (currentPlan === 'basic' && user?.registration_date) {
+      const registrationDate = new Date(user.registration_date)
+      const now = new Date()
+      const diffDays = Math.floor((now.getTime() - registrationDate.getTime()) / (1000 * 60 * 60 * 24))
+      if (diffDays < 22) {
+        throw new Error('As análises de IA estarão disponíveis após 22 dias de uso. Continue utilizando para desbloquear esta funcionalidade!')
+      }
       // TODO: Verificar limite de 5 perguntas por semana
     }
 

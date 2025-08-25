@@ -41,10 +41,10 @@ export default function AIAdvicePage() {
                 Obtenha insights inteligentes, sugestões de orçamento e análises preditivas com nossa IA especializada em finanças.
               </p>
               <div className="flex gap-2">
-                <Button onClick={upgradeToPro}>
+                <Button onClick={upgradeToProfessional}>
                   Upgrade para Pro
                 </Button>
-                <Button onClick={upgradeToPremium} variant="outline">
+                <Button onClick={upgradeToProfessional} variant="outline">
                   Upgrade para Premium
                 </Button>
               </div>
