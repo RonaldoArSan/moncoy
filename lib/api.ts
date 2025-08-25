@@ -494,6 +494,7 @@ export const recurringTransactionsApi = {
           category_id: rec.category_id,
           date: transactionDate.toISOString().split('T')[0],
           status: 'pending',
+          priority: rec.priority || 'medium',
           notes: `Transação recorrente: ${rec.notes || ''}`.trim()
         })
       }
