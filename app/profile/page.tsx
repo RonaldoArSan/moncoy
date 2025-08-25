@@ -9,9 +9,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User as UserIcon, Calendar, CreditCard } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useSettingsContext } from "@/contexts/settings-context"
+import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function ProfilePage() {
   const { user, loading, updateUser } = useSettingsContext()
+  const { currentPlan, upgradeToProfessional, downgradeToBasic } = useUserPlan()
   const [form, setForm] = useState({ name: "", email: "" })
   const [saving, setSaving] = useState(false)
 
@@ -175,11 +177,27 @@ export default function ProfilePage() {
 
             <div className="pt-4 space-y-2">
               <Button variant="outline" className="w-full bg-transparent" onClick={openBillingPortal} disabled={!user?.stripe_customer_id}>
-                Gerenciar Plano
+                Gerenciar Plano (Stripe)
               </Button>
               <Button variant="outline" className="w-full bg-transparent" disabled>
                 Histórico de Pagamentos
               </Button>
+              {/* Gerenciamento de plano direto */}
+              {currentPlan === 'basic' && (
+                <Button className="w-full mt-2" onClick={upgradeToProfessional}>
+                  Upgrade para Profissional
+                </Button>
+              )}
+              {currentPlan === 'pro' && (
+                <Button className="w-full mt-2" onClick={downgradeToBasic} variant="outline">
+                  Voltar para Básico
+                </Button>
+              )}
+              {currentPlan === 'premium' && (
+                <Button className="w-full mt-2" disabled>
+                  Plano Premium Ativo
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
