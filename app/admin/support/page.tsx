@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Plus, Trash } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import type { SupportSettings } from '@/lib/supabase'
+import { getSupportSettings, saveSupportSettings } from './actions'
 
 export default function AdminSupportSettingsPage() {
   const { toast } = useToast()
@@ -26,8 +26,7 @@ export default function AdminSupportSettingsPage() {
   const loadSettings = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/support/settings', { cache: 'no-store' })
-      const data: SupportSettings | null = await res.json()
+      const data = await getSupportSettings()
       if (data) {
         setSupportEmail(data.support_email || '')
         setWhatsapp(data.whatsapp || '')
@@ -58,25 +57,14 @@ export default function AdminSupportSettingsPage() {
         toast({ title: 'Informe o token de admin', variant: 'destructive' })
         return
       }
-      const res = await fetch('/api/support/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-token': token,
-        },
-        body: JSON.stringify({
-          support_email: supportEmail,
-          phones: phones.filter(Boolean),
-          whatsapp,
-          business_hours: businessHours,
-          chat_url: chatUrl,
-          knowledge_base_url: kbUrl,
-        })
-      })
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || `Erro ${res.status}`)
-      }
+      await saveSupportSettings({
+        support_email: supportEmail,
+        phones: phones.filter(Boolean),
+        whatsapp,
+        business_hours: businessHours,
+        chat_url: chatUrl,
+        knowledge_base_url: kbUrl,
+      }, token)
       toast({ title: 'Configurações salvas' })
       await loadSettings()
     } catch (e: any) {

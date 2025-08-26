@@ -1,7 +1,12 @@
 import Stripe from 'stripe'
 
-// Singleton do Stripe para uso no servidor
-// Não fixa apiVersion para evitar conflitos de tipos durante upgrades da SDK
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
+let stripe: Stripe | null = null
 
-export default stripe
+export const getStripe = () => {
+  if (!stripe) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+      apiVersion: '2024-06-20',
+    })
+  }
+  return stripe
+}

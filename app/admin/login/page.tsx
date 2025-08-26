@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Shield, Eye, EyeOff, AlertCircle } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 function AdminLoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -19,6 +20,7 @@ function AdminLoginForm() {
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const supabase = createClient()
 
   useEffect(() => {
     if (searchParams.get('payment') === 'success') {
@@ -31,14 +33,16 @@ function AdminLoginForm() {
     setIsLoading(true)
     setError("")
 
-    // Simulação de autenticação admin
-    if (email === "admin@financeira.com" && password === "admin123") {
-      setTimeout(() => {
-        router.push("/admin")
-      }, 1000)
-    } else {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
       setError("Credenciais de administrador inválidas")
       setIsLoading(false)
+    } else {
+      router.push("/admin")
     }
   }
 

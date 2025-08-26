@@ -1,53 +1,25 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Users, DollarSign, Activity, UserCheck, Shield, AlertTriangle, BarChart3, Settings } from "lucide-react"
+import { getAdminDashboardData } from "./actions"
+import { createClient } from "@/lib/supabase/server"
 
-// Simulação de verificação de admin
-const isAdmin = () => {
-  // Em produção, isso viria de um sistema de autenticação real
-  return true // Para demonstração
-}
+export default async function AdminDashboard() {
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-// Dados simulados do admin
-const adminStats = {
-  totalUsers: 12847,
-  activeUsers: 9234,
-  premiumUsers: 3421,
-  totalRevenue: 284750,
-  monthlyGrowth: 12.5,
-  supportTickets: 23,
-  systemHealth: 99.8,
-}
-
-const recentUsers = [
-  { id: 1, name: "João Silva", email: "joao@email.com", plan: "Profissional", status: "Ativo", joinDate: "2024-01-15" },
-  { id: 2, name: "Maria Santos", email: "maria@email.com", plan: "Básico", status: "Ativo", joinDate: "2024-01-14" },
-  {
-    id: 3,
-    name: "Pedro Costa",
-    email: "pedro@email.com",
-    plan: "Profissional",
-    status: "Suspenso",
-    joinDate: "2024-01-13",
-  },
-  { id: 4, name: "Ana Oliveira", email: "ana@email.com", plan: "Básico", status: "Ativo", joinDate: "2024-01-12" },
-  {
-    id: 5,
-    name: "Carlos Lima",
-    email: "carlos@email.com",
-    plan: "Profissional",
-    status: "Ativo",
-    joinDate: "2024-01-11",
-  },
-]
-
-export default function AdminDashboard() {
-  if (!isAdmin()) {
-    redirect("/login")
+  if (!user) {
+    return redirect("/login")
   }
+
+  const adminStats = await getAdminDashboardData()
+  const recentUsers = adminStats.recentUsers
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -66,6 +38,7 @@ export default function AdminDashboard() {
               <Activity className="w-3 h-3 mr-1" />
               Sistema Online
             </Badge>
+                        <Link href="/admin/settings">
             <Button
               variant="outline"
               size="sm"
@@ -74,6 +47,7 @@ export default function AdminDashboard() {
               <Settings className="w-4 h-4 mr-2" />
               Configurações
             </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -110,7 +84,7 @@ export default function AdminDashboard() {
                 {adminStats.activeUsers.toLocaleString()}
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-300">
-                {((adminStats.activeUsers / adminStats.totalUsers) * 100).toFixed(1)}% do total
+                                {adminStats.totalUsers > 0 ? ((adminStats.activeUsers / adminStats.totalUsers) * 100).toFixed(1) : 0}% do total
               </p>
             </CardContent>
           </Card>
@@ -202,12 +176,14 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+                            <Link href="/admin/users" className="w-full">
               <Button
                 variant="outline"
                 className="w-full mt-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-300"
               >
                 Ver Todos os Usuários
               </Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -249,7 +225,7 @@ export default function AdminDashboard() {
                   <span className="text-sm font-medium text-gray-900 dark:text-white">Taxa de Conversão</span>
                 </div>
                 <span className="text-sm font-bold text-secondary-600 dark:text-secondary-400">
-                  {((adminStats.premiumUsers / adminStats.totalUsers) * 100).toFixed(1)}%
+                  {adminStats.totalUsers > 0 ? ((adminStats.premiumUsers / adminStats.totalUsers) * 100).toFixed(1) : 0}%
                 </span>
               </div>
 
@@ -276,10 +252,13 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Button className="h-20 flex-col space-y-2 gradient-primary hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                <Users className="h-6 w-6" />
-                <span>Gerenciar Usuários</span>
-              </Button>
+                <Link href="/admin/users" className="w-full">
+                    <Button className="h-20 w-full flex-col space-y-2 gradient-primary hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        <Users className="h-6 w-6" />
+                        <span>Gerenciar Usuários</span>
+                    </Button>
+                </Link>
+                              <Link href="/admin/reports" className="w-full">
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-300 transform hover:scale-105"
@@ -287,6 +266,8 @@ export default function AdminDashboard() {
                 <BarChart3 className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                 <span>Relatórios</span>
               </Button>
+                </Link>
+                <Link href="/admin/support" className="w-full">
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-warning-50 dark:hover:bg-warning-900/20 transition-all duration-300 transform hover:scale-105"
@@ -294,6 +275,8 @@ export default function AdminDashboard() {
                 <AlertTriangle className="h-6 w-6 text-warning-600 dark:text-warning-400" />
                 <span>Suporte</span>
               </Button>
+                </Link>
+                <Link href="/admin/settings" className="w-full">
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-all duration-300 transform hover:scale-105"
@@ -301,6 +284,7 @@ export default function AdminDashboard() {
                 <Settings className="h-6 w-6 text-secondary-600 dark:text-secondary-400" />
                 <span>Configurações</span>
               </Button>
+                </Link>
             </div>
           </CardContent>
         </Card>
