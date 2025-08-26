@@ -22,10 +22,10 @@ export default function ClientLayout({
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
-    pathname?.startsWith("/admin/login") ||
-  pathname === "/landingpage" ||
-  pathname === "/privacy" ||
-  pathname === "/terms"
+    pathname?.startsWith("/admin") ||
+    pathname === "/landingpage" ||
+    pathname === "/privacy" ||
+    pathname === "/terms"
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
