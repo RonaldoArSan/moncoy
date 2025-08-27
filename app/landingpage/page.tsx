@@ -409,7 +409,7 @@ export default function LandingPage() {
               Pare de Adiar Seu <span className="text-yellow-300">Sucesso Financeiro</span>
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Milhares de brasileiros já transformaram suas vidas financeiras com o Moncoy. 
+              Milhares de brasileiros já transformaram suas vidas financeiras com o Moncoy Finance. 
               Não fique para trás - comece sua jornada hoje mesmo!
             </p>
             <button 

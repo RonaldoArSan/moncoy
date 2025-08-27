@@ -1,14 +1,19 @@
 import type React from "react";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import type { Metadata } from "next";
 import ClientLayout from "./client-layout";
 
 import "./globals.css";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: {
     default: "Moncoy - Sua Plataforma Financeira Inteligente",
     template: "%s | Moncoy",
+  },
+  verification: {
+     google: 'google49731200e9d914ce',
+
   },
   description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
   keywords: ["finanças pessoais", "investimentos", "metas financeiras", "inteligência artificial", "IA", "gestão financeira", "planejamento financeiro", "controle de gastos", "orçamento", "moncoy"],
