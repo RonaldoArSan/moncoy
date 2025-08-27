@@ -2,13 +2,27 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Moncoy - Sua Plataforma Financeira Inteligente",
-  description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
-  keywords: ["finanças pessoais", "investimentos", "metas financeiras", "inteligência artificial", "IA", "gestão financeira", "planejamento financeiro", "controle de gastos", "orçamento", "moncoy", "landing page"],
+  description:
+    "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
+  keywords: [
+    "finanças pessoais",
+    "investimentos",
+    "metas financeiras",
+    "inteligência artificial",
+    "IA",
+    "gestão financeira",
+    "planejamento financeiro",
+    "controle de gastos",
+    "orçamento",
+    "moncoy",
+    "landing page",
+  ],
   openGraph: {
     title: "Moncoy - Sua Plataforma Financeira Inteligente",
-    description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
-    url: "https://www.moncoy.com.br",
-    siteName: "Moncoy",
+    description:
+      "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
+    url: "https://www.moncoy.com.br/landingpage",
+    siteName: "Moncoyfinace",
     images: [
       {
         url: "https://www.moncoy.com.br/moncoy-dashboard.jpeg", // Replace with your actual image URL
@@ -23,7 +37,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Moncoy - Sua Plataforma Financeira Inteligente",
-    description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
+    description:
+      "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
     images: ["https://www.moncoy.com.br/moncoy-dashboard.jpeg"], // Replace with your actual image URL
   },
   robots: {
