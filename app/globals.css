@@ -307,8 +307,8 @@
   color: var(--accent-foreground);
 }
 .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
-  background: var(--card);
-  color: var(--card-foreground);
+  background: var(--background);
+  color: var(--foreground);
   border-radius: var(--radius-md);
 }
 .rbc-header {
@@ -334,8 +334,8 @@
   color: var(--primary-foreground);
 }
 .rbc-agenda-table {
-  background: var(--card);
-  color: var(--card-foreground);
+  background: var(--background);
+  color: var(--foreground);
 }
 .rbc-agenda-date-cell {
   color: var(--primary);
@@ -368,4 +368,20 @@
 .dark .rbc-event:hover {
   background: var(--primary);
   color: var(--primary-foreground);
+}
+.rbc-day-bg {
+  background: var(--background) !important;
+}
+.rbc-time-slot {
+  background: var(--background);
+  border-top: 1px solid var(--border);
+}
+.rbc-time-content {
+  background: var(--background);
+}
+.rbc-month-row {
+  background: var(--background);
+}
+.rbc-row {
+  background: var(--background);
 }
