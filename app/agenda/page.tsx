@@ -6,9 +6,18 @@ import { useTransactions } from "@/hooks/use-transactions"
 import { Calendar, momentLocalizer } from "react-big-calendar"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { 
+  Calendar as CalendarIcon, 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react"
 
 const localizer = momentLocalizer(require('moment'))
 
@@ -36,14 +45,70 @@ export default function AgendaPage() {
     return [...txEvents, ...recEvents]
   }, [transactions, recurringTransactions])
 
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <Card className="border-blue-200 dark:border-blue-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <CalendarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <CardTitle className="text-xl text-blue-700 dark:text-blue-300">
+                Agenda Financeira
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-center h-96 bg-muted/20 rounded-xl border-2 border-dashed border-muted">
+              <div className="text-center space-y-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="text-sm text-muted-foreground">Carregando eventos...</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
-  <div className="max-w-6xl mx-auto p-2 space-y-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Agenda Financeira</CardTitle>
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <Card className="border-blue-200 dark:border-blue-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <CalendarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <CardTitle className="text-xl text-blue-700 dark:text-blue-300">
+              Agenda Financeira
+            </CardTitle>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            {events.length} evento{events.length !== 1 ? 's' : ''}
+          </Badge>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-lg shadow-lg border border-gray-200 bg-white" style={{ width: '100%', height: '70vh', minHeight: 400, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <CardContent className="space-y-4">
+          {/* Legenda de cores */}
+          <div className="flex flex-wrap items-center justify-center gap-4 p-4 bg-muted/30 rounded-lg border">
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 rounded bg-green-600 border border-green-700"></div>
+              <span className="text-sm font-medium text-muted-foreground">Receitas</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 rounded bg-red-600 border border-red-700"></div>
+              <span className="text-sm font-medium text-muted-foreground">Despesas</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 rounded bg-yellow-600 border border-yellow-700"></div>
+              <span className="text-sm font-medium text-muted-foreground">Recorrentes</span>
+            </div>
+          </div>
+
+          <div 
+            className="rounded-xl shadow-lg border bg-background overflow-hidden" 
+            style={{ height: '75vh', minHeight: 500, maxHeight: '80vh' }}
+          >
             <Calendar
               localizer={localizer}
               events={events}
@@ -81,41 +146,132 @@ export default function AgendaPage() {
                 more: 'Mais',
               }}
               culture="pt-BR"
-              style={{ flex: 1, width: '100%', height: '100%', background: 'white', borderRadius: 12, boxShadow: '0 2px 16px #0001', border: '1px solid #e5e7eb' }}
+              style={{ 
+                height: '100%', 
+                width: '100%',
+                backgroundColor: 'hsl(var(--background))',
+                color: 'hsl(var(--foreground))'
+              }}
               eventPropGetter={(event: any) => {
-                let bg = '#e2e8f0', color = '#222', border = '1px solid #d1d5db'
-                if (event.resource.type === 'income') { bg = '#bbf7d0'; color = '#065f46'; border = '1px solid #34d399' }
-                if (event.resource.type === 'destructive' || event.resource.type === 'expense') { bg = '#fecaca'; color = '#991b1b'; border = '1px solid #f87171' }
-                if (event.resource.type === 'recorrente') { bg = '#fef9c3'; color = '#92400e'; border = '1px solid #fde68a' }
-                return { style: { backgroundColor: bg, color, border, borderRadius: 8, fontWeight: 500, boxShadow: '0 1px 4px #0001', cursor: 'pointer', transition: '0.2s' } }
+                let eventStyle = {
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  fontSize: '12px',
+                  border: 'none',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  padding: '4px 8px',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }
+
+                if (event.resource.type === 'income') {
+                  return {
+                    style: {
+                      ...eventStyle,
+                      backgroundColor: 'hsl(142 76% 36%)',
+                      color: 'white',
+                      border: '1px solid hsl(142 76% 30%)'
+                    }
+                  }
+                }
+                if (event.resource.type === 'expense') {
+                  return {
+                    style: {
+                      ...eventStyle,
+                      backgroundColor: 'hsl(0 84% 60%)',
+                      color: 'white',
+                      border: '1px solid hsl(0 84% 50%)'
+                    }
+                  }
+                }
+                if (event.resource.type === 'recorrente') {
+                  return {
+                    style: {
+                      ...eventStyle,
+                      backgroundColor: 'hsl(43 96% 56%)',
+                      color: 'hsl(0 0% 9%)',
+                      border: '1px solid hsl(43 96% 46%)'
+                    }
+                  }
+                }
+                
+                return {
+                  style: {
+                    ...eventStyle,
+                    backgroundColor: 'hsl(var(--muted))',
+                    color: 'hsl(var(--muted-foreground))',
+                    border: '1px solid hsl(var(--border))'
+                  }
+                }
               }}
               components={{
                 event: ({ event }: { event: any }) => (
-                  <div className="p-2 hover:bg-gray-100 rounded-lg transition-all">
-                    <span className="block text-sm font-semibold">{event.title}</span>
-                    <span className="block text-xs text-gray-500">R$ {event.resource.amount}</span>
+                  <div className="flex flex-col p-1 hover:scale-105 transition-transform duration-200">
+                    <div className="flex items-center space-x-1">
+                      {event.resource.type === 'income' && (
+                        <TrendingUp className="h-3 w-3 flex-shrink-0" />
+                      )}
+                      {event.resource.type === 'expense' && (
+                        <TrendingDown className="h-3 w-3 flex-shrink-0" />
+                      )}
+                      {event.resource.type === 'recorrente' && (
+                        <DollarSign className="h-3 w-3 flex-shrink-0" />
+                      )}
+                      <span className="text-xs font-medium truncate">
+                        {event.title.replace(/^(Entrada|Saída|Recorrente): /, '')}
+                      </span>
+                    </div>
+                    <span className="text-xs opacity-90 font-semibold">
+                      R$ {Number(event.resource.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
                   </div>
                 ),
                 toolbar: (props: any) => (
-                  <div className="flex items-center justify-between px-2 py-1 rounded-t-lg border-b"
-                    style={{ background: 'var(--sidebar)', color: 'var(--sidebar-foreground)', borderColor: 'var(--sidebar-border)' }}>
-                    <div className="flex gap-1">
-                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate('PREV')}>{(props.messages && props.messages.previous) ? props.messages.previous : 'Anterior'}</button>
-                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate('TODAY')}>{(props.messages && props.messages.today) ? props.messages.today : 'Hoje'}</button>
-                      <button className="px-2 py-1 rounded" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }} onClick={() => props.onNavigate('NEXT')}>{(props.messages && props.messages.next) ? props.messages.next : 'Próximo'}</button>
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-card to-muted/50 border-b border-border rounded-t-xl">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => props.onNavigate('PREV')}
+                        className="flex items-center space-x-1"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span className="hidden sm:inline">Anterior</span>
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => props.onNavigate('TODAY')}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        Hoje
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => props.onNavigate('NEXT')}
+                        className="flex items-center space-x-1"
+                      >
+                        <span className="hidden sm:inline">Próximo</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <span className="font-bold text-lg" style={{ color: 'var(--sidebar-primary)' }}>{props.label}</span>
-                    <div className="flex gap-1">
+                    
+                    <h2 className="text-lg font-semibold text-primary">
+                      {props.label}
+                    </h2>
+                    
+                    <div className="flex items-center space-x-1">
                       {props.views && props.views.map((view: any) => (
-                        <button key={view}
-                          className={`px-2 py-1 rounded`}
-                          style={{
-                            background: props.view === view ? 'var(--primary)' : 'var(--secondary)',
-                            color: props.view === view ? 'var(--primary-foreground)' : 'var(--secondary-foreground)'
-                          }}
-                          onClick={() => props.onView(view)}>
+                        <Button
+                          key={view}
+                          variant={props.view === view ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => props.onView(view)}
+                          className={props.view === view ? "bg-primary text-primary-foreground" : ""}
+                        >
                           {view === 'month' ? 'Mês' : view === 'week' ? 'Semana' : view === 'day' ? 'Dia' : view}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>

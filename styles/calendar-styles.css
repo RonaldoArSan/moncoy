@@ -1,0 +1,260 @@
+/* Estilos customizados para o calendário */
+
+/* Fundo principal do calendário */
+.rbc-calendar {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: none;
+  font-family: inherit;
+}
+
+/* Header dos dias da semana */
+.rbc-header {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 12px 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Células dos dias */
+.rbc-day-bg {
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  transition: background-color 0.2s ease;
+}
+
+.rbc-day-bg:hover {
+  background-color: hsl(var(--accent));
+}
+
+/* Dias do mês anterior/próximo */
+.rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Dia atual */
+.rbc-today {
+  background-color: hsl(var(--primary) / 0.1);
+  border: 2px solid hsl(var(--primary));
+}
+
+/* Células com eventos */
+.rbc-date-cell {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  padding: 8px;
+}
+
+/* Número do dia */
+.rbc-date-cell > a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Eventos no calendário */
+.rbc-event {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 1px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.rbc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Event no modo semana/dia */
+.rbc-event.rbc-event-allday {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Selected event */
+.rbc-event.rbc-selected {
+  background-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring));
+}
+
+/* Month view */
+.rbc-month-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: hsl(var(--background));
+}
+
+/* Week/Day view */
+.rbc-time-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: hsl(var(--background));
+}
+
+/* Time slots na visualização de semana/dia */
+.rbc-time-slot {
+  border-top: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+}
+
+/* Time header */
+.rbc-time-header {
+  background-color: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Agenda view */
+.rbc-agenda-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rbc-agenda-view table {
+  background-color: hsl(var(--background));
+}
+
+.rbc-agenda-view thead {
+  background-color: hsl(var(--muted));
+}
+
+.rbc-agenda-view tbody tr {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rbc-agenda-view tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+/* Botão "Show more" */
+.rbc-show-more {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rbc-show-more:hover {
+  background-color: hsl(var(--secondary) / 0.8);
+  transform: translateY(-1px);
+}
+
+/* Overlay para eventos */
+.rbc-overlay {
+  background-color: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.rbc-overlay-header {
+  background-color: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+/* Scrollbar personalizada */
+.rbc-time-view .rbc-time-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 4px;
+}
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.8);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rbc-header {
+    font-size: 0.75rem;
+    padding: 8px 4px;
+  }
+  
+  .rbc-event {
+    font-size: 0.7rem;
+    padding: 1px 4px;
+  }
+  
+  .rbc-date-cell {
+    padding: 4px;
+  }
+}
+
+/* Dark mode específicos */
+.dark .rbc-calendar {
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-day-bg {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-time-slot {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-month-view,
+.dark .rbc-time-view,
+.dark .rbc-agenda-view {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-agenda-view table {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-event {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .rbc-event:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Garantindo que o fundo do calendário seja sempre consistente */
+.rbc-calendar * {
+  box-sizing: border-box;
+}
+
+/* Células de grade do calendário */
+.rbc-month-row {
+  background-color: hsl(var(--background));
+}
+
+.rbc-row {
+  background-color: hsl(var(--background));
+}
+
+/* Container principal do calendário */
+.rbc-calendar .rbc-month-view,
+.rbc-calendar .rbc-time-view,
+.rbc-calendar .rbc-agenda-view {
+  background-color: hsl(var(--background)) !important;
+}
