@@ -274,7 +274,7 @@
 
 /* Estilização customizada para react-big-calendar */
 .rbc-calendar {
-  background: var(--background);
+  background: var(--background) !important;
   color: var(--foreground);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -306,11 +306,71 @@
   background: var(--accent);
   color: var(--accent-foreground);
 }
+
+/* Fundo das visualizações - usa background da aplicação */
 .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
-  background: var(--card);
-  color: var(--card-foreground);
+  background: var(--background) !important;
+  color: var(--foreground);
   border-radius: var(--radius-md);
 }
+
+/* Células dos dias - usa background da aplicação */
+.rbc-day-bg {
+  background: var(--background) !important;
+  border: 1px solid var(--border);
+}
+
+/* Área de conteúdo do mês */
+.rbc-month-row {
+  background: var(--background) !important;
+}
+
+/* Linha de fundo */
+.rbc-row-bg {
+  background: var(--background) !important;
+}
+
+/* Slots de tempo */
+.rbc-time-slot {
+  background: var(--background) !important;
+  border-top: 1px solid var(--border);
+}
+
+/* Coluna de horários */
+.rbc-time-gutter {
+  background: var(--background) !important;
+}
+
+/* Colunas de dias na visualização de semana/dia */
+.rbc-time-column {
+  background: var(--background) !important;
+}
+
+/* Slot de dia */
+.rbc-day-slot {
+  background: var(--background) !important;
+}
+
+/* Conteúdo de tempo */
+.rbc-time-content {
+  background: var(--background) !important;
+}
+
+/* Células de data */
+.rbc-date-cell {
+  background: var(--background) !important;
+}
+
+/* Grupo de slots de tempo */
+.rbc-timeslot-group {
+  background: var(--background) !important;
+}
+
+/* Célula de dia inteiro */
+.rbc-allday-cell {
+  background: var(--background) !important;
+}
+
 .rbc-header {
   background: var(--muted);
   color: var(--muted-foreground);
@@ -318,8 +378,7 @@
   border-bottom: 1px solid var(--border);
 }
 .rbc-today {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: hsl(from var(--primary) h s l / 0.1) !important;
 }
 .rbc-event {
   background: var(--accent);
@@ -334,8 +393,8 @@
   color: var(--primary-foreground);
 }
 .rbc-agenda-table {
-  background: var(--card);
-  color: var(--card-foreground);
+  background: var(--background) !important;
+  color: var(--foreground);
 }
 .rbc-agenda-date-cell {
   color: var(--primary);
@@ -351,15 +410,39 @@
   border-radius: var(--radius-sm);
 }
 .rbc-off-range-bg {
-  background: var(--muted);
+  background: hsl(from var(--muted) h s l / 0.3) !important;
 }
-.dark .rbc-calendar, .dark .rbc-month-view, .dark .rbc-time-view, .dark .rbc-agenda-view {
-  background: var(--background);
+
+/* Dark mode specific styles */
+.dark .rbc-calendar {
+  background: var(--background) !important;
   color: var(--foreground);
+}
+.dark .rbc-month-view, 
+.dark .rbc-time-view, 
+.dark .rbc-agenda-view {
+  background: var(--background) !important;
+  color: var(--foreground);
+}
+.dark .rbc-day-bg,
+.dark .rbc-month-row,
+.dark .rbc-row-bg,
+.dark .rbc-time-slot,
+.dark .rbc-time-gutter,
+.dark .rbc-time-column,
+.dark .rbc-day-slot,
+.dark .rbc-time-content,
+.dark .rbc-date-cell,
+.dark .rbc-timeslot-group,
+.dark .rbc-allday-cell {
+  background: var(--background) !important;
 }
 .dark .rbc-header {
   background: var(--muted);
   color: var(--muted-foreground);
+}
+.dark .rbc-today {
+  background: hsl(from var(--primary) h s l / 0.1) !important;
 }
 .dark .rbc-event {
   background: var(--accent);
@@ -368,4 +451,7 @@
 .dark .rbc-event:hover {
   background: var(--primary);
   color: var(--primary-foreground);
+}
+.dark .rbc-agenda-table {
+  background: var(--background) !important;
 }
