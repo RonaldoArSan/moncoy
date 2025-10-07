@@ -274,19 +274,19 @@
 
 /* Estilização customizada para react-big-calendar */
 .rbc-calendar {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--background) !important;
+  color: var(--foreground) !important;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
 }
+
+/* Toolbar */
 .rbc-toolbar {
-  background: var(--sidebar);
-  color: var(--sidebar-foreground);
+  background: var(--sidebar) !important;
+  color: var(--sidebar-foreground) !important;
   border-bottom: 1px solid var(--sidebar-border);
-}
-.dark .rbc-toolbar {
-  background: var(--sidebar);
-  color: var(--sidebar-foreground);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .rbc-toolbar button {
   background: var(--secondary);
@@ -306,66 +306,99 @@
   background: var(--accent);
   color: var(--accent-foreground);
 }
-.rbc-month-view, .rbc-time-view, .rbc-agenda-view {
-  background: var(--card);
-  color: var(--card-foreground);
-  border-radius: var(--radius-md);
+
+/* Month View - Background for the entire view and all days */
+.rbc-month-view {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
 }
-.rbc-header {
-  background: var(--muted);
-  color: var(--muted-foreground);
-  font-weight: 600;
-  border-bottom: 1px solid var(--border);
+.rbc-month-row {
+  background: var(--background) !important;
 }
-.rbc-today {
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-.rbc-event {
-  background: var(--accent);
-  color: var(--accent-foreground);
-  border-radius: var(--radius-sm);
+.rbc-day-bg {
+  background: var(--background) !important;
   border: 1px solid var(--border);
-  font-weight: 500;
-  box-shadow: 0 1px 4px #0001;
 }
-.rbc-event:hover {
-  background: var(--primary);
-  color: var(--primary-foreground);
+.rbc-date-cell {
+  background: var(--background) !important;
+}
+
+/* Week/Day Time View - Background for time slots */
+.rbc-time-view {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+.rbc-time-content {
+  background: var(--background) !important;
+}
+.rbc-time-column {
+  background: var(--background) !important;
+}
+.rbc-time-slot {
+  background: var(--background) !important;
+  border-top: 1px solid var(--border);
+}
+.rbc-day-slot {
+  background: var(--background) !important;
+}
+.rbc-time-gutter {
+  background: var(--background) !important;
+}
+.rbc-allday-cell {
+  background: var(--background) !important;
+}
+
+/* Agenda View */
+.rbc-agenda-view {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
 }
 .rbc-agenda-table {
-  background: var(--card);
-  color: var(--card-foreground);
+  background: var(--background) !important;
+  color: var(--foreground) !important;
 }
 .rbc-agenda-date-cell {
   color: var(--primary);
   font-weight: 600;
+  background: var(--background) !important;
 }
 .rbc-agenda-time-cell {
   color: var(--muted-foreground);
+  background: var(--background) !important;
 }
 .rbc-agenda-event-cell {
   color: var(--foreground);
+  background: var(--background) !important;
+}
+
+/* Headers */
+.rbc-header {
+  background: var(--muted) !important;
+  color: var(--muted-foreground) !important;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem;
+}
+
+/* Today highlight */
+.rbc-today {
+  background: color-mix(in srgb, var(--primary) 10%, var(--background)) !important;
+}
+
+/* Off-range days (days outside current month) */
+.rbc-off-range {
+  color: var(--muted-foreground);
+}
+.rbc-off-range-bg {
+  background: color-mix(in srgb, var(--muted) 30%, var(--background)) !important;
+}
+
+/* Events - keep custom styling from component */
+.rbc-event {
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 .rbc-row-segment {
   border-radius: var(--radius-sm);
-}
-.rbc-off-range-bg {
-  background: var(--muted);
-}
-.dark .rbc-calendar, .dark .rbc-month-view, .dark .rbc-time-view, .dark .rbc-agenda-view {
-  background: var(--background);
-  color: var(--foreground);
-}
-.dark .rbc-header {
-  background: var(--muted);
-  color: var(--muted-foreground);
-}
-.dark .rbc-event {
-  background: var(--accent);
-  color: var(--accent-foreground);
-}
-.dark .rbc-event:hover {
-  background: var(--primary);
-  color: var(--primary-foreground);
 }
