@@ -1,0 +1,840 @@
+/* Estilos customizados para o calendário *//* Estilos customizados para o calendário *//* Estilos customizados para o calendário */
+
+
+
+/* Fundo principal do calendário */
+
+.rbc-calendar {
+
+  background-color: hsl(var(--background));/* Fundo principal do calendário *//* Fundo principal do calendário */
+
+  color: hsl(var(--foreground));
+
+  border: none;.rbc-calendar {.rbc-calendar {
+
+  font-family: inherit;
+
+}  background-color: hsl(var(--background));  background-color: hsl(var(--background));
+
+
+
+/* Header dos dias da semana */  color: hsl(var(--foreground));  color: hsl(var(--foreground));
+
+.rbc-header {
+
+  background-color: hsl(var(--muted));  border: none;  border: none;
+
+  color: hsl(var(--muted-foreground));
+
+  border-bottom: 1px solid hsl(var(--border));  font-family: inherit;  font-family: inherit;
+
+  padding: 12px 8px;
+
+  font-weight: 600;}}
+
+  font-size: 0.875rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+
+}/* Header dos dias da semana *//* Header dos dias da semana */
+
+
+
+/* Células dos dias */.rbc-header {.rbc-header {
+
+.rbc-day-bg {
+
+  background-color: hsl(var(--background));  background-color: hsl(var(--muted));  background-color: hsl(var(--muted));
+
+  border: 1px solid hsl(var(--border));
+
+  transition: background-color 0.2s ease;  color: hsl(var(--muted-foreground));  color: hsl(var(--muted-foreground));
+
+}
+
+  border-bottom: 1px solid hsl(var(--border));  border-bottom: 1px solid hsl(var(--border));
+
+.rbc-day-bg:hover {
+
+  background-color: hsl(var(--accent));  padding: 12px 8px;  padding: 12px 8px;
+
+}
+
+  font-weight: 600;  font-weight: 600;
+
+/* Dias do mês anterior/próximo */
+
+.rbc-off-range-bg {  font-size: 0.875rem;  font-size: 0.875rem;
+
+  background-color: hsl(var(--muted) / 0.3);
+
+}  text-transform: uppercase;  text-transform: uppercase;
+
+
+
+/* Dia atual */  letter-spacing: 0.5px;  letter-spacing: 0.5px;
+
+.rbc-today {
+
+  background-color: hsl(var(--primary) / 0.1);}}
+
+  border: 2px solid hsl(var(--primary));
+
+}
+
+
+
+/* Células com eventos *//* Células dos dias *//* Células dos dias */
+
+.rbc-date-cell {
+
+  color: hsl(var(--foreground));.rbc-day-bg {.rbc-day-bg {
+
+  font-weight: 500;
+
+  padding: 8px;  background-color: hsl(var(--background));  background-color: hsl(var(--background));
+
+  background-color: hsl(var(--background));
+
+}  border: 1px solid hsl(var(--border));  border: 1px solid hsl(var(--border));
+
+
+
+/* Número do dia */  transition: background-color 0.2s ease;  transition: background-color 0.2s ease;
+
+.rbc-date-cell > a {
+
+  color: inherit;}}
+
+  text-decoration: none;
+
+  font-weight: 600;
+
+}
+
+.rbc-day-bg:hover {.rbc-day-bg:hover {
+
+/* Eventos no calendário */
+
+.rbc-event {  background-color: hsl(var(--accent));  background-color: hsl(var(--accent));
+
+  background-color: hsl(var(--primary));
+
+  color: hsl(var(--primary-foreground));}}
+
+  border: none;
+
+  border-radius: 6px;
+
+  padding: 2px 6px;
+
+  font-size: 0.75rem;/* Dias do mês anterior/próximo *//* Dias do mês anterior/próximo */
+
+  font-weight: 500;
+
+  margin: 1px 0;.rbc-off-range-bg {.rbc-off-range-bg {
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  transition: all 0.2s ease;  background-color: hsl(var(--muted) / 0.3);  background-color: hsl(var(--muted) / 0.3);
+
+}
+
+}}
+
+.rbc-event:hover {
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+}/* Dia atual *//* Dia atual */
+
+
+
+/* Month view */.rbc-today {.rbc-today {
+
+.rbc-month-view {
+
+  border: 1px solid hsl(var(--border));  background-color: hsl(var(--primary) / 0.1);  background-color: hsl(var(--primary) / 0.1);
+
+  border-radius: 12px;
+
+  overflow: hidden;  border: 2px solid hsl(var(--primary));  border: 2px solid hsl(var(--primary));
+
+  background-color: hsl(var(--background));
+
+}}}
+
+
+
+/* Week/Day view */
+
+.rbc-time-view {
+
+  border: 1px solid hsl(var(--border));/* Células com eventos *//* Células com eventos */
+
+  border-radius: 12px;
+
+  overflow: hidden;.rbc-date-cell {.rbc-date-cell {
+
+  background-color: hsl(var(--background));
+
+}  color: hsl(var(--foreground));  color: hsl(var(--foreground));
+
+
+
+/* Time slots na visualização de semana/dia */  font-weight: 500;  font-weight: 500;
+
+.rbc-time-slot {
+
+  border-top: 1px solid hsl(var(--border));  padding: 8px;  padding: 8px;
+
+  background-color: hsl(var(--background));
+
+}  background-color: hsl(var(--background));}
+
+
+
+/* Time header */}
+
+.rbc-time-header {
+
+  background-color: hsl(var(--muted));/* Número do dia */
+
+  border-bottom: 1px solid hsl(var(--border));
+
+}/* Número do dia */.rbc-date-cell > a {
+
+
+
+/* Agenda view */.rbc-date-cell > a {  color: inherit;
+
+.rbc-agenda-view {
+
+  border: 1px solid hsl(var(--border));  color: inherit;  text-decoration: none;
+
+  border-radius: 12px;
+
+  overflow: hidden;  text-decoration: none;  font-weight: 600;
+
+  background-color: hsl(var(--background));
+
+}  font-weight: 600;}
+
+
+
+.rbc-agenda-view table {}
+
+  background-color: hsl(var(--background));
+
+}/* Eventos no calendário */
+
+
+
+.rbc-agenda-view thead {/* Eventos no calendário */.rbc-event {
+
+  background-color: hsl(var(--muted));
+
+}.rbc-event {  background-color: hsl(var(--primary));
+
+
+
+.rbc-agenda-view tbody tr {  background-color: hsl(var(--primary));  color: hsl(var(--primary-foreground));
+
+  border-bottom: 1px solid hsl(var(--border));
+
+}  color: hsl(var(--primary-foreground));  border: none;
+
+
+
+.rbc-agenda-view tbody tr:hover {  border: none;  border-radius: 6px;
+
+  background-color: hsl(var(--muted) / 0.5);
+
+}  border-radius: 6px;  padding: 2px 6px;
+
+
+
+/* Botão "Show more" */  padding: 2px 6px;  font-size: 0.75rem;
+
+.rbc-show-more {
+
+  background-color: hsl(var(--secondary));  font-size: 0.75rem;  font-weight: 500;
+
+  color: hsl(var(--secondary-foreground));
+
+  border: 1px solid hsl(var(--border));  font-weight: 500;  margin: 1px 0;
+
+  border-radius: 4px;
+
+  padding: 2px 6px;  margin: 1px 0;  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  font-size: 0.75rem;
+
+  cursor: pointer;  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);  transition: all 0.2s ease;
+
+  transition: all 0.2s ease;
+
+}  transition: all 0.2s ease;}
+
+
+
+.rbc-show-more:hover {}
+
+  background-color: hsl(var(--secondary) / 0.8);
+
+  transform: translateY(-1px);.rbc-event:hover {
+
+}
+
+.rbc-event:hover {  transform: translateY(-1px);
+
+/* Forçar fundo consistente em todas as áreas */
+
+.rbc-calendar,  transform: translateY(-1px);  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+.rbc-calendar .rbc-month-view,
+
+.rbc-calendar .rbc-time-view,  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);}
+
+.rbc-calendar .rbc-agenda-view,
+
+.rbc-calendar .rbc-month-view .rbc-month-row,}
+
+.rbc-calendar .rbc-month-view .rbc-row,
+
+.rbc-calendar .rbc-month-view .rbc-row-bg,/* Event no modo semana/dia */
+
+.rbc-calendar .rbc-month-view .rbc-row-content,
+
+.rbc-calendar .rbc-time-view .rbc-time-content,/* Event no modo semana/dia */.rbc-event.rbc-event-allday {
+
+.rbc-calendar .rbc-time-view .rbc-time-gutter,
+
+.rbc-calendar .rbc-time-view .rbc-time-column,.rbc-event.rbc-event-allday {  background-color: hsl(var(--primary));
+
+.rbc-calendar .rbc-time-view .rbc-day-slot,
+
+.rbc-calendar .rbc-time-view .rbc-timeslot-group,  background-color: hsl(var(--primary));  color: hsl(var(--primary-foreground));
+
+.rbc-calendar .rbc-agenda-view table {
+
+  background-color: hsl(var(--background)) !important;  color: hsl(var(--primary-foreground));}
+
+}
+
+}
+
+/* Dark mode */
+
+.dark .rbc-calendar,/* Selected event */
+
+.dark .rbc-day-bg,
+
+.dark .rbc-time-slot,/* Selected event */.rbc-event.rbc-selected {
+
+.dark .rbc-date-cell,
+
+.dark .rbc-month-row,.rbc-event.rbc-selected {  background-color: hsl(var(--ring));
+
+.dark .rbc-row,
+
+.dark .rbc-time-content {  background-color: hsl(var(--ring));  box-shadow: 0 0 0 2px hsl(var(--ring));
+
+  background-color: hsl(var(--background)) !important;
+
+}  box-shadow: 0 0 0 2px hsl(var(--ring));}
+
+}
+
+/* Month view */
+
+/* Month view */.rbc-month-view {
+
+.rbc-month-view {  border: 1px solid hsl(var(--border));
+
+  border: 1px solid hsl(var(--border));  border-radius: 12px;
+
+  border-radius: 12px;  overflow: hidden;
+
+  overflow: hidden;  background-color: hsl(var(--background));
+
+  background-color: hsl(var(--background));}
+
+}
+
+/* Week/Day view */
+
+/* Week/Day view */.rbc-time-view {
+
+.rbc-time-view {  border: 1px solid hsl(var(--border));
+
+  border: 1px solid hsl(var(--border));  border-radius: 12px;
+
+  border-radius: 12px;  overflow: hidden;
+
+  overflow: hidden;  background-color: hsl(var(--background));
+
+  background-color: hsl(var(--background));}
+
+}
+
+/* Time slots na visualização de semana/dia */
+
+/* Time slots na visualização de semana/dia */.rbc-time-slot {
+
+.rbc-time-slot {  border-top: 1px solid hsl(var(--border));
+
+  border-top: 1px solid hsl(var(--border));  background-color: hsl(var(--background));
+
+  background-color: hsl(var(--background));}
+
+}
+
+/* Time header */
+
+/* Time header */.rbc-time-header {
+
+.rbc-time-header {  background-color: hsl(var(--muted));
+
+  background-color: hsl(var(--muted));  border-bottom: 1px solid hsl(var(--border));
+
+  border-bottom: 1px solid hsl(var(--border));}
+
+}
+
+/* Agenda view */
+
+/* Agenda view */.rbc-agenda-view {
+
+.rbc-agenda-view {  border: 1px solid hsl(var(--border));
+
+  border: 1px solid hsl(var(--border));  border-radius: 12px;
+
+  border-radius: 12px;  overflow: hidden;
+
+  overflow: hidden;}
+
+  background-color: hsl(var(--background));
+
+}.rbc-agenda-view table {
+
+  background-color: hsl(var(--background));
+
+.rbc-agenda-view table {}
+
+  background-color: hsl(var(--background));
+
+}.rbc-agenda-view thead {
+
+  background-color: hsl(var(--muted));
+
+.rbc-agenda-view thead {}
+
+  background-color: hsl(var(--muted));
+
+}.rbc-agenda-view tbody tr {
+
+  border-bottom: 1px solid hsl(var(--border));
+
+.rbc-agenda-view tbody tr {}
+
+  border-bottom: 1px solid hsl(var(--border));
+
+}.rbc-agenda-view tbody tr:hover {
+
+  background-color: hsl(var(--muted) / 0.5);
+
+.rbc-agenda-view tbody tr:hover {}
+
+  background-color: hsl(var(--muted) / 0.5);
+
+}/* Botão "Show more" */
+
+.rbc-show-more {
+
+/* Botão "Show more" */  background-color: hsl(var(--secondary));
+
+.rbc-show-more {  color: hsl(var(--secondary-foreground));
+
+  background-color: hsl(var(--secondary));  border: 1px solid hsl(var(--border));
+
+  color: hsl(var(--secondary-foreground));  border-radius: 4px;
+
+  border: 1px solid hsl(var(--border));  padding: 2px 6px;
+
+  border-radius: 4px;  font-size: 0.75rem;
+
+  padding: 2px 6px;  cursor: pointer;
+
+  font-size: 0.75rem;  transition: all 0.2s ease;
+
+  cursor: pointer;}
+
+  transition: all 0.2s ease;
+
+}.rbc-show-more:hover {
+
+  background-color: hsl(var(--secondary) / 0.8);
+
+.rbc-show-more:hover {  transform: translateY(-1px);
+
+  background-color: hsl(var(--secondary) / 0.8);}
+
+  transform: translateY(-1px);
+
+}/* Overlay para eventos */
+
+.rbc-overlay {
+
+/* Overlay para eventos */  background-color: hsl(var(--popover));
+
+.rbc-overlay {  border: 1px solid hsl(var(--border));
+
+  background-color: hsl(var(--popover));  border-radius: 8px;
+
+  border: 1px solid hsl(var(--border));  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  border-radius: 8px;}
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+}.rbc-overlay-header {
+
+  background-color: hsl(var(--muted));
+
+.rbc-overlay-header {  border-bottom: 1px solid hsl(var(--border));
+
+  background-color: hsl(var(--muted));  padding: 8px 12px;
+
+  border-bottom: 1px solid hsl(var(--border));  font-weight: 600;
+
+  padding: 8px 12px;}
+
+  font-weight: 600;
+
+}/* Scrollbar personalizada */
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar {
+
+/* Scrollbar personalizada */  width: 8px;
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar {}
+
+  width: 8px;
+
+}.rbc-time-view .rbc-time-content::-webkit-scrollbar-track {
+
+  background: hsl(var(--muted));
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar-track {  border-radius: 4px;
+
+  background: hsl(var(--muted));}
+
+  border-radius: 4px;
+
+}.rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb {
+
+  background: hsl(var(--primary));
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb {  border-radius: 4px;
+
+  background: hsl(var(--primary));}
+
+  border-radius: 4px;
+
+}.rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb:hover {
+
+  background: hsl(var(--primary) / 0.8);
+
+.rbc-time-view .rbc-time-content::-webkit-scrollbar-thumb:hover {}
+
+  background: hsl(var(--primary) / 0.8);
+
+}/* Responsive adjustments */
+
+@media (max-width: 768px) {
+
+/* Responsive adjustments */  .rbc-header {
+
+@media (max-width: 768px) {    font-size: 0.75rem;
+
+  .rbc-header {    padding: 8px 4px;
+
+    font-size: 0.75rem;  }
+
+    padding: 8px 4px;  
+
+  }  .rbc-event {
+
+      font-size: 0.7rem;
+
+  .rbc-event {    padding: 1px 4px;
+
+    font-size: 0.7rem;  }
+
+    padding: 1px 4px;  
+
+  }  .rbc-date-cell {
+
+      padding: 4px;
+
+  .rbc-date-cell {  }
+
+    padding: 4px;}
+
+  }
+
+}/* Dark mode específicos */
+
+.dark .rbc-calendar {
+
+/* Garantindo que o fundo do calendário seja sempre consistente */  border-color: hsl(var(--border));
+
+.rbc-calendar * {  background-color: hsl(var(--background));
+
+  box-sizing: border-box;}
+
+}
+
+.dark .rbc-day-bg {
+
+/* Células de grade do calendário */  background-color: hsl(var(--background));
+
+.rbc-month-row {}
+
+  background-color: hsl(var(--background));
+
+}.dark .rbc-time-slot {
+
+  background-color: hsl(var(--background));
+
+.rbc-row {}
+
+  background-color: hsl(var(--background));
+
+}.dark .rbc-month-view,
+
+.dark .rbc-time-view,
+
+/* Container principal do calendário */.dark .rbc-agenda-view {
+
+.rbc-calendar .rbc-month-view,  background-color: hsl(var(--background));
+
+.rbc-calendar .rbc-time-view,}
+
+.rbc-calendar .rbc-agenda-view {
+
+  background-color: hsl(var(--background)) !important;.dark .rbc-agenda-view table {
+
+}  background-color: hsl(var(--background));
+
+}
+
+/* Áreas específicas dos dias na visualização do mês */
+
+.rbc-month-view .rbc-date-cell {.dark .rbc-event {
+
+  background-color: hsl(var(--background));  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+}}
+
+
+
+.rbc-month-view .rbc-row-bg {.dark .rbc-event:hover {
+
+  background-color: hsl(var(--background));  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+}}
+
+
+
+.rbc-month-view .rbc-row-content {/* Garantindo que o fundo do calendário seja sempre consistente */
+
+  background-color: hsl(var(--background));.rbc-calendar * {
+
+}  box-sizing: border-box;
+
+}
+
+/* Área da grade na visualização de semana */
+
+.rbc-time-view .rbc-time-gutter,/* Células de grade do calendário */
+
+.rbc-time-view .rbc-time-column {.rbc-month-row {
+
+  background-color: hsl(var(--background));  background-color: hsl(var(--background));
+
+}}
+
+
+
+.rbc-time-view .rbc-day-slot {.rbc-row {
+
+  background-color: hsl(var(--background));  background-color: hsl(var(--background));
+
+}}
+
+
+
+.rbc-time-view .rbc-time-content {/* Container principal do calendário */
+
+  background-color: hsl(var(--background));.rbc-calendar .rbc-month-view,
+
+}.rbc-calendar .rbc-time-view,
+
+.rbc-calendar .rbc-agenda-view {
+
+/* Headers da semana e do dia */  background-color: hsl(var(--background)) !important;
+
+.rbc-time-view .rbc-allday-cell {}
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Área dos eventos "all day" */
+.rbc-allday-cell {
+  background-color: hsl(var(--muted) / 0.2);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Linhas de tempo */
+.rbc-timeslot-group {
+  background-color: hsl(var(--background));
+}
+
+/* Colunas de tempo */
+.rbc-time-gutter {
+  background-color: hsl(var(--muted) / 0.1);
+  border-right: 1px solid hsl(var(--border));
+}
+
+/* Área principal do corpo do calendário */
+.rbc-calendar .rbc-month-view .rbc-month-row,
+.rbc-calendar .rbc-time-view .rbc-time-content,
+.rbc-calendar .rbc-agenda-view .rbc-agenda-content {
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Sobrescrever qualquer fundo branco residual */
+.rbc-calendar,
+.rbc-calendar * {
+  background: inherit;
+}
+
+.rbc-calendar .rbc-month-view,
+.rbc-calendar .rbc-time-view,
+.rbc-calendar .rbc-agenda-view {
+  background: hsl(var(--background)) !important;
+}
+
+/* Dark mode específicos */
+.dark .rbc-calendar {
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-day-bg {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-time-slot {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-month-view,
+.dark .rbc-time-view,
+.dark .rbc-agenda-view {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-agenda-view table {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-date-cell {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-month-row {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-row {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-time-gutter,
+.dark .rbc-time-column,
+.dark .rbc-day-slot,
+.dark .rbc-time-content,
+.dark .rbc-timeslot-group {
+  background-color: hsl(var(--background));
+}
+
+.dark .rbc-event {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .rbc-event:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Forçar fundo consistente em todos os elementos */
+.rbc-calendar,
+.rbc-calendar > *,
+.rbc-calendar .rbc-month-view,
+.rbc-calendar .rbc-time-view,
+.rbc-calendar .rbc-agenda-view,
+.rbc-calendar .rbc-month-view > *,
+.rbc-calendar .rbc-time-view > *,
+.rbc-calendar .rbc-agenda-view > *,
+.rbc-calendar .rbc-month-view .rbc-month-row,
+.rbc-calendar .rbc-month-view .rbc-row,
+.rbc-calendar .rbc-month-view .rbc-row-bg,
+.rbc-calendar .rbc-month-view .rbc-row-content,
+.rbc-calendar .rbc-month-view .rbc-date-cell,
+.rbc-calendar .rbc-time-view .rbc-time-content,
+.rbc-calendar .rbc-time-view .rbc-time-gutter,
+.rbc-calendar .rbc-time-view .rbc-time-column,
+.rbc-calendar .rbc-time-view .rbc-day-slot,
+.rbc-calendar .rbc-time-view .rbc-timeslot-group,
+.rbc-calendar .rbc-agenda-view .rbc-agenda-content,
+.rbc-calendar .rbc-agenda-view table,
+.rbc-calendar .rbc-agenda-view tbody,
+.rbc-calendar .rbc-agenda-view tbody tr {
+  background-color: hsl(var(--background)) !important;
+  background: hsl(var(--background)) !important;
+}
+
+/* Garantir que não haja override indesejado */
+.rbc-calendar * {
+  background-color: inherit !important;
+}
+
+.rbc-calendar .rbc-day-bg,
+.rbc-calendar .rbc-time-slot {
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Exceções para elementos que devem ter cores específicas */
+.rbc-calendar .rbc-header,
+.rbc-calendar .rbc-time-header,
+.rbc-calendar .rbc-agenda-view thead {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.rbc-calendar .rbc-today {
+  background-color: hsl(var(--primary) / 0.1) !important;
+}
+
+.rbc-calendar .rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.3) !important;
+}
+
+.rbc-calendar .rbc-event {
+  /* Manter cores dos eventos como estão */
+  background-color: revert !important;
+}

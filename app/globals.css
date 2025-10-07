@@ -369,3 +369,122 @@
   background: var(--primary);
   color: var(--primary-foreground);
 }
+
+/* Estilos customizados para o calendário - Cores consistentes com a aplicação */
+.rbc-calendar {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: none !important;
+  font-family: inherit !important;
+}
+
+.rbc-header {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  padding: 12px 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.rbc-day-bg {
+  background-color: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-day-bg:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+.rbc-today {
+  background-color: hsl(var(--primary) / 0.1) !important;
+  border: 2px solid hsl(var(--primary)) !important;
+}
+
+.rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.3) !important;
+}
+
+.rbc-date-cell {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  font-weight: 500;
+  padding: 8px;
+}
+
+.rbc-date-cell > a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  background-color: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rbc-month-view .rbc-month-row,
+.rbc-month-view .rbc-row,
+.rbc-month-view .rbc-row-bg,
+.rbc-month-view .rbc-row-content,
+.rbc-time-view .rbc-time-content,
+.rbc-time-view .rbc-time-gutter,
+.rbc-time-view .rbc-time-column,
+.rbc-time-view .rbc-day-slot,
+.rbc-time-view .rbc-timeslot-group,
+.rbc-agenda-view table {
+  background-color: hsl(var(--background)) !important;
+}
+
+.rbc-time-slot {
+  background-color: hsl(var(--background)) !important;
+  border-top: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-time-header {
+  background-color: hsl(var(--muted)) !important;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rbc-agenda-view thead {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.rbc-agenda-view tbody tr {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rbc-agenda-view tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.rbc-show-more {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rbc-show-more:hover {
+  background-color: hsl(var(--secondary) / 0.8) !important;
+  transform: translateY(-1px);
+}
+
+/* Dark mode específicos para o calendário */
+.dark .rbc-calendar,
+.dark .rbc-day-bg,
+.dark .rbc-time-slot,
+.dark .rbc-date-cell,
+.dark .rbc-month-row,
+.dark .rbc-row,
+.dark .rbc-time-content {
+  background-color: hsl(var(--background)) !important;
+}
