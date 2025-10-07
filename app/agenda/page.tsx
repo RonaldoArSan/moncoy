@@ -43,7 +43,7 @@ export default function AgendaPage() {
           <CardTitle>Agenda Financeira</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg shadow-lg border border-gray-200 bg-white" style={{ width: '100%', height: '70vh', minHeight: 400, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+          <div className="rounded-lg shadow-lg border bg-card" style={{ width: '100%', height: '70vh', minHeight: 400, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <Calendar
               localizer={localizer}
               events={events}
@@ -81,7 +81,7 @@ export default function AgendaPage() {
                 more: 'Mais',
               }}
               culture="pt-BR"
-              style={{ flex: 1, width: '100%', height: '100%', background: 'white', borderRadius: 12, boxShadow: '0 2px 16px #0001', border: '1px solid #e5e7eb' }}
+              style={{ flex: 1, width: '100%', height: '100%' }}
               eventPropGetter={(event: any) => {
                 let bg = '#e2e8f0', color = '#222', border = '1px solid #d1d5db'
                 if (event.resource.type === 'income') { bg = '#bbf7d0'; color = '#065f46'; border = '1px solid #34d399' }
@@ -91,9 +91,9 @@ export default function AgendaPage() {
               }}
               components={{
                 event: ({ event }: { event: any }) => (
-                  <div className="p-2 hover:bg-gray-100 rounded-lg transition-all">
+                  <div className="p-2 hover:bg-accent/50 rounded-lg transition-all">
                     <span className="block text-sm font-semibold">{event.title}</span>
-                    <span className="block text-xs text-gray-500">R$ {event.resource.amount}</span>
+                    <span className="block text-xs text-muted-foreground">R$ {event.resource.amount}</span>
                   </div>
                 ),
                 toolbar: (props: any) => (
