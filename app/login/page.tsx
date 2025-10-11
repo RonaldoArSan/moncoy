@@ -19,6 +19,7 @@ function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [passwordUpdated, setPasswordUpdated] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { loading, signIn, signInWithGoogle } = useAuth()
@@ -26,6 +27,9 @@ function LoginForm() {
   useEffect(() => {
     if (searchParams.get('payment') === 'success') {
       setPaymentSuccess(true)
+    }
+    if (searchParams.get('message') === 'password-updated') {
+      setPasswordUpdated(true)
     }
   }, [searchParams])
 
@@ -70,6 +74,11 @@ function LoginForm() {
             {paymentSuccess && (
               <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
                 ✅ Pagamento confirmado! Faça login para acessar sua conta.
+              </div>
+            )}
+            {passwordUpdated && (
+              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                ✅ Senha redefinida com sucesso! Faça login com sua nova senha.
               </div>
             )}
             {error && (
