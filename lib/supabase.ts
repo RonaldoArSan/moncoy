@@ -1,6 +1,23 @@
 import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// Validate environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl) {
+  throw new Error(
+    'NEXT_PUBLIC_SUPABASE_URL is required. Please check your environment variables. ' +
+    'See .env.example for required configuration.'
+  )
+}
+
+if (!supabaseKey) {
+  throw new Error(
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY is required. Please check your environment variables. ' +
+    'See .env.example for required configuration.'
+  )
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Types based on our database schema

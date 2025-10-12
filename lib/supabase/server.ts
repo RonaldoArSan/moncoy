@@ -2,11 +2,28 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export const createClient = async () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_URL is required. Please check your environment variables. ' +
+      'See .env.example for required configuration.'
+    )
+  }
+
+  if (!supabaseKey) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY is required. Please check your environment variables. ' +
+      'See .env.example for required configuration.'
+    )
+  }
+
   const cookieStore = await cookies()
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         get(name: string) {
