@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTransactions } from './use-transactions'
 import { useFinancialSummary } from './use-financial-summary'
 
@@ -13,13 +13,9 @@ export function useInsights() {
   const [insights, setInsights] = useState<Insight[]>([])
   const [loading, setLoading] = useState(true)
   const { transactions } = useTransactions()
-  const summary = useFinancialSummary()
+  const { summary, totalBalance } = useFinancialSummary()
 
-  useEffect(() => {
-    generateInsights()
-  }, [transactions, summary])
-
-  const generateInsights = () => {
+  const generateInsights = useCallback(() => {
     try {
       setLoading(true)
       const generatedInsights: Insight[] = []
@@ -68,8 +64,8 @@ export function useInsights() {
       }
 
       // Insight 2: Sugestão de investimento
-      if (summary.totalBalance > 1000) {
-        const suggestedAmount = Math.min(summary.totalBalance * 0.1, 500)
+      if (totalBalance && totalBalance > 1000) {
+        const suggestedAmount = Math.min(totalBalance * 0.1, 500)
         generatedInsights.push({
           type: 'info',
           title: 'Dica',
@@ -127,7 +123,11 @@ export function useInsights() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [transactions, totalBalance])
+
+  useEffect(() => {
+    generateInsights()
+  }, [generateInsights])
 
   return {
     insights,
