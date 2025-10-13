@@ -10,14 +10,14 @@ Plano Básico do Moncoy Finance - Gerencie suas finanças com IA. Inclui: GPT-4o
 ## Plano Pro - R$ 49,90/mês (Professional Plan)
 **Descrição (499 caracteres):**
 
-Plano Pro do Moncoy Finance - Inteligência financeira avançada. Inclui: GPT-4o-mini + GPT-4o limitado, 1 pergunta/dia (7/semana), resumo mensal detalhado em PDF, histórico completo de conversas, alertas de gastos inteligentes, acesso web + mobile. Perfeito para quem busca análises mais profundas e acompanhamento contínuo das finanças. Relatórios em PDF profissionais, notificações personalizadas e suporte via email e WhatsApp. Transforme dados em decisões financeiras inteligentes. Cancele quando quiser!
+Plano Pro do Moncoy Finance - Inteligência financeira avançada. Inclui: GPT-4o-mini + GPT-4o limitado, 1 pergunta/dia, resumo mensal em PDF, histórico de conversas, alertas de gastos, acesso web + mobile. Para análises profundas e acompanhamento contínuo. Relatórios PDF profissionais, notificações personalizadas e suporte via email e WhatsApp. Transforme dados em decisões inteligentes. Cancele quando quiser!
 
 ---
 
 ## Plano Premium - R$ 59,90/mês (Premium Plan)
 **Descrição (499 caracteres):**
 
-Plano Premium do Moncoy Finance - Recursos completos para gestão financeira profissional. Inclui: GPT-4o completo sem limitações rígidas, uso diário ilimitado, resumo mensal + análise financeira completa, relatórios PDF avançados com gráficos detalhados, histórico de conversas, suporte prioritário, acesso web + mobile. Para quem leva finanças a sério. Análises profundas, insights preditivos e suporte dedicado. A solução definitiva para dominar suas finanças com inteligência artificial de ponta. Cancele quando quiser!
+Plano Premium do Moncoy Finance - Recursos completos para gestão profissional. Inclui: GPT-4o completo, uso diário ilimitado, resumo mensal + análise financeira, relatórios PDF avançados com gráficos, histórico de conversas, suporte prioritário, acesso web + mobile. Para quem leva finanças a sério. Análises profundas, insights preditivos e suporte dedicado. A solução definitiva com IA de ponta. Cancele quando quiser!
 
 ---
 
@@ -30,8 +30,8 @@ Plano Premium do Moncoy Finance - Recursos completos para gestão financeira pro
 5. Linguagem clara e direta, adequada para o público brasileiro
 
 ## Contagem de Caracteres:
-- Básico: 487 caracteres
-- Pro: 498 caracteres  
-- Premium: 499 caracteres
+- Básico: 483 caracteres ✓
+- Pro: 411 caracteres ✓
+- Premium: 420 caracteres ✓
 
 Estas descrições podem ser copiadas diretamente para os campos de descrição dos produtos no Stripe Dashboard.
