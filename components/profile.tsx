@@ -131,8 +131,8 @@ export function Profile() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Plano Atual</Label>
-              <Badge variant={user.plan === 'professional' ? 'default' : 'secondary'}>
-                {user.plan === 'professional' ? 'Profissional' : 'Básico'}
+              <Badge variant={user.plan === 'premium' ? 'destructive' : user.plan === 'professional' ? 'default' : 'secondary'}>
+                {user.plan === 'premium' ? 'Premium' : user.plan === 'professional' ? 'Profissional' : 'Básico'}
               </Badge>
             </div>
             

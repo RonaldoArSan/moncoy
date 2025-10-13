@@ -119,7 +119,7 @@ export default function PlansPage() {
             <CardTitle className="flex items-center gap-2">
               Plano Atual
               <Badge variant="default">
-                {currentPlan === 'pro' ? 'Profissional' : 'Básico'}
+                {currentPlan === 'premium' ? 'Premium' : currentPlan === 'pro' ? 'Profissional' : 'Básico'}
               </Badge>
             </CardTitle>
           </CardHeader>

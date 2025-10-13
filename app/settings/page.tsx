@@ -197,10 +197,10 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-2">
                       <Input 
                         id="plan" 
-                        value={user?.plan === 'professional' ? 'Profissional' : 'Básico'}
+                        value={user?.plan === 'premium' ? 'Premium' : user?.plan === 'professional' ? 'Profissional' : 'Básico'}
                         disabled
                       />
-                      {user?.plan !== 'professional' && (
+                      {user?.plan !== 'professional' && user?.plan !== 'premium' && (
                         <Link href="/plans">
                           <Button 
                             variant="outline" 
