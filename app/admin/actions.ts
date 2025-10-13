@@ -1,13 +1,37 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { getStripe } from "@/lib/stripe"
 import { unstable_noStore as noStore } from "next/cache"
 import { User } from "@supabase/supabase-js"
+import Stripe from 'stripe'
+
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not defined')
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-07-30.basil',
+  })
+}
 
 export const getAdminDashboardData = async () => {
   noStore()
-  const supabase = createClient()
+  const supabase = await createClient()
+  
+  // Verificar se as variáveis de ambiente estão disponíveis
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return {
+      totalUsers: 0,
+      activeUsers: 0,
+      premiumUsers: 0,
+      totalRevenue: 0,
+      monthlyGrowth: 0,
+      supportTickets: 0,
+      systemHealth: 99.9,
+      recentUsers: [],
+    }
+  }
+  
   const stripe = getStripe()
 
   const {

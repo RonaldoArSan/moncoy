@@ -8,8 +8,11 @@ import { Users, DollarSign, Activity, UserCheck, Shield, AlertTriangle, BarChart
 import { getAdminDashboardData } from "./actions"
 import { createClient } from "@/lib/supabase/server"
 
+// Forçar renderização dinâmica
+export const dynamic = 'force-dynamic'
+
 export default async function AdminDashboard() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -134,7 +137,7 @@ export default async function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentUsers.map((user) => (
+                {recentUsers.map((user: any) => (
                   <div
                     key={user.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-primary-50/80 dark:hover:bg-primary-900/20 transition-all duration-300"
@@ -144,7 +147,7 @@ export default async function AdminDashboard() {
                         <AvatarFallback className="bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 text-xs font-medium">
                           {user.name
                             .split(" ")
-                            .map((n) => n[0])
+                            .map((n: string) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
