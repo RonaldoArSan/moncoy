@@ -16,29 +16,44 @@ const getStripe = () => {
 
 export const getAdminDashboardData = async () => {
   noStore()
-  const supabase = await createClient()
   
-  // Verificar se as variáveis de ambiente estão disponíveis
-  if (!process.env.STRIPE_SECRET_KEY) {
-    return {
-      totalUsers: 0,
-      activeUsers: 0,
-      premiumUsers: 0,
-      totalRevenue: 0,
-      monthlyGrowth: 0,
-      supportTickets: 0,
-      systemHealth: 99.9,
-      recentUsers: [],
+  try {
+    const supabase = await createClient()
+    
+    // Verificar se as variáveis de ambiente estão disponíveis
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return {
+        totalUsers: 0,
+        activeUsers: 0,
+        premiumUsers: 0,
+        totalRevenue: 0,
+        monthlyGrowth: 0,
+        supportTickets: 0,
+        systemHealth: 99.9,
+        recentUsers: [],
+      }
     }
-  }
-  
-  const stripe = getStripe()
+    
+    const stripe = getStripe()
 
-  const {
-    data: { users },
-    error: usersError,
-  } = await supabase.auth.admin.listUsers()
-  if (usersError) throw new Error(`Erro ao buscar usuários: ${usersError.message}`)
+    const {
+      data: { users },
+      error: usersError,
+    } = await supabase.auth.admin.listUsers()
+    
+    if (usersError || !users) {
+      console.error('Erro ao buscar usuários:', usersError)
+      return {
+        totalUsers: 0,
+        activeUsers: 0,
+        premiumUsers: 0,
+        totalRevenue: 0,
+        monthlyGrowth: 0,
+        supportTickets: 0,
+        systemHealth: 99.9,
+        recentUsers: [],
+      }
+    }
 
   const totalUsers = users.length
   const activeUsers = users.filter(
@@ -101,5 +116,18 @@ export const getAdminDashboardData = async () => {
     supportTickets: supportTickets || 0,
     systemHealth: 99.9, // Placeholder
     recentUsers,
+  }
+  } catch (error) {
+    console.error('Erro ao buscar dados do dashboard admin:', error)
+    return {
+      totalUsers: 0,
+      activeUsers: 0,
+      premiumUsers: 0,
+      totalRevenue: 0,
+      monthlyGrowth: 0,
+      supportTickets: 0,
+      systemHealth: 99.9,
+      recentUsers: [],
+    }
   }
 }

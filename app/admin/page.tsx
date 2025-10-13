@@ -10,22 +10,31 @@ import { createClient } from "@/lib/supabase/server"
 
 // Forçar renderização dinâmica
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function AdminDashboard() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser()
 
-  if (!user) {
-    return redirect("/login")
-  }
+    // Verificar se há erro ou se o usuário não existe
+    if (error || !user) {
+      return redirect("/login")
+    }
 
-  const adminStats = await getAdminDashboardData()
-  const recentUsers = adminStats.recentUsers
+    // Verificar se o usuário tem permissões de admin (opcional)
+    // if (!user.user_metadata?.is_admin) {
+    //   return redirect("/")
+    // }
 
-  return (
-    <div className="min-h-screen gradient-hero">
+    const adminStats = await getAdminDashboardData()
+    const recentUsers = adminStats.recentUsers
+
+    return (
+      <div className="min-h-screen gradient-hero">
       {/* Admin Header */}
       <div className="border-b bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg">
         <div className="flex h-16 items-center px-6">
@@ -293,5 +302,9 @@ export default async function AdminDashboard() {
         </Card>
       </div>
     </div>
-  )
+    )
+  } catch (error) {
+    console.error('Erro no painel admin:', error)
+    return redirect("/login")
+  }
 }
