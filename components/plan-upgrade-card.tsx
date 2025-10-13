@@ -38,9 +38,9 @@ export function PlanBadge({ className }: { className?: string }) {
   const { currentPlan } = useUserPlan()
 
   return (
-    <Badge variant={currentPlan === "professional" ? "default" : "secondary"} className={className}>
-      {currentPlan === "professional" && <Crown className="w-3 h-3 mr-1" />}
-      {currentPlan === "professional" ? "PRO" : "BÁSICO"}
+    <Badge variant={currentPlan === "premium" ? "destructive" : currentPlan === "pro" ? "default" : "secondary"} className={className}>
+      {(currentPlan === "pro" || currentPlan === "premium") && <Crown className="w-3 h-3 mr-1" />}
+      {currentPlan === "premium" ? "PREMIUM" : currentPlan === "pro" ? "PRO" : "BÁSICO"}
     </Badge>
   )
 }
