@@ -83,8 +83,8 @@ export function TestLogin() {
                       </CardDescription>
                     </div>
                   </div>
-                  <Badge variant={user.plan === 'basic' ? 'secondary' : 'default'}>
-                    {user.plan === 'basic' ? 'Básico' : 'Pro'}
+                  <Badge variant={user.plan === 'premium' ? 'destructive' : user.plan === 'professional' ? 'default' : 'secondary'}>
+                    {user.plan === 'premium' ? 'Premium' : user.plan === 'professional' ? 'Profissional' : 'Básico'}
                   </Badge>
                 </div>
               </CardHeader>
