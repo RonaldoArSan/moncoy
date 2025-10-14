@@ -167,4 +167,5 @@ export interface SupportTicket {
   updated_at: string
 }
 
+export { supabase }
 export default supabase
