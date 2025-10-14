@@ -8,26 +8,25 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Moncoy - Sua Plataforma Financeira Inteligente",
-    template: "%s | Moncoy",
+    default: "MoncoyFinance - Sua Plataforma Financeira Inteligente",
+    template: "%s | MoncoyFinance",
   },
   verification: {
      google: 'google49731200e9d914ce',
-
   },
-  description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
-  keywords: ["finanças pessoais", "investimentos", "metas financeiras", "inteligência artificial", "IA", "gestão financeira", "planejamento financeiro", "controle de gastos", "orçamento", "moncoy"],
+  description: "MoncoyFinance é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
+  keywords: ["finanças pessoais", "investimentos", "metas financeiras", "inteligência artificial", "IA", "gestão financeira", "planejamento financeiro", "controle de gastos", "orçamento", "moncoyfinance"],
   openGraph: {
-    title: "Moncoy - Sua Plataforma Financeira Inteligente",
-    description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
-    url: "https://www.moncoy.com.br",
-    siteName: "Moncoy",
+    title: "MoncoyFinance - Sua Plataforma Financeira Inteligente",
+    description: "MoncoyFinance é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
+    url: "https://moncoyfinance.com",
+    siteName: "MoncoyFinance",
     images: [
       {
-        url: "https://www.moncoy.com.br/moncoy-dashboard.jpeg", // Replace with your actual image URL
+        url: "https://moncoyfinance.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Moncoy Dashboard",
+        alt: "MoncoyFinance Dashboard",
       },
     ],
     locale: "pt_BR",
