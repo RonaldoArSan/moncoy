@@ -27,15 +27,17 @@ export interface Transaction {
   description: string
   amount: number
   type: 'income' | 'expense'
-  category_id: string
+  category_id?: string
   date: string
-  payment_method: string
-  is_recurring: boolean
-  recurring_frequency?: 'daily' | 'weekly' | 'monthly' | 'yearly' | null
-  recurring_end_date?: string | null
-  status?: 'pending' | 'completed' | 'overdue' | 'due_soon'
+  status?: 'pending' | 'completed' | 'cancelled' | 'overdue' | 'due_soon'
   priority?: 'low' | 'medium' | 'high'
   notes?: string
+  receipt_url?: string
+  merchant?: string
+  payment_method?: string
+  is_recurring?: boolean
+  recurring_frequency?: 'daily' | 'weekly' | 'monthly' | 'yearly' | null
+  recurring_end_date?: string | null
   created_at: string
   updated_at: string
   category?: Category
@@ -59,14 +61,50 @@ export interface Goal {
 export interface Investment {
   id: string
   user_id: string
-  name: string
-  type: 'stocks' | 'bonds' | 'crypto' | 'real_estate' | 'other'
-  amount_invested: number
-  current_value: number
-  purchase_date: string
-  description?: string
+  asset_name: string
+  asset_type: 'stocks' | 'fii' | 'etf' | 'fixed_income' | 'crypto' | 'funds' | 'others'
+  quantity: number
+  avg_price: number
+  current_price?: number
+  broker?: string
+  category_id?: string
   created_at: string
   updated_at: string
+  category?: Category
+}
+
+export interface InvestmentTransaction {
+  id: string
+  user_id: string
+  investment_id?: string
+  operation_type: 'buy' | 'sell'
+  quantity: number
+  price: number
+  total_value: number
+  date: string
+  broker?: string
+  notes?: string
+  created_at: string
+  investment?: Investment
+}
+
+export interface RecurringTransaction {
+  id: string
+  user_id: string
+  description: string
+  amount: number
+  type: 'income' | 'expense'
+  category_id?: string
+  frequency: 'monthly' | 'weekly' | 'yearly'
+  start_date: string
+  end_date?: string
+  day_of_month?: number
+  day_of_week?: number
+  is_active: boolean
+  notes?: string
+  created_at: string
+  updated_at: string
+  category?: Category
 }
 
 export interface AIInsight {
@@ -162,6 +200,6 @@ export type DatabaseTables = {
 
 export type TransactionType = Transaction['type']
 export type GoalStatus = Goal['status']
-export type InvestmentType = Investment['type']
+export type InvestmentType = Investment['asset_type']
 export type NotificationType = Notification['type']
 export type UserPlan = User['plan']

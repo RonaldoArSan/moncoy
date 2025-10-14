@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { transactionsApi, investmentsApi, goalsApi } from '@/lib/api'
-import type { Transaction } from '@/lib/supabase'
+import type { Transaction } from '@/lib/supabase/types'
 
 interface MonthlyData {
   month: string

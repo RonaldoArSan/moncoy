@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { transactionsApi, categoriesApi, recurringTransactionsApi } from '@/lib/api'
-import type { Transaction, Category, RecurringTransaction } from '@/lib/supabase'
+import type { Transaction, Category, RecurringTransaction } from '@/lib/supabase/types'
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
