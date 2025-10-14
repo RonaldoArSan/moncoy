@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { investmentsApi, categoriesApi } from '@/lib/api'
-import type { Investment, Category } from '@/lib/supabase'
+import type { Investment, Category } from '@/lib/supabase/types'
 
 export function useInvestments() {
   const [investments, setInvestments] = useState<Investment[]>([])
@@ -54,8 +54,8 @@ export function useInvestments() {
   }
 
   const calculatePortfolioSummary = () => {
-    const totalInvested = investments.reduce((sum, inv) => sum + (inv.quantity * inv.avg_price), 0)
-    const totalValue = investments.reduce((sum, inv) => sum + (inv.quantity * (inv.current_price || inv.avg_price)), 0)
+    const totalInvested = investments.reduce((sum, inv) => sum + ((inv.quantity ?? 0) * inv.avg_price), 0)
+    const totalValue = investments.reduce((sum, inv) => sum + ((inv.quantity ?? 0) * (inv.current_price || inv.avg_price)), 0)
     const totalGain = totalValue - totalInvested
     const gainPercentage = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0
 
@@ -69,7 +69,7 @@ export function useInvestments() {
 
   const getAssetTypeDistribution = () => {
     const distribution = investments.reduce((acc, inv) => {
-      const value = inv.quantity * (inv.current_price || inv.avg_price)
+      const value = (inv.quantity ?? 0) * (inv.current_price || inv.avg_price)
       if (!acc[inv.asset_type]) {
         acc[inv.asset_type] = { value: 0, count: 0 }
       }

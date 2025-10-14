@@ -1,5 +1,5 @@
-import supabase from './supabase'
-import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction } from './supabase'
+import supabase from '@/lib/supabase'
+import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction } from '@/lib/supabase/types'
 
 // User API functions
 export const userApi = {
@@ -495,7 +495,9 @@ export const recurringTransactionsApi = {
           date: transactionDate.toISOString().split('T')[0],
           status: 'pending',
           priority: rec.priority || 'medium',
-          notes: `Transação recorrente: ${rec.notes || ''}`.trim()
+          notes: `Transação recorrente: ${rec.notes || ''}`.trim(),
+          payment_method: 'automatic',
+          is_recurring: true
         })
       }
     }
