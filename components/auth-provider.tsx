@@ -152,10 +152,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Carregar configurações do usuário
   const loadUserSettings = async () => {
     try {
+      // Get the current authenticated user from Supabase
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      
+      if (!authUser) {
+        console.error('Error loading user settings: No authenticated user')
+        setUserSettings(null)
+        return
+      }
+
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', authUser.id)
         .single()
 
       if (error && error.code !== 'PGRST116') {
@@ -338,12 +347,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserSettings = async (updates: Partial<UserSettings>) => {
     try {
-      if (!user) throw new Error('Usuário não autenticado')
+      // Get the current authenticated user from Supabase
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      
+      if (!authUser) throw new Error('Usuário não autenticado')
 
       const { data, error } = await supabase
         .from('user_settings')
         .upsert({ 
-          user_id: user.id,
+          user_id: authUser.id,
           ...updates 
         }, { 
           onConflict: 'user_id' 
