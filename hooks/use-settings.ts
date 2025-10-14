@@ -25,13 +25,18 @@ export function useSettings() {
       setUser(userData)
 
       if (userData) {
-        const { data: userSettings } = await supabase
+        const { data: userSettings, error: settingsError } = await supabase
           .from('user_settings')
           .select('*')
           .eq('user_id', userData.id)
           .single()
         
-        setSettings(userSettings)
+        // PGRST116 means no rows returned, which is okay - user settings may not exist yet
+        if (settingsError && settingsError.code !== 'PGRST116') {
+          console.error('Error fetching user settings:', settingsError)
+        }
+        
+        setSettings(userSettings || null)
       }
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error)
