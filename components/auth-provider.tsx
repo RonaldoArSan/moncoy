@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Carregar configurações do usuário
           if (profile) {
-            await loadUserSettings()
+            await loadUserSettings(authUser.id)
           }
         } catch (error) {
           console.error('Error loading user profile:', error)
@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const newProfile = await userApi.createUserProfile(authUser)
             setUserProfile(newProfile)
-            await loadUserSettings()
+            await loadUserSettings(authUser.id)
           } catch (createError) {
             console.error('Error creating user profile:', createError)
           }
@@ -148,23 +148,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Carregar configurações do usuário
-  const loadUserSettings = async () => {
+  const loadUserSettings = async (userId?: string) => {
     try {
+      const targetUserId = userId || user?.id
+      
+      if (!targetUserId) {
+        console.warn('No user ID available for loading settings')
+        return
+      }
+
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', user?.id)
-        .single()
+        .eq('user_id', targetUserId)
+        .maybeSingle()
 
-      if (error && error.code !== 'PGRST116') {
-        throw error
+      if (error) {
+        // Se não encontrou settings ou houve erro de acesso, tentar criar defaults
+        if (error.code === 'PGRST116' || error.message?.includes('No rows found') || !data) {
+          try {
+            const { data: newSettings, error: createError } = await supabase
+              .from('user_settings')
+              .upsert({ 
+                user_id: targetUserId,
+                ai_frequency: 'weekly',
+                ai_detail_level: 'medium',
+                notifications_enabled: true,
+                theme: 'system'
+              }, { 
+                onConflict: 'user_id' 
+              })
+              .select()
+              .single()
+
+            if (createError) {
+              console.error('Error creating default user settings:', createError)
+              setUserSettings(null)
+            } else {
+              setUserSettings(newSettings)
+            }
+          } catch (createErr) {
+            console.error('Exception creating default settings:', createErr)
+            setUserSettings(null)
+          }
+          return
+        }
+        
+        console.error('Error loading user settings:', error)
+        setUserSettings(null)
+        return
       }
 
       setUserSettings(data || null)
     } catch (error) {
-      console.error('Error loading user settings:', error)
+      console.error('Exception in loadUserSettings:', error)
+      setUserSettings(null)
     }
   }
+
+
 
   // Métodos de autenticação
   const signIn = async (email: string, password: string) => {
@@ -323,7 +365,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUserSettings = async (): Promise<UserSettings | null> => {
     if (!userSettings && user) {
-      await loadUserSettings()
+      await loadUserSettings(user.id)
     }
     return userSettings
   }
