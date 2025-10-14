@@ -18,6 +18,20 @@ export const getAdminDashboardData = async () => {
   noStore()
   const supabase = await createClient()
   
+  // Check if client was created successfully (might be null during build/export)
+  if (!supabase) {
+    return {
+      totalUsers: 0,
+      activeUsers: 0,
+      premiumUsers: 0,
+      totalRevenue: 0,
+      monthlyGrowth: 0,
+      supportTickets: 0,
+      systemHealth: 99.9,
+      recentUsers: [],
+    }
+  }
+  
   // Verificar se as variáveis de ambiente estão disponíveis
   if (!process.env.STRIPE_SECRET_KEY) {
     return {

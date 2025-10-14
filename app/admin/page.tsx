@@ -13,6 +13,12 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
+  
+  // Check if client was created successfully (might be null during build/export)
+  if (!supabase) {
+    return redirect("/login")
+  }
+  
   const {
     data: { user },
   } = await supabase.auth.getUser()
