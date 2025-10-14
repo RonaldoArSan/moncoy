@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar, Download, FileText } from "lucide-react"
 import { exportTransactions } from "@/lib/export-utils"
-import type { Transaction } from "@/lib/supabase"
+import type { Transaction } from "@/lib/supabase/types"
 
 interface ExportModalProps {
   open: boolean

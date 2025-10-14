@@ -19,8 +19,8 @@ import {
   Video,
   FileText,
 } from "lucide-react"
-import supabase from "@/lib/supabase"
-import type { SupportSettings, SupportTicket } from "@/lib/supabase"
+import supabase from "@/lib/supabase/client"
+import type { SupportSettings, SupportTicket } from "@/lib/supabase/types"
 import { useToast } from "@/hooks/use-toast"
 
 export default function SupportPage() {

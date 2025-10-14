@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, X, Edit2, Save, DeleteIcon as Cancel, Loader2 } from "lucide-react"
 import { categoriesApi } from "@/lib/api"
-import type { Category } from "@/lib/supabase"
+import type { Category } from "@/lib/supabase/types"
 
 interface ManageCategoriesModalProps {
   open: boolean

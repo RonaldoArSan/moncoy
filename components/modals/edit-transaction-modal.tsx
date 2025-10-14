@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar, Loader2 } from "lucide-react"
 import { useTransactions } from "@/hooks/use-transactions"
-import type { Transaction } from "@/lib/supabase"
+import type { Transaction } from "@/lib/supabase/types"
 
 interface EditTransactionModalProps {
   open: boolean

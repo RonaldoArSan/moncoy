@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { goalsApi, categoriesApi } from '@/lib/api'
-import type { Goal, Category } from '@/lib/supabase'
+import type { Goal, Category } from '@/lib/supabase/types'
 
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([])

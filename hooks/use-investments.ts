@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { investmentsApi, categoriesApi } from '@/lib/api'
-import type { Investment, Category } from '@/lib/supabase'
+import type { Investment, Category } from '@/lib/supabase/types'
 
 export function useInvestments() {
   const [investments, setInvestments] = useState<Investment[]>([])
