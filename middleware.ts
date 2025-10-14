@@ -22,6 +22,17 @@ export function middleware(req: NextRequest) {
     }
   }
 
+  // Check admin authentication for admin routes (except login)
+  if (req.nextUrl.pathname.startsWith('/admin') && !req.nextUrl.pathname.startsWith('/admin/login')) {
+    const adminSession = req.cookies.get('admin_session')
+    
+    if (!adminSession) {
+      const loginUrl = url.clone()
+      loginUrl.pathname = '/admin/login'
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
   // Production WWW redirect
   if (isProd && host.startsWith('www.')) {
     url.hostname = host.replace(/^www\./, '')
