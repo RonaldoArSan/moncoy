@@ -1,18 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
+import type { User } from '@/lib/supabase/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 export function ProfileDebug() {
-  const [authUser, setAuthUser] = useState(null)
-  const [profile, setProfile] = useState(null)
+  const [authUser, setAuthUser] = useState<any>(null)
+  const [profile, setProfile] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function debug() {
+      const supabase = createClient()
       try {
         console.log('🔍 Iniciando debug...')
         
@@ -50,9 +52,9 @@ export function ProfileDebug() {
         
         setProfile(profileData)
         
-      } catch (err) {
+      } catch (err: any) {
         console.error('Erro geral:', err)
-        setError('Erro geral: ' + err.message)
+        setError('Erro geral: ' + (err?.message || 'Erro desconhecido'))
       } finally {
         setLoading(false)
       }

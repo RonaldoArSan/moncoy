@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar, Loader2 } from "lucide-react"
 import { useTransactions } from "@/hooks/use-transactions"
-import type { Transaction } from "@/lib/supabase"
+import type { Transaction } from "@/lib/supabase/types"
 
 interface EditTransactionModalProps {
   open: boolean
@@ -135,7 +135,7 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
           {transaction?.type === "expense" && (
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={(value: "pending" | "completed" | "overdue" | "due_soon") => setStatus(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -151,7 +151,7 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
 
           <div className="grid gap-2">
             <Label htmlFor="priority">Prioridade</Label>
-            <Select value={priority} onValueChange={setPriority}>
+            <Select value={priority} onValueChange={(value: "low" | "medium" | "high") => setPriority(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -1,4 +1,4 @@
-import type { Transaction } from '@/lib/supabase'
+import type { Transaction } from '@/lib/supabase/types'
 
 export interface ExportOptions {
   format: 'csv' | 'excel' | 'pdf'

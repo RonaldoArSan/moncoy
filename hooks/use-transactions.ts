@@ -57,7 +57,10 @@ export function useTransactions() {
       return updatedTransaction
     } catch (error) {
       console.error('Erro ao atualizar transação:', error)
-      alert(`Erro ao atualizar transação: ${error.message || 'Erro desconhecido'}`)
+      const errorMessage = typeof error === 'object' && error !== null && 'message' in error
+        ? (error as { message?: string }).message
+        : 'Erro desconhecido'
+      alert(`Erro ao atualizar transação: ${errorMessage}`)
       throw error
     }
   }

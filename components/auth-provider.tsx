@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import supabase from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { userApi } from '@/lib/api'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import type { 
@@ -13,6 +13,8 @@ import type {
   RegisterData, 
   AppMode 
 } from '@/types/auth'
+
+const supabase = createClient()
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 

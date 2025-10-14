@@ -1,8 +1,7 @@
-import type { User as SupabaseUser, UserSettings as SupabaseUserSettings } from '@/lib/supabase'
+import type { User, UserSettings } from '../lib/supabase/types'
 
-// Re-exportar os tipos do Supabase para consistência
-export type User = SupabaseUser
-export type UserSettings = SupabaseUserSettings
+// Re-export types for compatibility
+export type { User, UserSettings }
 
 export interface AuthUser {
   id: string

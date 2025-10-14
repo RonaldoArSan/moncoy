@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { userApi } from '@/lib/api'
-import { supabase } from '@/lib/supabase'
+import supabase from '@/lib/supabase'
 import type { User } from '@/lib/supabase'
 
 export function useUser() {

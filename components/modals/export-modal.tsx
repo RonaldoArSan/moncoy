@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar, Download, FileText } from "lucide-react"
 import { exportTransactions } from "@/lib/export-utils"
-import type { Transaction } from "@/lib/supabase"
+import type { Transaction } from "@/lib/supabase/types"
 
 interface ExportModalProps {
   open: boolean
@@ -91,7 +91,7 @@ export function ExportModal({
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="format">Formato</Label>
-            <Select value={format} onValueChange={setFormat}>
+            <Select value={format} onValueChange={(value: 'csv' | 'excel' | 'pdf') => setFormat(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -159,7 +159,7 @@ export function ExportModal({
             <Checkbox
               id="include-charts"
               checked={includeCharts}
-              onCheckedChange={(checked) => setIncludeCharts(checked as boolean)}
+              onCheckedChange={(checked: boolean) => setIncludeCharts(checked)}
             />
             <Label htmlFor="include-charts" className="text-sm font-normal">
               Incluir gráficos e visualizações
