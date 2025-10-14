@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+import { createClient } from './supabase/client'
+
+// Use the same singleton instance from supabase/client to prevent multiple GoTrueClient instances
+const supabase = createClient()
 
 // Types based on our database schema
 export interface User {
