@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { userApi } from '@/lib/api'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import type { 
@@ -13,8 +13,6 @@ import type {
   RegisterData, 
   AppMode 
 } from '@/types/auth'
-
-const supabase = createClient()
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -110,6 +108,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Processar usuário autenticado
   const handleAuthUser = async (authUser: any) => {
     try {
+      // Evitar processamento duplo do mesmo usuário
+      if (user?.id === authUser.id) {
+        return
+      }
+
       const formattedUser: AuthUser = {
         id: authUser.id,
         email: authUser.email || '',
@@ -120,9 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: authUser.updated_at
       }
 
-      setUser(formattedUser)
-
-      // Carregar perfil do usuário (exceto para modo público)
+      setUser(formattedUser)      // Carregar perfil do usuário (exceto para modo público)
       if (mode !== 'public') {
         try {
           const profile = await userApi.getCurrentUser()
@@ -150,12 +151,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Carregar configurações do usuário
-  const loadUserSettings = async () => {
+  const loadUserSettings = async (userId?: string) => {
     try {
+      const id = userId || user?.id || userProfile?.id
+      
+      if (!id) {
+        console.warn('No user ID available for loading settings')
+        return
+      }
+
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', id)
         .single()
 
       if (error && error.code !== 'PGRST116') {
@@ -166,9 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error loading user settings:', error)
     }
-  }
-
-  // Métodos de autenticação
+  }  // Métodos de autenticação
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true)

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { userApi } from '@/lib/api'
 import supabase from '@/lib/supabase'
-import type { User, UserSettings } from '@/lib/supabase'
+import type { User, UserSettings } from '@/lib/supabase/types'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 export function useSettings() {
   const [user, setUser] = useState<User | null>(null)
