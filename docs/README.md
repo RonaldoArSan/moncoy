@@ -8,18 +8,30 @@ Este diretório contém documentação adicional para configuração e uso do Mo
 
 Se você está vendo "dxdbpppymxfiojszrmir.supabase.co" em vez de "Moncoy Finance" durante o login com Google, siga um destes guias:
 
-1. **[Guia Rápido (5 minutos)](./GUIA_RAPIDO_OAUTH.md)** ⚡
+1. **[Antes e Depois](./ANTES_DEPOIS.md)** 👀
+   - Visualização do problema e solução
+   - Comparação visual
+   - Impacto nos usuários
+   - Ideal para entender o problema primeiro
+
+2. **[Guia Rápido (5 minutos)](./GUIA_RAPIDO_OAUTH.md)** ⚡
    - Passo a passo simplificado
    - Solução mais rápida
    - Ideal para quem quer resolver rapidamente
 
-2. **[Guia Completo](./SUPABASE_OAUTH_CONFIG.md)** 📚
+3. **[Guia Completo](./SUPABASE_OAUTH_CONFIG.md)** 📚
    - 3 opções diferentes de configuração
    - Explicações detalhadas
    - Troubleshooting completo
    - Ideal para entender todas as opções
 
-3. **[Fluxo e Diagrama](./OAUTH_FLUXO.md)** 🔄
+4. **[Checklist Interativo](./CHECKLIST_OAUTH.md)** ✅
+   - Lista de verificação passo a passo
+   - Marque conforme avança
+   - Não esquece nenhum passo
+   - Ideal para seguir metodicamente
+
+5. **[Fluxo e Diagrama](./OAUTH_FLUXO.md)** 🔄
    - Diagrama visual do fluxo OAuth
    - Explicação de onde configurar cada coisa
    - FAQ detalhado
@@ -27,8 +39,14 @@ Se você está vendo "dxdbpppymxfiojszrmir.supabase.co" em vez de "Moncoy Financ
 
 ## Qual Guia Usar?
 
+### Se você quer VER o antes e depois
+→ Use o [Antes e Depois](./ANTES_DEPOIS.md)
+
 ### Se você quer resolver RÁPIDO
 → Use o [Guia Rápido](./GUIA_RAPIDO_OAUTH.md)
+
+### Se você quer um CHECKLIST para seguir
+→ Use o [Checklist Interativo](./CHECKLIST_OAUTH.md)
 
 ### Se você quer entender TUDO
 → Use o [Guia Completo](./SUPABASE_OAUTH_CONFIG.md)
