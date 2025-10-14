@@ -1,5 +1,5 @@
-import supabase from './supabase'
-import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction } from './supabase'
+import supabase from './supabase/client'
+import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction } from './supabase/types'
 
 // User API functions
 export const userApi = {

@@ -2,17 +2,11 @@
 
 import type React from "react"
 import { useState, useEffect, Suspense } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label, Separator, Badge, PhoneInput } from "@/components/ui"
 import { Eye, EyeOff, Mail, Lock, Chrome, User, Phone, Building2, Check, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { PhoneInput } from "@/components/ui/phone-input"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 
 function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)

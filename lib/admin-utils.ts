@@ -5,7 +5,7 @@
  */
 
 // Update the import path to the correct relative location
-import { createClient } from '../lib/supabase/server'
+import { createClient } from './supabase/server'
 
 export interface AdminUser {
   id: string

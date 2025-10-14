@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import supabase from "@/lib/supabase"
+import supabase from "@/lib/supabase/client"
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState("")

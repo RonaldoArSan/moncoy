@@ -2,7 +2,7 @@
 
 import { forwardRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
-import { formatPhoneNumber, unformatPhoneNumber } from '@/lib/phone-mask'
+import { formatPhoneNumber, unformat as unformatPhoneNumber } from '@/lib'
 import { cn } from '@/lib/utils'
 
 export interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTransactions } from './use-transactions'
-import supabase from '@/lib/supabase'
+import supabase from '@/lib/supabase/client'
 import { useReports } from './use-reports'
 import { useGoals } from './use-goals'
 
@@ -141,7 +141,7 @@ export function useNotifications() {
       // Notificação de transações próximas do vencimento
       if (transactions && transactions.length > 0) {
         const now = new Date()
-  transactions.forEach(async (tx: import('@/lib/supabase').Transaction) => {
+  transactions.forEach(async (tx: import('@/lib/supabase/types').Transaction) => {
           if (tx.status === 'due_soon') {
             await createNotification({
               type: 'warning',

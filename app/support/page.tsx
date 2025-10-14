@@ -1,12 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Input, Label, Textarea, Badge, useToast } from "@/components/ui"
 import {
   HelpCircle,
   MessageCircle,
@@ -19,9 +14,8 @@ import {
   Video,
   FileText,
 } from "lucide-react"
-import supabase from "@/lib/supabase"
-import type { SupportSettings, SupportTicket } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
+import supabase from "@/lib/supabase/client"
+import type { SupportSettings, SupportTicket } from "@/lib/supabase/types"
 
 export default function SupportPage() {
   const { toast } = useToast()

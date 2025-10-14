@@ -16,7 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar, Loader2 } from "lucide-react"
 import { useTransactions } from "@/hooks/use-transactions"
-import type { Transaction } from "@/lib/supabase"
+// Update the import path below to the correct location of your Transaction type.
+// For example, if the file is at src/lib/supabase/types.ts, use:
+import type { Transaction } from "../../lib/supabase/types"
+// Or adjust the path as needed for your project structure.
 
 interface EditTransactionModalProps {
   open: boolean
@@ -135,7 +138,7 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
           {transaction?.type === "expense" && (
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={(value) => setStatus(value as "pending" | "completed" | "overdue" | "due_soon")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -151,7 +154,7 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
 
           <div className="grid gap-2">
             <Label htmlFor="priority">Prioridade</Label>
-            <Select value={priority} onValueChange={setPriority}>
+            <Select value={priority} onValueChange={(value) => setPriority(value as "low" | "medium" | "high")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

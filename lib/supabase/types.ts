@@ -1,8 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
 // Types based on our database schema
 export interface User {
   id: string
@@ -166,5 +161,3 @@ export interface SupportTicket {
   created_at: string
   updated_at: string
 }
-
-export default supabase

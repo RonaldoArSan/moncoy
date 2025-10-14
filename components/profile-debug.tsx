@@ -1,15 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import supabase from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
+import type { User as AppUser } from '@/lib/supabase/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 export function ProfileDebug() {
-  const [authUser, setAuthUser] = useState(null)
-  const [profile, setProfile] = useState(null)
+  const [authUser, setAuthUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<AppUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function debug() {
@@ -52,7 +54,7 @@ export function ProfileDebug() {
         
       } catch (err) {
         console.error('Erro geral:', err)
-        setError('Erro geral: ' + err.message)
+        setError('Erro geral: ' + (err as Error).message)
       } finally {
         setLoading(false)
       }

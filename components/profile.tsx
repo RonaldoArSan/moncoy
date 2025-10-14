@@ -1,13 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useUser } from '@/hooks/use-user'
+import { useUser } from '@/hooks'
 import { userApi } from '@/lib/api'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Button, Input, Label, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge } from '@/components/ui'
 import { User, Settings, Crown } from 'lucide-react'
 
 export function Profile() {
