@@ -228,6 +228,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [mode, router])
 
+
+
   // Métodos de autenticação
   const signIn = async (email: string, password: string) => {
     try {
@@ -393,7 +395,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUserSettings = async (): Promise<UserSettings | null> => {
     if (!userSettings && user) {
-      await loadUserSettings(user.id)
+      await loadUserSettings()
     }
     return userSettings
   }
