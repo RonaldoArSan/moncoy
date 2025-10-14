@@ -14,8 +14,7 @@ export type {
   SupportTicket
 } from '../supabase'
 
-export { default } from '../supabase'
-export { default as supabase } from '../supabase'
+export { default, supabase } from '../supabase'
 
 // Also export the client and server utilities
 export { createClient as createBrowserClient } from './client'
