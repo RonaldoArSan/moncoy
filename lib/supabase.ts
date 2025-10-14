@@ -1,19 +1,7 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from './supabase/client'
 
-// Singleton instance to prevent multiple GoTrueClient instances
-let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null
-
-const getSupabaseClient = () => {
-  if (!supabaseInstance) {
-    supabaseInstance = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-  }
-  return supabaseInstance
-}
-
-const supabase = getSupabaseClient()
+// Use the same singleton instance from supabase/client to prevent multiple GoTrueClient instances
+const supabase = createClient()
 
 // Types based on our database schema
 export interface User {
