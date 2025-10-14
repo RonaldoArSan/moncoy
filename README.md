@@ -29,7 +29,13 @@ Moncoy Finance é uma plataforma de gestão financeira pessoal com recursos de i
    pnpm install
    ```
 3. Configure as variáveis de ambiente:
-   - Crie um arquivo `.env.local` com as chaves do Supabase e Stripe.
+   - Copie o arquivo `.env.example` para `.env.local`:
+     ```bash
+     cp .env.example .env.local
+     ```
+   - Preencha todas as variáveis de ambiente necessárias no arquivo `.env.local`
+   - As chaves do Supabase podem ser obtidas em: https://app.supabase.com/project/_/settings/api
+   - As chaves do Stripe podem ser obtidas em: https://dashboard.stripe.com/apikeys
 4. Rode o projeto:
    ```bash
    pnpm run dev
