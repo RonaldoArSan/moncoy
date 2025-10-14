@@ -16,6 +16,14 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe()
     const supabase = await createClient()
 
+    // Check if client was created successfully
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Serviço temporariamente indisponível' },
+        { status: 503 }
+      )
+    }
+
     // Verificar se o usuário está autenticado
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     

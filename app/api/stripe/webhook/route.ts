@@ -41,6 +41,15 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createClient()
 
+  // Check if client was created successfully
+  if (!supabase) {
+    console.error('Supabase client not available')
+    return NextResponse.json(
+      { error: 'Serviço temporariamente indisponível' },
+      { status: 503 }
+    )
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
