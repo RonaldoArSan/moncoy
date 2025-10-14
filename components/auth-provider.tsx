@@ -110,6 +110,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Processar usuário autenticado
   const handleAuthUser = async (authUser: any) => {
     try {
+      console.log('handleAuthUser called for:', authUser.email)
+      
+      // Evitar processamento duplo do mesmo usuário
+      if (user?.id === authUser.id) {
+        console.log('User already processed, skipping')
+        return
+      }
+
       const formattedUser: AuthUser = {
         id: authUser.id,
         email: authUser.email || '',
@@ -130,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Carregar configurações do usuário
           if (profile) {
-            await loadUserSettings()
+            await loadUserSettings(profile.id)
           }
         } catch (error) {
           console.error('Error loading user profile:', error)
@@ -138,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const newProfile = await userApi.createUserProfile(authUser)
             setUserProfile(newProfile)
-            await loadUserSettings()
+            await loadUserSettings(newProfile.id)
           } catch (createError) {
             console.error('Error creating user profile:', createError)
           }
@@ -150,12 +158,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Carregar configurações do usuário
-  const loadUserSettings = async () => {
+  const loadUserSettings = async (userId?: string) => {
     try {
+      const id = userId || user?.id || userProfile?.id
+      
+      if (!id) {
+        console.warn('No user ID available for loading settings')
+        return
+      }
+
+      console.log('Loading user settings for ID:', id)
+
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', id)
         .single()
 
       if (error && error.code !== 'PGRST116') {
@@ -330,8 +347,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getUserSettings = async (): Promise<UserSettings | null> => {
-    if (!userSettings && user) {
-      await loadUserSettings()
+    if (!userSettings && (user || userProfile)) {
+      await loadUserSettings(user?.id || userProfile?.id)
     }
     return userSettings
   }
