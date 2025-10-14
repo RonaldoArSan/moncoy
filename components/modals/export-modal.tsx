@@ -91,7 +91,7 @@ export function ExportModal({
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="format">Formato</Label>
-            <Select value={format} onValueChange={setFormat}>
+            <Select value={format} onValueChange={(value) => setFormat(value as 'csv' | 'excel' | 'pdf')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
