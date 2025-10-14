@@ -270,6 +270,12 @@ export default async function AdminDashboard() {
                         <span>Gerenciar Usuários</span>
                     </Button>
                 </Link>
+                <Link href="/admin/admin-users" className="w-full">
+                    <Button className="h-20 w-full flex-col space-y-2 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        <Shield className="h-6 w-6" />
+                        <span>Administradores</span>
+                    </Button>
+                </Link>
                               <Link href="/admin/reports" className="w-full">
               <Button
                 variant="outline"

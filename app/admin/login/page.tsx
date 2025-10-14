@@ -133,15 +133,9 @@ function AdminLoginForm() {
             <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
             <div className="text-xs text-amber-700 dark:text-amber-300">
               <p className="font-medium">Acesso Restrito</p>
-              <p>Apenas administradores autorizados podem acessar esta área.</p>
+              <p>Apenas administradores autorizados podem acessar esta área. Sistema independente de autenticação administrativa.</p>
             </div>
           </div>
-        </div>
-
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-          <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-            <strong>Demo:</strong> admin@moncoy.com / admin123
-          </p>
         </div>
       </CardContent>
     </Card>
