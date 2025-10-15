@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react'
 import { investmentsApi, categoriesApi } from '@/lib/api'
-import type { Investment, Category } from '@/lib/supabase/types'
+import type { Investment, Category, InvestmentTransaction } from '@/lib/supabase/types'
 
 export function useInvestments() {
   const [investments, setInvestments] = useState<Investment[]>([])
+  const [investmentTransactions, setInvestmentTransactions] = useState<InvestmentTransaction[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   const loadInvestments = async () => {
     try {
       setLoading(true)
-      const data = await investmentsApi.getInvestments()
-      setInvestments(data)
+      const [investmentsData, transactionsData] = await Promise.all([
+        investmentsApi.getInvestments(),
+        investmentsApi.getInvestmentTransactions()
+      ])
+      setInvestments(investmentsData)
+      setInvestmentTransactions(transactionsData)
     } catch (error) {
       console.error('Erro ao carregar investimentos:', error)
     } finally {
@@ -35,6 +40,19 @@ export function useInvestments() {
       return newInvestment
     } catch (error) {
       console.error('Erro ao criar investimento:', error)
+      throw error
+    }
+  }
+
+  const createInvestmentTransaction = async (transaction: Omit<InvestmentTransaction, 'id' | 'user_id' | 'created_at'>) => {
+    try {
+      const newTransaction = await investmentsApi.createInvestmentTransaction(transaction)
+      setInvestmentTransactions(prev => [newTransaction, ...prev])
+      // Recarregar investimentos para atualizar posições
+      await loadInvestments()
+      return newTransaction
+    } catch (error) {
+      console.error('Erro ao criar transação de investimento:', error)
       throw error
     }
   }
@@ -95,9 +113,11 @@ export function useInvestments() {
 
   return {
     investments,
+    investmentTransactions,
     categories,
     loading,
     createInvestment,
+    createInvestmentTransaction,
     deleteInvestment,
     calculatePortfolioSummary,
     getAssetTypeDistribution,

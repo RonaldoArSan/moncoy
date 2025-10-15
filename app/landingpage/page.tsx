@@ -60,7 +60,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">M</span>
               </div>
-              <span className="ml-3 text-2xl font-bold text-gray-900">Moncoy <span className="text-yellow-300">Finance</span></span>
+              <span className="ml-3 text-2xl font-bold text-gray-900">MoncoyFinance</span>
             </div>
             <nav className="hidden md:flex space-x-8">
               <a href="#recursos" className="text-gray-600 hover:text-blue-600 transition-colors">Recursos</a>
@@ -87,7 +87,7 @@ export default function LandingPage() {
                 <span className="block text-yellow-300">Inteligência Artificial</span>
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                O primeiro app brasileiro que combina gestão financeira completa com IA nativa. 
+                A plataforma financeira brasileira que combina gestão completa com IA avançada. 
                 Organize, invista e cresça com insights inteligentes personalizados para você.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -101,8 +101,8 @@ export default function LandingPage() {
             </div>
             <div className="fade-in">
               <Image 
-                src="/moncoy-dashboard.jpeg"
-                alt="Dashboard Moncoy"
+                src="/moncoyfinance-dashboard.png"
+                alt="Dashboard MoncoyFinance"
                 width={600}
                 height={400}
                 className="rounded-2xl shadow-2xl"
@@ -123,12 +123,12 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: '📊', title: 'Dashboard Intuitivo', description: 'Visualize todas as suas contas, cartões e investimentos em uma tela única e clara.'},
-              { icon: '🎯', title: 'Metas Inteligentes', description: 'Crie metas personalizadas e acompanhe seu progresso com projeções baseadas em IA.'},
-              { icon: '🤖', title: 'IA Financeira', description: 'Receba conselhos proativos para economizar, investir e evitar armadilhas financeiras.'},
-              { icon: '📈', title: 'Relatórios Completos', description: 'Gere relatórios detalhados em PDF para entender a fundo sua saúde financeira.'},
-              { icon: '🔔', title: 'Alertas em Tempo Real', description: 'Seja notificado sobre gastos inesperados, faturas próximas e oportunidades.'},
-              { icon: '📱', title: 'Acesso Multiplataforma', description: 'Gerencie suas finanças de onde estiver, com sincronização perfeita entre web e mobile.' }
+              { icon: '📊', title: 'Dashboard Inteligente', description: 'Visualize todos os seus dados financeiros com gráficos interativos e métricas em tempo real.'},
+              { icon: '🎯', title: 'Metas Personalizadas', description: 'Defina objetivos financeiros e receba insights de IA para alcançá-los mais rapidamente.'},
+              { icon: '🤖', title: 'Assistente IA Avançado', description: 'Converse com nossa IA sobre suas finanças e receba conselhos personalizados 24/7.'},
+              { icon: '📈', title: 'Análise de Investimentos', description: 'Acompanhe seus investimentos com análises detalhadas e projeções de rentabilidade.'},
+              { icon: '🔔', title: 'Alertas Inteligentes', description: 'Receba notificações sobre gastos incomuns, oportunidades de economia e metas próximas.'},
+              { icon: '📱', title: 'Acesso Total', description: 'Use no web, mobile ou API - seus dados sempre sincronizados em tempo real.' }
             ].map((feature, i) => (
               <div key={i} className="bg-gray-50 p-8 rounded-2xl shadow-lg fade-in transition-transform transform hover:scale-105 hover:shadow-xl">
                 <div className="text-4xl mb-4">{feature.icon}</div>
@@ -154,15 +154,17 @@ export default function LandingPage() {
             <div className="bg-white p-8 rounded-2xl shadow-lg fade-in transition-transform transform hover:scale-105 hover:shadow-xl">
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Básico</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-2">R$ 19,90</div>
-                <p className="text-gray-600">por mês</p>
+                <div className="text-4xl font-bold text-gray-900 mb-2">Gratuito</div>
+                <p className="text-gray-600">para sempre</p>
               </div>
               <ul className="space-y-4 mb-8">
                 {[
-                  "GPT-4o-mini",
-                  "5 perguntas/semana",
-                  "Resumo mensal simplificado",
-                  "Somente Web"
+                  "Gestão completa de finanças",
+                  "Controle de transações",
+                  "Metas financeiras",
+                  "Relatórios básicos",
+                  "Categorização automática",
+                  "Acesso via web"
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center">
                     <span className="text-green-500 mr-3">✅</span>
@@ -171,31 +173,33 @@ export default function LandingPage() {
                 ))}
               </ul>
               <button 
-                onClick={() => redirectToStripeCheckout(STRIPE_CONFIG.prices.BASIC)}
+                onClick={() => window.location.href = '/register'}
                 className="w-full border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all"
               >
-                Assinar Básico
+                Começar Grátis
               </button>
             </div>
             
-            {/* Plano Pro */}
+            {/* Plano Profissional */}
             <div className="bg-white p-8 rounded-2xl shadow-2xl border-2 border-blue-500 relative fade-in transition-transform transform hover:scale-105 hover:shadow-2xl">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Mais Popular</span>
               </div>
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">R$ 49,90</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Profissional</h3>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">R$ 29,90</div>
                 <p className="text-gray-600">por mês</p>
               </div>
               <ul className="space-y-4 mb-8">
                 {[
-                  "GPT-4o-mini + GPT-4o limitado",
-                  "1 pergunta/dia",
-                  "Resumo mensal detalhado em PDF",
-                  "Histórico de conversas",
-                  "Alertas de gastos",
-                  "Web + Mobile"
+                  "Tudo do plano Básico",
+                  "IA Financeira avançada",
+                  "Análise inteligente de gastos",
+                  "Conselhos personalizados",
+                  "Relatórios em PDF",
+                  "Alertas inteligentes",
+                  "Sincronização automática",
+                  "Suporte prioritário"
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center">
                     <span className="text-blue-500 mr-3">✅</span>
@@ -207,7 +211,7 @@ export default function LandingPage() {
                 onClick={() => redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
               >
-                Assinar Pro
+                Assinar Profissional
               </button>
             </div>
 
@@ -215,18 +219,20 @@ export default function LandingPage() {
             <div className="bg-white p-8 rounded-2xl shadow-lg fade-in transition-transform transform hover:scale-105 hover:shadow-xl">
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-2">R$ 59,90</div>
+                <div className="text-4xl font-bold text-gray-900 mb-2">R$ 49,90</div>
                 <p className="text-gray-600">por mês</p>
               </div>
               <ul className="space-y-4 mb-8">
                 {[
-                  "GPT-4o-mini + GPT-4o completo",
-                  "Uso diário sem limite rígido",
-                  "Resumo mensal + análise financeira completa",
-                  "Relatórios PDF avançados com gráficos",
-                  "Histórico de conversas",
-                  "Suporte prioritário",
-                  "Web + Mobile"
+                  "Tudo do plano Profissional",
+                  "IA com GPT-4 completo",
+                  "Análises financeiras avançadas",
+                  "Projeções de investimento",
+                  "Consultoria IA personalizada",
+                  "Relatórios executivos",
+                  "API para integrações",
+                  "Suporte VIP",
+                  "Acesso mobile prioritário"
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center">
                     <span className="text-purple-500 mr-3">✅</span>
@@ -431,7 +437,7 @@ export default function LandingPage() {
                         <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                             <span className="text-white font-bold text-xl">M</span>
                         </div>
-                        <span className="ml-3 text-xl font-bold">Moncoy Finance</span>
+                        <span className="ml-3 text-xl font-bold">MoncoyFinance</span>
                     </div>
                     <p className="text-gray-400">Transformando vidas através da inteligência financeira.</p>
                 </div>
@@ -459,7 +465,7 @@ export default function LandingPage() {
                 </div>
             </div>
             <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 Moncoy Finance. Todos os direitos reservados.</p>
+                <p>&copy; 2025 MoncoyFinance. Todos os direitos reservados.</p>
             </div>
         </div>
       </footer>

@@ -5,17 +5,19 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { NewInvestmentModal } from "@/components/modals/new-investment-modal"
+import { NewInvestmentTransactionModal } from "@/components/modals/new-investment-transaction-modal"
 import { ExportModal } from "@/components/modals/export-modal"
-import { TrendingUp, PlusCircle, DollarSign, BarChart3, Calculator, FileText, Eye, MoreHorizontal, Trash2 } from "lucide-react"
+import { TrendingUp, PlusCircle, DollarSign, BarChart3, Calculator, FileText, Eye, MoreHorizontal, Trash2, ArrowUpDown } from "lucide-react"
 import { useState } from "react"
 import { useInvestments } from "@/hooks/use-investments"
 import { useUserPlan } from "@/contexts/user-plan-context"
 
 export default function InvestmentsPage() {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false)
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   
-  const { investments, loading, calculatePortfolioSummary, getAssetTypeDistribution, deleteInvestment } = useInvestments()
+  const { investments, investmentTransactions, loading, calculatePortfolioSummary, getAssetTypeDistribution, deleteInvestment } = useInvestments()
   const { currentPlan } = useUserPlan()
   const isProfessional = ['pro', 'premium'].includes(currentPlan)
   
@@ -61,6 +63,14 @@ export default function InvestmentsPage() {
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Calculator className="w-4 h-4 mr-2" />
               <span className="sm:inline">Calcular IR</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsTransactionModalOpen(true)}
+              className="w-full sm:w-auto"
+            >
+              <ArrowUpDown className="w-4 h-4 mr-2" />
+              <span className="sm:inline">Nova Transação</span>
             </Button>
             <Button
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 w-full sm:w-auto"
@@ -330,12 +340,99 @@ export default function InvestmentsPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Transações de Investimento */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Histórico de Transações</CardTitle>
+                <CardDescription>Últimas movimentações da sua carteira</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 border rounded">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : investmentTransactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nenhuma transação encontrada</p>
+                <p className="text-sm mt-2">Use o botão "Nova Transação" para registrar compras e vendas</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {investmentTransactions.slice(0, 10).map((transaction) => {
+                  const investment = investments.find(inv => inv.id === transaction.investment_id)
+                  return (
+                    <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-3">
+                      <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1">
+                        <div
+                          className={`w-3 h-3 rounded-full mt-1 sm:mt-0 ${transaction.operation_type === "buy" ? "bg-green-500" : "bg-red-500"}`}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {transaction.operation_type === 'buy' ? 'Compra' : 'Venda'} - {investment?.asset_name || 'Ativo'}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground mt-1">
+                            <span>{new Date(transaction.date).toLocaleDateString('pt-BR')}</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span>{transaction.quantity} unidades</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span>R$ {transaction.price.toFixed(2)} cada</span>
+                            {transaction.broker && (
+                              <>
+                                <span className="hidden sm:inline">•</span>
+                                <span>{transaction.broker}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <div
+                          className={`font-bold text-base sm:text-lg ${transaction.operation_type === "buy" ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}
+                        >
+                          {transaction.operation_type === "buy" ? "-" : "+"}R${" "}
+                          {Math.abs(transaction.total_value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+                {investmentTransactions.length > 10 && (
+                  <div className="text-center pt-4">
+                    <Button variant="outline" size="sm">
+                      Ver todas as transações
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Modals */}
       <NewInvestmentModal 
         open={isInvestmentModalOpen} 
         onOpenChange={setIsInvestmentModalOpen}
+      />
+      <NewInvestmentTransactionModal 
+        open={isTransactionModalOpen} 
+        onOpenChange={setIsTransactionModalOpen}
       />
       <ExportModal
         open={isExportModalOpen}
