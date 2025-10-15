@@ -8,12 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun } from "lucide-react";
 import type { Commitment } from "@/types/commitment";
 
-// Sample commitments data
+// Get today's date in YYYY-MM-DD format
+const getTodayDate = () => {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+};
+
+// Sample commitments data - using dynamic dates relative to today
 const sampleCommitments: Commitment[] = [
   {
     id: '1',
     title: 'Reunião com cliente',
-    date: '2025-10-15',
+    date: getTodayDate(),
     time: '09:00',
     description: 'Apresentação do projeto novo',
     status: 'confirmado',
@@ -23,7 +29,7 @@ const sampleCommitments: Commitment[] = [
   {
     id: '2',
     title: 'Consulta médica',
-    date: '2025-10-15',
+    date: getTodayDate(),
     time: '14:30',
     description: 'Check-up anual',
     status: 'confirmado',
@@ -33,7 +39,7 @@ const sampleCommitments: Commitment[] = [
   {
     id: '3',
     title: 'Jantar com amigos',
-    date: '2025-10-15',
+    date: getTodayDate(),
     time: '19:00',
     status: 'pendente',
     category: 'Pessoal',
