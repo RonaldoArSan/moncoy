@@ -1,49 +1,43 @@
 import { useState, useEffect } from 'react'
-import { userApi } from '@/lib/api'
+import { useAuth } from '@/components/auth-provider'
 import { supabase } from '@/lib/supabase/client'
-import type { User, UserSettings } from '@/lib/supabase/types'
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import type { UserSettings } from '@/lib/supabase/types'
 
 export function useSettings() {
-  const [user, setUser] = useState<User | null>(null)
+  const { userProfile: user, loading: authLoading, updateProfile } = useAuth()
   const [settings, setSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const loadUserData = async () => {
+  const loadSettings = async () => {
     try {
-      setLoading(true)
-      
-      // Check if user is authenticated first
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        setUser(null)
+      if (!user) {
         setSettings(null)
+        setLoading(false)
         return
       }
 
-      const userData = await userApi.getCurrentUser()
-
-      setUser(userData)
-
-      if (userData) {
-        const { data: userSettings } = await supabase
-          .from('user_settings')
-          .select('*')
-          .eq('user_id', userData.id)
-          .single()
-        
-        setSettings(userSettings)
-      }
+      const { data: userSettings } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      
+      setSettings(userSettings)
     } catch (error) {
-      console.error('Erro ao carregar dados do usuário:', error)
-      setUser(null)
+      console.error('Erro ao carregar configurações do usuário:', error)
       setSettings(null)
     } finally {
       setLoading(false)
     }
   }
 
-  const updateUser = async (updates: Partial<User>) => {
+  useEffect(() => {
+    if (!authLoading) {
+      loadSettings()
+    }
+  }, [user?.id, authLoading])
+
+  const updateUser = async (updates: Partial<typeof user>) => {
     try {
       if (!user) return
       
@@ -55,9 +49,11 @@ export function useSettings() {
         if (authError) throw authError
       }
       
-      const updatedUser = await userApi.updateUser(updates)
-      setUser(updatedUser)
-      return updatedUser
+      const result = await updateProfile(updates)
+      if (result.success) {
+        return user
+      }
+      throw new Error(result.error || 'Erro ao atualizar usuário')
     } catch (error: any) {
       console.error('Erro ao atualizar usuário:', error)
       if (error.code === '23505') {
@@ -107,34 +103,13 @@ export function useSettings() {
     }
   }
 
-  useEffect(() => {
-    loadUserData()
-    
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        // Reload user data when signed in
-        await loadUserData()
-      } else if (event === 'SIGNED_OUT') {
-        // Clear data when signed out
-        setUser(null)
-        setSettings(null)
-        setLoading(false)
-      }
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
-
   return {
     user,
     settings,
-    loading,
+    loading: authLoading || loading,
     updateUser,
     updateSettings,
     getBankAccounts,
-    refreshData: loadUserData
+    refreshData: loadSettings
   }
 }
