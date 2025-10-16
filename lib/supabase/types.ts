@@ -92,18 +92,44 @@ export interface RecurringTransaction {
   description: string
   amount: number
   type: 'income' | 'expense'
-  category_id?: string
-  frequency: 'monthly' | 'weekly' | 'yearly'
+  category_id: string
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
   start_date: string
-  end_date?: string
-  day_of_month?: number
-  day_of_week?: number
+  end_date?: string | null
+  day_of_month?: number | null
+  day_of_week?: number | null
   is_active: boolean
-  notes?: string
   priority?: 'low' | 'medium' | 'high'
+  notes?: string
   created_at: string
   updated_at: string
   category?: Category
+}
+
+export interface Commitment {
+  id: string
+  user_id: string
+  title: string
+  description?: string
+  date: string
+  time: string
+  status: 'pendente' | 'confirmado' | 'cancelado'
+  type: 'income' | 'expense' | 'investment' | 'meeting' | 'other'
+  amount?: number
+  category?: string
+  recurring: boolean
+  recurring_pattern?: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  created_at: string
+  updated_at: string
+}
+
+export interface UserSettings {
+  id: string
+  user_id: string
+  notification_preferences: any
+  privacy_settings: any
+  created_at: string
+  updated_at: string
 }
 
 export interface AIInsight {
