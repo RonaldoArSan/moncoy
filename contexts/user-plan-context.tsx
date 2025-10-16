@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { logger } from '@/lib/logger'
 
 export type UserPlan = "basic" | "pro" | "premium"
 
@@ -65,6 +66,7 @@ const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined
 
 export function UserPlanProvider({ children }: { children: React.ReactNode }) {
   const [currentPlan, setCurrentPlan] = useState<UserPlan>("basic")
+  const [isLoaded, setIsLoaded] = useState(false)
 
   const features = planFeatures[currentPlan]
 
@@ -102,14 +104,14 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
       // Iniciar checkout
       await redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)
     } catch (error) {
-      console.error('Erro ao processar plano:', error)
+      logger.error('Erro ao processar plano:', error)
       // Fallback: tentar atualizar diretamente (para desenvolvimento)
       try {
         const { userApi } = await import('@/lib/api')
         await userApi.updateUser({ plan: 'professional' })
         setCurrentPlan("pro")
       } catch (fallbackError) {
-        console.error('Erro ao atualizar plano:', fallbackError)
+        logger.error('Erro ao atualizar plano:', fallbackError)
       }
     }
   }
@@ -120,14 +122,22 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
       await userApi.updateUser({ plan: 'basic' })
       setCurrentPlan("basic")
     } catch (error) {
-      console.error('Erro ao atualizar plano:', error)
+      logger.error('Erro ao atualizar plano:', error)
     }
   }
 
   useEffect(() => {
-    // Load user plan from Supabase
+    // Load user plan from Supabase - only once on mount
+    if (isLoaded) return
+    
     async function loadUserPlan() {
       try {
+        // First check localStorage for quick initial state
+        const savedPlan = localStorage.getItem("userPlan") as UserPlan
+        if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
+          setCurrentPlan(savedPlan)
+        }
+
         const { userApi } = await import('@/lib/api')
         const user = await userApi.getCurrentUser()
         if (user?.plan) {
@@ -141,21 +151,20 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
           setCurrentPlan(mappedPlan)
         }
       } catch (error) {
-        console.error('Erro ao carregar plano do usuário:', error)
-        // Fallback to localStorage
-        const savedPlan = localStorage.getItem("userPlan") as UserPlan
-        if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
-          setCurrentPlan(savedPlan)
-        }
+        logger.error('Erro ao carregar plano do usuário:', error)
+      } finally {
+        setIsLoaded(true)
       }
     }
     
     loadUserPlan()
-  }, [])
+  }, [isLoaded])
 
   useEffect(() => {
-    localStorage.setItem("userPlan", currentPlan)
-  }, [currentPlan])
+    if (isLoaded) {
+      localStorage.setItem("userPlan", currentPlan)
+    }
+  }, [currentPlan, isLoaded])
 
   return (
     <UserPlanContext.Provider
