@@ -1,4 +1,5 @@
-import supabase from '@/lib/supabase'
+import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction, Commitment } from '@/lib/supabase/types'
 
 // User API functions
@@ -48,7 +49,7 @@ export const userApi = {
       await userApi.createDefaultData(authUser.id)
     } catch (err) {
       // Ignore conflicts - data might already exist
-      console.log('Default data already exists or error creating:', err)
+      logger.dev('Default data already exists or error creating:', err)
     }
     
     return data
@@ -214,7 +215,7 @@ export const transactionsApi = {
       .single()
 
     if (error) {
-      console.error('Supabase error:', error)
+      logger.error('Supabase error:', error)
       throw new Error(error.message || 'Erro ao atualizar transação')
     }
     return data
@@ -509,7 +510,7 @@ export const recurringTransactionsApi = {
         const created = await transactionsApi.createTransaction(transaction)
         createdTransactions.push(created)
       } catch (error) {
-        console.error('Erro ao criar transação recorrente:', error)
+        logger.error('Erro ao criar transação recorrente:', error)
       }
     }
 
@@ -547,7 +548,7 @@ export const commitmentsApi = {
       .order('date', { ascending: true })
 
     if (error) {
-      console.error('Erro ao buscar compromissos:', error)
+      logger.error('Erro ao buscar compromissos:', error)
       return []
     }
     return data || []

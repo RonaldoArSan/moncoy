@@ -12,7 +12,7 @@ import { Eye, EyeOff, Mail, Lock, Chrome, User, Phone, Building2, Check, Loader2
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { PhoneInput } from "@/components/ui/phone-input"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 
 function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)

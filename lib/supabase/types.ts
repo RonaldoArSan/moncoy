@@ -49,8 +49,10 @@ export interface Goal {
   target_amount: number
   current_amount: number
   target_date: string
+  deadline?: string // Data limite para a meta
   category_id?: string
   status: 'active' | 'completed' | 'cancelled'
+  priority?: 'low' | 'medium' | 'high' // Prioridade da meta
   created_at: string
   updated_at: string
   category?: Category
@@ -200,10 +202,17 @@ export interface SupportTicket {
 
 export interface SupportSettings {
   id: string
-  user_id: string
-  allow_notifications: boolean
-  preferred_contact: 'email' | 'phone' | 'both'
-  business_hours_only: boolean
+  user_id?: string
+  allow_notifications?: boolean
+  preferred_contact?: 'email' | 'phone' | 'both'
+  business_hours_only?: boolean
+  // Campos adicionais usados na página de suporte
+  phones?: string[]
+  business_hours?: string
+  chat_url?: string
+  support_email?: string
+  whatsapp?: string
+  knowledge_base_url?: string
   created_at: string
   updated_at: string
 }

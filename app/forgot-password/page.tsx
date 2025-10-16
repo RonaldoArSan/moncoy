@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, ArrowLeft, CheckCircle, Clock } from "lucide-react"
 import Link from "next/link"
-import supabase from "@/lib/supabase"
+import { supabase } from "@/lib/supabase/client"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")

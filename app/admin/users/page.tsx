@@ -164,7 +164,7 @@ export default function AdminUsersPage() {
                           <div className="text-sm text-gray-500 dark:text-gray-400 md:hidden">{user.email}</div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
-                          <Badge variant={user.status === 'Ativo' ? 'success' : user.status === 'Suspenso' ? 'destructive' : 'secondary'}>
+                          <Badge variant={user.status === 'Ativo' ? 'default' : user.status === 'Suspenso' ? 'destructive' : 'secondary'}>
                             {user.status}
                           </Badge>
                         </TableCell>

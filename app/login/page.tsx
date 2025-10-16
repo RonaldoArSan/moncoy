@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Eye, EyeOff, Mail, Lock, Chrome, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)

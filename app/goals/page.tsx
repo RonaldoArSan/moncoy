@@ -17,7 +17,7 @@ export default function GoalsPage() {
   
   const { goals, loading, updateGoal, deleteGoal } = useGoals()
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority?: string) => {
     switch (priority) {
       case "high":
         return "bg-red-500"
@@ -30,7 +30,7 @@ export default function GoalsPage() {
     }
   }
 
-  const getPriorityText = (priority: string) => {
+  const getPriorityText = (priority?: string) => {
     switch (priority) {
       case "high":
         return "Alta"

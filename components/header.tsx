@@ -18,8 +18,8 @@ import { SearchDropdown } from "@/components/search-dropdown"
 import { PlanBadge } from "@/components/plan-upgrade-card"
 import { useSettingsContext } from "@/contexts/settings-context"
 import { useUserPlan } from "@/contexts/user-plan-context"
-import { useAuth } from "@/hooks/use-auth"
-import supabase from "@/lib/supabase"
+import { useAuth } from "@/components/auth-provider"
+import { supabase } from "@/lib/supabase/client"
 
 interface HeaderProps {
   onMenuClick?: () => void

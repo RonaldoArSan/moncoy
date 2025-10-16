@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 import { User } from "@supabase/supabase-js"
 
 export async function getUsers() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase.auth.admin.listUsers()
   if (error) throw new Error(error.message)
   return data.users.map((u: User) => ({
@@ -19,7 +19,7 @@ export async function getUsers() {
 }
 
 export async function updateUser(userId: string, data: any) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.auth.admin.updateUserById(userId, {
     user_metadata: data,
   })
@@ -28,7 +28,7 @@ export async function updateUser(userId: string, data: any) {
 }
 
 export async function createUser(data: any) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.auth.admin.createUser({
     email: data.email,
     password: "password", // Temporary password, user should reset
@@ -44,7 +44,7 @@ export async function createUser(data: any) {
 }
 
 export async function deleteUser(userId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.auth.admin.deleteUser(userId)
   if (error) throw new Error(error.message)
   revalidatePath("/admin/users")

@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Moncoy - Sua Plataforma Financeira Inteligente",
-    description: "Moncoy é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
-    images: ["https://www.moncoy.com.br/moncoy-dashboard.jpeg"], // Replace with your actual image URL
+    title: "MoncoyFinance - Sua Plataforma Financeira Inteligente",
+    description: "MoncoyFinance é a sua plataforma financeira inteligente para gerenciar suas finanças pessoais, investimentos e metas com o poder da IA.",
+    images: ["https://moncoyfinance.com/og-image.png"],
   },
   robots: {
     index: true,

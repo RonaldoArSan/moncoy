@@ -2,7 +2,8 @@
 
 import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import supabase from '@/lib/supabase'
+import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 
 function AuthCallbackContent() {
   const router = useRouter()
@@ -19,7 +20,7 @@ function AuthCallbackContent() {
           const { error } = await supabase.auth.exchangeCodeForSession(code)
           
           if (error) {
-            console.error('Error exchanging code for session:', error)
+            logger.error('Error exchanging code for session:', error)
             router.push('/login?error=auth-callback-error')
             return
           }
@@ -37,7 +38,7 @@ function AuthCallbackContent() {
           router.push('/login')
         }
       } catch (error) {
-        console.error('Auth callback error:', error)
+        logger.error('Auth callback error:', error)
         router.push('/login?error=callback-error')
       }
     }

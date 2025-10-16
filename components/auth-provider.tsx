@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { userApi } from '@/lib/api'
+import { logger } from '@/lib/logger'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import type { 
   AuthContextType, 
@@ -66,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setLoading(false)
         }
       } catch (error) {
-        console.error('Error initializing auth:', error)
+        logger.error('Error initializing auth:', error)
         if (mounted) {
           setLoading(false)
         }
@@ -134,19 +135,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await loadUserSettings()
           }
         } catch (error) {
-          console.error('Error loading user profile:', error)
+          logger.error('Error loading user profile:', error)
           // Se não conseguir carregar o perfil, criar um
           try {
             const newProfile = await userApi.createUserProfile(authUser)
             setUserProfile(newProfile)
             await loadUserSettings()
           } catch (createError) {
-            console.error('Error creating user profile:', createError)
+            logger.error('Error creating user profile:', createError)
           }
         }
       }
     } catch (error) {
-      console.error('Error handling auth user:', error)
+      logger.error('Error handling auth user:', error)
     }
   }
 
@@ -156,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const id = userId || user?.id || userProfile?.id
       
       if (!id) {
-        console.warn('No user ID available for loading settings')
+        logger.warn('No user ID available for loading settings')
         return
       }
 
@@ -172,7 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUserSettings(data || null)
     } catch (error) {
-      console.error('Error loading user settings:', error)
+      logger.error('Error loading user settings:', error)
     }
   }  // Métodos de autenticação
   const signIn = async (email: string, password: string) => {
