@@ -217,6 +217,17 @@ export interface SupportSettings {
   updated_at: string
 }
 
+export interface AIUsageRecord {
+  id: string
+  user_id: string
+  plan: 'basic' | 'professional' | 'premium'
+  question_count: number
+  last_reset_date: string
+  last_question_date?: string | null
+  created_at: string
+  updated_at: string
+}
+
 // Utility types
 export type DatabaseTables = {
   users: User
@@ -230,6 +241,7 @@ export type DatabaseTables = {
   notifications: Notification
   support_tickets: SupportTicket
   support_settings: SupportSettings
+  ai_usage: AIUsageRecord
 }
 
 export type TransactionType = Transaction['type']
