@@ -9,6 +9,8 @@ Moncoy Finance é uma plataforma de gestão financeira pessoal com recursos de i
 - Autenticação com Google
 - Portal de cobrança Stripe
 - Interface responsiva e moderna
+- Agenda financeira com compromissos integrados
+- Modal para criação e visualização de compromissos por data
 
 ## Tecnologias
 - Next.js (App Router)

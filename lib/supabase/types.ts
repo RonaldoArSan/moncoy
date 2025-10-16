@@ -182,6 +182,21 @@ export interface SupportSettings {
   updated_at: string
 }
 
+export interface Commitment {
+  id: string
+  user_id: string
+  title: string
+  description?: string
+  date: string
+  time?: string
+  location?: string
+  status: 'pending' | 'completed' | 'cancelled'
+  reminder_enabled: boolean
+  reminder_minutes?: number
+  created_at: string
+  updated_at: string
+}
+
 // Utility types
 export type DatabaseTables = {
   users: User
@@ -195,6 +210,7 @@ export type DatabaseTables = {
   notifications: Notification
   support_tickets: SupportTicket
   support_settings: SupportSettings
+  commitments: Commitment
 }
 
 export type TransactionType = Transaction['type']
@@ -202,3 +218,4 @@ export type GoalStatus = Goal['status']
 export type InvestmentType = Investment['asset_type']
 export type NotificationType = Notification['type']
 export type UserPlan = User['plan']
+export type CommitmentStatus = Commitment['status']
