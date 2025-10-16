@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useUser } from '@/hooks/use-user'
-import { userApi } from '@/lib/api'
+import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { User, Settings, Crown } from 'lucide-react'
 
 export function Profile() {
-  const { user, setUser } = useUser()
+  const { userProfile: user, updateProfile } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [name, setName] = useState(user?.name || '')
   const [loading, setLoading] = useState(false)
@@ -21,8 +20,7 @@ export function Profile() {
     
     setLoading(true)
     try {
-      const updatedUser = await userApi.updateUser({ name })
-      setUser(updatedUser)
+      await updateProfile({ name })
       setIsEditing(false)
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error)

@@ -65,6 +65,7 @@ const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined
 
 export function UserPlanProvider({ children }: { children: React.ReactNode }) {
   const [currentPlan, setCurrentPlan] = useState<UserPlan>("basic")
+  const [isLoaded, setIsLoaded] = useState(false)
 
   const features = planFeatures[currentPlan]
 
@@ -125,9 +126,17 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Load user plan from Supabase
+    // Load user plan from Supabase - only once on mount
+    if (isLoaded) return
+    
     async function loadUserPlan() {
       try {
+        // First check localStorage for quick initial state
+        const savedPlan = localStorage.getItem("userPlan") as UserPlan
+        if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
+          setCurrentPlan(savedPlan)
+        }
+
         const { userApi } = await import('@/lib/api')
         const user = await userApi.getCurrentUser()
         if (user?.plan) {
@@ -142,20 +151,19 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Erro ao carregar plano do usuário:', error)
-        // Fallback to localStorage
-        const savedPlan = localStorage.getItem("userPlan") as UserPlan
-        if (savedPlan && ["basic", "pro", "premium"].includes(savedPlan)) {
-          setCurrentPlan(savedPlan)
-        }
+      } finally {
+        setIsLoaded(true)
       }
     }
     
     loadUserPlan()
-  }, [])
+  }, [isLoaded])
 
   useEffect(() => {
-    localStorage.setItem("userPlan", currentPlan)
-  }, [currentPlan])
+    if (isLoaded) {
+      localStorage.setItem("userPlan", currentPlan)
+    }
+  }, [currentPlan, isLoaded])
 
   return (
     <UserPlanContext.Provider
