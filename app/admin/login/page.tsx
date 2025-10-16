@@ -10,26 +10,41 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Shield, Eye, EyeOff, Mail, Lock } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/hooks/use-auth"
 
 function AdminLoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { loading, signInAsAdmin } = useAuth()
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setLoading(true)
 
-    const result = await signInAsAdmin(email, password)
-    
-    if (result.success) {
-      router.push("/admin")
-    } else {
-      setError(result.error || "Erro ao fazer login como administrador")
+    try {
+      const response = await fetch('/api/admin/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        router.push("/admin")
+        router.refresh()
+      } else {
+        setError(result.error || "Erro ao fazer login como administrador")
+      }
+    } catch (err) {
+      setError("Erro ao conectar com o servidor")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -118,15 +133,9 @@ function AdminLoginForm() {
             <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
             <div className="text-xs text-amber-700 dark:text-amber-300">
               <p className="font-medium">Acesso Restrito</p>
-              <p>Apenas administradores autorizados podem acessar esta área.</p>
+              <p>Apenas administradores autorizados podem acessar esta área. Sistema independente de autenticação administrativa.</p>
             </div>
           </div>
-        </div>
-
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-          <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-            <strong>Demo:</strong> admin@moncoy.com / admin123
-          </p>
         </div>
       </CardContent>
     </Card>
