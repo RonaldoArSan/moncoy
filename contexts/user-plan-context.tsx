@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { logger } from '@/lib/logger'
 
 export type UserPlan = "basic" | "pro" | "premium"
 
@@ -103,14 +104,14 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
       // Iniciar checkout
       await redirectToStripeCheckout(STRIPE_CONFIG.prices.PRO)
     } catch (error) {
-      console.error('Erro ao processar plano:', error)
+      logger.error('Erro ao processar plano:', error)
       // Fallback: tentar atualizar diretamente (para desenvolvimento)
       try {
         const { userApi } = await import('@/lib/api')
         await userApi.updateUser({ plan: 'professional' })
         setCurrentPlan("pro")
       } catch (fallbackError) {
-        console.error('Erro ao atualizar plano:', fallbackError)
+        logger.error('Erro ao atualizar plano:', fallbackError)
       }
     }
   }
@@ -121,7 +122,7 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
       await userApi.updateUser({ plan: 'basic' })
       setCurrentPlan("basic")
     } catch (error) {
-      console.error('Erro ao atualizar plano:', error)
+      logger.error('Erro ao atualizar plano:', error)
     }
   }
 
@@ -150,7 +151,7 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
           setCurrentPlan(mappedPlan)
         }
       } catch (error) {
-        console.error('Erro ao carregar plano do usuário:', error)
+        logger.error('Erro ao carregar plano do usuário:', error)
       } finally {
         setIsLoaded(true)
       }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth-provider'
 import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { UserSettings } from '@/lib/supabase/types'
 
 export function useSettings() {
@@ -24,7 +25,7 @@ export function useSettings() {
       
       setSettings(userSettings)
     } catch (error) {
-      console.error('Erro ao carregar configurações do usuário:', error)
+      logger.error('Erro ao carregar configurações do usuário:', error)
       setSettings(null)
     } finally {
       setLoading(false)
@@ -55,7 +56,7 @@ export function useSettings() {
       }
       throw new Error(result.error || 'Erro ao atualizar usuário')
     } catch (error: any) {
-      console.error('Erro ao atualizar usuário:', error)
+      logger.error('Erro ao atualizar usuário:', error)
       if (error.code === '23505') {
         throw new Error('Este email já está em uso por outro usuário')
       }
@@ -80,7 +81,7 @@ export function useSettings() {
       setSettings(data)
       return data
     } catch (error) {
-      console.error('Erro ao atualizar configurações:', error)
+      logger.error('Erro ao atualizar configurações:', error)
       throw error
     }
   }
@@ -98,7 +99,7 @@ export function useSettings() {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('Erro ao carregar contas bancárias:', error)
+      logger.error('Erro ao carregar contas bancárias:', error)
       return []
     }
   }

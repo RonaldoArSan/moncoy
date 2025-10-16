@@ -1,4 +1,5 @@
 import { useAuth } from '@/components/auth-provider'
+import { logger } from '@/lib/logger'
 
 /**
  * @deprecated Use useAuth() from @/components/auth-provider instead
@@ -28,7 +29,7 @@ export function useUser() {
   return {
     user,
     setUser: () => {
-      console.warn('setUser is deprecated, use updateProfile from useAuth instead')
+      logger.warn('setUser is deprecated, use updateProfile from useAuth instead')
     },
     loading,
     getDaysSinceRegistration,

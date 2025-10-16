@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/components/auth-provider'
+import { logger } from '@/lib/logger'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,7 +24,7 @@ export function Profile() {
       await updateProfile({ name })
       setIsEditing(false)
     } catch (error) {
-      console.error('Erro ao atualizar perfil:', error)
+      logger.error('Erro ao atualizar perfil:', error)
     } finally {
       setLoading(false)
     }
