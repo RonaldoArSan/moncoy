@@ -1,5 +1,5 @@
 import supabase from '@/lib/supabase'
-import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction } from '@/lib/supabase/types'
+import type { Transaction, Goal, Investment, InvestmentTransaction, Category, User, RecurringTransaction, Commitment } from '@/lib/supabase/types'
 
 // User API functions
 export const userApi = {
@@ -531,5 +531,57 @@ export const dashboardApi = {
 
     if (error) throw error
     return data
+  }
+}
+
+// Commitments API functions
+export const commitmentsApi = {
+  async getCommitments(): Promise<Commitment[]> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data, error } = await supabase
+      .from('commitments')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  },
+
+  async createCommitment(commitment: Omit<Commitment, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Commitment> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('commitments')
+      .insert({ ...commitment, user_id: user.id })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async updateCommitment(id: string, updates: Partial<Commitment>): Promise<Commitment> {
+    const { data, error } = await supabase
+      .from('commitments')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async deleteCommitment(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('commitments')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
   }
 }
