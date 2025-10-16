@@ -1,18 +1,41 @@
 
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useTransactions } from "@/hooks/use-transactions"
+import { useCommitments } from "@/hooks/use-commitments"
 import { Calendar, momentLocalizer } from "react-big-calendar"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { Plus, Calendar as CalendarIcon, Clock, MapPin } from "lucide-react"
 
 const localizer = momentLocalizer(require('moment'))
 
 export default function AgendaPage() {
-  const { transactions, recurringTransactions, loading } = useTransactions()
+  const { transactions, recurringTransactions, loading: loadingTransactions } = useTransactions()
+  const { commitments, loading: loadingCommitments, createCommitment, updateCommitment, deleteCommitment, getCommitmentsByDate } = useCommitments()
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [showCommitmentModal, setShowCommitmentModal] = useState(false)
+  const [showNewCommitmentModal, setShowNewCommitmentModal] = useState(false)
+  const [newCommitment, setNewCommitment] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    reminder_enabled: false,
+    reminder_minutes: 15,
+    status: 'pending' as const
+  })
+
+  const loading = loadingTransactions || loadingCommitments
 
   // Monta eventos para o calendário
   const events = useMemo(() => {
@@ -22,7 +45,7 @@ export default function AgendaPage() {
       start: parseISO(tx.date),
       end: parseISO(tx.date),
       allDay: true,
-      resource: { type: tx.type, amount: tx.amount }
+      resource: { type: tx.type, amount: tx.amount, eventType: 'transaction' }
     }))
     const recEvents = recurringTransactions.map(rt => ({
       id: rt.id,
@@ -30,10 +53,55 @@ export default function AgendaPage() {
       start: parseISO(rt.start_date),
       end: parseISO(rt.start_date),
       allDay: true,
-      resource: { type: 'recorrente', amount: rt.amount }
+      resource: { type: 'recorrente', amount: rt.amount, eventType: 'recurring' }
     }))
-    return [...txEvents, ...recEvents]
-  }, [transactions, recurringTransactions])
+    const commitmentEvents = commitments.map(commitment => ({
+      id: commitment.id,
+      title: commitment.title,
+      start: commitment.time ? new Date(`${commitment.date}T${commitment.time}`) : parseISO(commitment.date),
+      end: commitment.time ? new Date(`${commitment.date}T${commitment.time}`) : parseISO(commitment.date),
+      allDay: !commitment.time,
+      resource: { type: 'commitment', commitment, eventType: 'commitment' }
+    }))
+    return [...txEvents, ...recEvents, ...commitmentEvents]
+  }, [transactions, recurringTransactions, commitments])
+
+  const handleSelectSlot = (slotInfo: any) => {
+    setSelectedDate(slotInfo.start)
+    setNewCommitment({
+      ...newCommitment,
+      date: slotInfo.start.toISOString().split('T')[0]
+    })
+    setShowCommitmentModal(true)
+  }
+
+  const handleSelectEvent = (event: any) => {
+    if (event.resource.eventType === 'commitment') {
+      setSelectedDate(event.start)
+      setShowCommitmentModal(true)
+    }
+  }
+
+  const handleCreateCommitment = async () => {
+    try {
+      await createCommitment(newCommitment)
+      setShowNewCommitmentModal(false)
+      setNewCommitment({
+        title: '',
+        description: '',
+        date: '',
+        time: '',
+        location: '',
+        reminder_enabled: false,
+        reminder_minutes: 15,
+        status: 'pending'
+      })
+    } catch (error) {
+      console.error('Erro ao criar compromisso:', error)
+    }
+  }
+
+  const selectedDateCommitments = selectedDate ? getCommitmentsByDate(selectedDate) : []
 
   return (
     <>
@@ -359,9 +427,89 @@ export default function AgendaPage() {
                 Agenda Financeira
               </CardTitle>
             </div>
-            <Badge variant="secondary" className="text-xs">
-              {events.length} evento{events.length !== 1 ? 's' : ''}
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-xs">
+                {events.length} evento{events.length !== 1 ? 's' : ''}
+              </Badge>
+              <Dialog open={showNewCommitmentModal} onOpenChange={setShowNewCommitmentModal}>
+                <DialogTrigger asChild>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Evento
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Criar Novo Compromisso</DialogTitle>
+                    <DialogDescription>
+                      Adicione um novo compromisso à sua agenda
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Título *</Label>
+                      <Input
+                        id="title"
+                        value={newCommitment.title}
+                        onChange={(e) => setNewCommitment({ ...newCommitment, title: e.target.value })}
+                        placeholder="Ex: Reunião com cliente"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Descrição</Label>
+                      <Textarea
+                        id="description"
+                        value={newCommitment.description}
+                        onChange={(e) => setNewCommitment({ ...newCommitment, description: e.target.value })}
+                        placeholder="Detalhes do compromisso..."
+                        rows={3}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="date">Data *</Label>
+                        <Input
+                          id="date"
+                          type="date"
+                          value={newCommitment.date}
+                          onChange={(e) => setNewCommitment({ ...newCommitment, date: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="time">Horário</Label>
+                        <Input
+                          id="time"
+                          type="time"
+                          value={newCommitment.time}
+                          onChange={(e) => setNewCommitment({ ...newCommitment, time: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Local</Label>
+                      <Input
+                        id="location"
+                        value={newCommitment.location}
+                        onChange={(e) => setNewCommitment({ ...newCommitment, location: e.target.value })}
+                        placeholder="Ex: Escritório, Online, etc."
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowNewCommitmentModal(false)}>
+                      Cancelar
+                    </Button>
+                    <Button 
+                      onClick={handleCreateCommitment}
+                      disabled={!newCommitment.title || !newCommitment.date}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Criar Compromisso
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div 
@@ -374,6 +522,9 @@ export default function AgendaPage() {
               startAccessor="start"
               endAccessor="end"
               views={['month', 'week', 'day']}
+              selectable
+              onSelectSlot={handleSelectSlot}
+              onSelectEvent={handleSelectEvent}
               messages={{
                 month: 'Mês',
                 week: 'Semana',
@@ -411,6 +562,7 @@ export default function AgendaPage() {
                 if (event.resource.type === 'income') { bg = '#bbf7d0'; color = '#065f46'; border = '1px solid #34d399' }
                 if (event.resource.type === 'destructive' || event.resource.type === 'expense') { bg = '#fecaca'; color = '#991b1b'; border = '1px solid #f87171' }
                 if (event.resource.type === 'recorrente') { bg = '#fef9c3'; color = '#92400e'; border = '1px solid #fde68a' }
+                if (event.resource.type === 'commitment') { bg = '#dbeafe'; color = '#1e40af'; border = '1px solid #60a5fa' }
                 return { style: { backgroundColor: bg, color, border, borderRadius: 8, fontWeight: 500, boxShadow: '0 1px 4px #0001', cursor: 'pointer', transition: '0.2s' } }
               }}
               components={{
@@ -449,6 +601,102 @@ export default function AgendaPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal para visualizar compromissos do dia */}
+      <Dialog open={showCommitmentModal} onOpenChange={setShowCommitmentModal}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>
+              Compromissos - {selectedDate?.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedDateCommitments.length === 0 
+                ? 'Nenhum compromisso para esta data'
+                : `${selectedDateCommitments.length} compromisso${selectedDateCommitments.length !== 1 ? 's' : ''} neste dia`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+            {selectedDateCommitments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Clique em "Novo Evento" para adicionar um compromisso</p>
+              </div>
+            ) : (
+              selectedDateCommitments.map((commitment) => (
+                <div key={commitment.id} className="border rounded-lg p-4 space-y-2 hover:bg-accent/50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg">{commitment.title}</h4>
+                      {commitment.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{commitment.description}</p>
+                      )}
+                    </div>
+                    <Badge variant={commitment.status === 'completed' ? 'default' : 'secondary'}>
+                      {commitment.status === 'pending' ? 'Pendente' : commitment.status === 'completed' ? 'Concluído' : 'Cancelado'}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                    {commitment.time && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{commitment.time}</span>
+                      </div>
+                    )}
+                    {commitment.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        <span>{commitment.location}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateCommitment(commitment.id, { 
+                        status: commitment.status === 'completed' ? 'pending' : 'completed' 
+                      })}
+                    >
+                      {commitment.status === 'completed' ? 'Marcar como Pendente' : 'Marcar como Concluído'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (confirm('Tem certeza que deseja excluir este compromisso?')) {
+                          deleteCommitment(commitment.id)
+                        }
+                      }}
+                    >
+                      Excluir
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCommitmentModal(false)}>
+              Fechar
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowCommitmentModal(false)
+                setNewCommitment({
+                  ...newCommitment,
+                  date: selectedDate?.toISOString().split('T')[0] || ''
+                })
+                setShowNewCommitmentModal(true)
+              }}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Compromisso
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
     </>
   )
