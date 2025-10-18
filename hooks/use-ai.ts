@@ -11,10 +11,14 @@ export function useAI() {
   const { currentPlan } = useUserPlan()
   const { user } = useSettingsContext()
 
-  // Load usage on mount
+  // Load usage on mount (only if user is authenticated)
   useEffect(() => {
-    loadUsage()
-  }, [])
+    if (user?.id) {
+      loadUsage()
+    } else {
+      setUsageLoading(false)
+    }
+  }, [user?.id])
 
   const loadUsage = async () => {
     try {
@@ -23,6 +27,16 @@ export function useAI() {
       setUsage(usageData)
     } catch (error) {
       console.error('Error loading AI usage:', error)
+      // Don't block the app if AI usage API fails
+      // Set default values to prevent breaking
+      setUsage({
+        allowed: true,
+        remaining: 5,
+        limit: 5,
+        used: 0,
+        resetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        plan: currentPlan
+      })
     } finally {
       setUsageLoading(false)
     }
@@ -44,7 +58,8 @@ export function useAI() {
       }
     }
 
-    // Verificar limite de perguntas antes de fazer a análise
+    // Verificar limite de perguntas antes de fazer a análise (se disponível)
+    let shouldCheckLimit = true
     try {
       const currentUsage = await checkAILimit()
       
@@ -60,12 +75,19 @@ export function useAI() {
       setUsage(currentUsage)
 
     } catch (error: any) {
-      toast({
-        title: 'Limite atingido',
-        description: error.message,
-        variant: 'destructive'
-      })
-      throw error
+      // Se a API de limites não está disponível (migração não aplicada),
+      // permitir continuar mas avisar no console
+      if (error.message?.includes('404') || error.message?.includes('pending')) {
+        console.warn('AI usage API not available yet. Continuing without limit checks.')
+        shouldCheckLimit = false
+      } else {
+        toast({
+          title: 'Limite atingido',
+          description: error.message,
+          variant: 'destructive'
+        })
+        throw error
+      }
     }
 
     setLoading(true)
@@ -91,31 +113,33 @@ export function useAI() {
 
       const result = await response.json()
 
-      // Incrementar contador após sucesso
-      try {
-        const updatedUsage = await incrementAIUsage()
-        
-        // Atualizar estado local com novos valores
-        if (usage) {
-          setUsage({
-            ...usage,
-            remaining: updatedUsage.remaining,
-            used: updatedUsage.used,
-            allowed: updatedUsage.remaining > 0
-          })
-        }
+      // Incrementar contador após sucesso (se sistema de limites estiver ativo)
+      if (shouldCheckLimit) {
+        try {
+          const updatedUsage = await incrementAIUsage()
+          
+          // Atualizar estado local com novos valores
+          if (usage) {
+            setUsage({
+              ...usage,
+              remaining: updatedUsage.remaining,
+              used: updatedUsage.used,
+              allowed: updatedUsage.remaining > 0
+            })
+          }
 
-        // Mostrar alerta se estiver perto do limite
-        if (updatedUsage.remaining <= 2 && updatedUsage.remaining > 0) {
-          toast({
-            title: 'Atenção',
-            description: `Você tem apenas ${updatedUsage.remaining} pergunta(s) restante(s) neste período.`,
-            variant: 'default'
-          })
+          // Mostrar alerta se estiver perto do limite
+          if (updatedUsage.remaining <= 2 && updatedUsage.remaining > 0) {
+            toast({
+              title: 'Atenção',
+              description: `Você tem apenas ${updatedUsage.remaining} pergunta(s) restante(s) neste período.`,
+              variant: 'default'
+            })
+          }
+        } catch (incrementError) {
+          console.error('Error incrementing usage:', incrementError)
+          // Não falhar a análise se o incremento falhar
         }
-      } catch (incrementError) {
-        console.error('Error incrementing usage:', incrementError)
-        // Não falhar a análise se o incremento falhar
       }
 
       return result.analysis

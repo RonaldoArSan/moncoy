@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
+      console.error('Auth error in AI usage GET:', authError)
       return NextResponse.json(
         { error: 'Não autenticado' },
         { status: 401 }
@@ -48,6 +49,22 @@ export async function GET(request: NextRequest) {
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle()
+
+    // If table doesn't exist yet (migration not run), return default values
+    if (usageError && usageError.code === '42P01') {
+      console.warn('ai_usage table does not exist yet. Please run migration.')
+      const planConfig = PLAN_LIMITS[userPlan]
+      return NextResponse.json({
+        allowed: true,
+        remaining: planConfig.limit,
+        limit: planConfig.limit,
+        used: 0,
+        resetDate: new Date(Date.now() + planConfig.resetDays * 24 * 60 * 60 * 1000).toISOString(),
+        plan: userPlan,
+        lastQuestionDate: null,
+        warning: 'Migration pending - using temporary values'
+      })
+    }
 
     // Create record if doesn't exist
     if (!usageData) {
