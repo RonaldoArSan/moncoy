@@ -36,6 +36,12 @@ Moncoy Finance é uma plataforma de gestão financeira pessoal com recursos de i
    ```
 5. Acesse `http://localhost:3000`
 
+## Configuração Adicional
+
+### OAuth do Google
+Para personalizar o nome que aparece durante o login com Google (ao invés de mostrar a URL do Supabase), consulte o guia completo:
+- [Configuração do OAuth do Google](./docs/SUPABASE_OAUTH_CONFIG.md)
+
 ## Estrutura do Projeto
 ```
 moncoy-finance-landing-page/
