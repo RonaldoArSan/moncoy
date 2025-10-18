@@ -1,45 +1,12 @@
-import { useState, useEffect } from 'react'
-import { userApi } from '@/lib/api'
-import { supabase } from '@/lib/supabase/client'
-import type { User } from '@/lib/supabase/types'
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import { useAuth } from '@/components/auth-provider'
+import { logger } from '@/lib/logger'
 
+/**
+ * @deprecated Use useAuth() from @/components/auth-provider instead
+ * This hook is kept for backward compatibility only
+ */
 export function useUser() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Get initial user
-    const getUser = async () => {
-      try {
-        const userData = await userApi.getCurrentUser()
-        setUser(userData)
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getUser()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        try {
-          const userData = await userApi.getCurrentUser()
-          setUser(userData)
-        } catch (error) {
-          console.error('Error fetching user on auth change:', error)
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-      }
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const { userProfile: user, loading } = useAuth()
 
   const getDaysSinceRegistration = () => {
     if (!user?.registration_date) return 0
@@ -61,7 +28,9 @@ export function useUser() {
 
   return {
     user,
-    setUser,
+    setUser: () => {
+      logger.warn('setUser is deprecated, use updateProfile from useAuth instead')
+    },
     loading,
     getDaysSinceRegistration,
     canUseAI

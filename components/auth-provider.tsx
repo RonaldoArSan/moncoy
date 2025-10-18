@@ -51,14 +51,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Inicializar sessão
   useEffect(() => {
     let mounted = true
+    let isProcessing = false
 
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         
-        if (mounted) {
+        if (mounted && !isProcessing) {
           if (session?.user) {
+            isProcessing = true
             await handleAuthUser(session.user)
+            isProcessing = false
           } else {
             setUser(null)
             setUserProfile(null)
@@ -70,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logger.error('Error initializing auth:', error)
         if (mounted) {
           setLoading(false)
+          isProcessing = false
         }
       }
     }
@@ -79,7 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        if (!mounted) return
+        if (!mounted || isProcessing) return
+
+        logger.dev('Auth state change:', event)
 
         if (event === 'SIGNED_OUT' || !session?.user) {
           setUser(null)
@@ -93,7 +99,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             router.push('/login')
           }
         } else if (event === 'SIGNED_IN' && session?.user) {
+          isProcessing = true
           await handleAuthUser(session.user)
+          isProcessing = false
         }
         
         setLoading(false)
@@ -110,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleAuthUser = async (authUser: any) => {
     try {
       // Evitar processamento duplo do mesmo usuário
-      if (user?.id === authUser.id) {
+      if (user?.id === authUser.id && userProfile) {
         return
       }
 
@@ -124,7 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: authUser.updated_at
       }
 
-      setUser(formattedUser)      // Carregar perfil do usuário (exceto para modo público)
+      setUser(formattedUser)
+      
+      // Carregar perfil do usuário (exceto para modo público)
       if (mode !== 'public') {
         try {
           const profile = await userApi.getCurrentUser()
@@ -132,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Carregar configurações do usuário
           if (profile) {
-            await loadUserSettings()
+            await loadUserSettings(profile.id)
           }
         } catch (error) {
           logger.error('Error loading user profile:', error)
@@ -140,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const newProfile = await userApi.createUserProfile(authUser)
             setUserProfile(newProfile)
-            await loadUserSettings()
+            await loadUserSettings(newProfile.id)
           } catch (createError) {
             logger.error('Error creating user profile:', createError)
           }
@@ -180,15 +190,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       
+      // Validar campos antes de enviar
+      if (!email || !email.trim()) {
+        throw new Error('Email é obrigatório')
+      }
+      if (!password || !password.trim()) {
+        throw new Error('Senha é obrigatória')
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password
       })
 
-      if (error) throw error
+      if (error) {
+        // Melhorar mensagens de erro
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Email ou senha incorretos')
+        }
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Email não confirmado. Verifique sua caixa de entrada.')
+        }
+        throw error
+      }
 
       return { success: true }
     } catch (error: any) {
+      logger.error('Sign in error:', error)
       return { success: false, error: error.message }
     } finally {
       setLoading(false)
