@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth-provider'
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/logger'
-import type { UserSettings } from '@/lib/supabase/types'
+import type { UserSettings, User } from '@/lib/supabase/types'
 
 export function useSettings() {
   const { userProfile: user, loading: authLoading, updateProfile } = useAuth()
@@ -38,7 +38,7 @@ export function useSettings() {
     }
   }, [user?.id, authLoading])
 
-  const updateUser = async (updates: Partial<typeof user>) => {
+  const updateUser = async (updates: Partial<User>) => {
     try {
       if (!user) return
       

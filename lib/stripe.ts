@@ -5,7 +5,7 @@ let stripe: Stripe | null = null
 export const getStripe = () => {
   if (!stripe) {
     stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-      apiVersion: '2024-06-20',
+      apiVersion: '2025-08-27.basil',
     })
   }
   return stripe

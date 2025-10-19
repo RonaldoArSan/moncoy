@@ -48,7 +48,6 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium")
 
   const { currentPlan } = useUserPlan()
-  const hasReceiptAnalysis = useFeatureAccess("receiptAnalysis")
   const { categories, createTransaction, refreshCategories, createRecurringTransaction } = useTransactions()
   
   const filteredCategories = categories.filter(c => c.type === type)
@@ -103,7 +102,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           description,
           amount: parseFloat(amount),
           type,
-          category_id: categoryId || undefined,
+          category_id: categoryId || '',
           frequency,
           start_date: date,
           end_date: endDate || undefined,
@@ -118,10 +117,12 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           description,
           amount: parseFloat(amount),
           type,
-          category_id: categoryId || undefined,
+          category_id: categoryId || '',
           date,
           status: type === 'expense' ? status : 'completed',
           priority,
+          payment_method: '',
+          is_recurring: true,
           notes: `Transação recorrente: ${notes || ''}`.trim()
         })
       } else {
@@ -129,10 +130,12 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           description,
           amount: parseFloat(amount),
           type,
-          category_id: categoryId || undefined,
+          category_id: categoryId || '',
           date,
           status: type === 'expense' ? status : 'completed',
           priority,
+          payment_method: '',
+          is_recurring: false,
           notes: notes || undefined
         })
       }
@@ -208,104 +211,84 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
               <Label>Comprovante</Label>
-              {hasReceiptAnalysis && (
-                <Badge variant="secondary" className="text-xs">
-                  <Crown className="w-3 h-3 mr-1" />
-                  PRO
-                </Badge>
-              )}
             </div>
 
-            {hasReceiptAnalysis ? (
-              <div className="space-y-3">
-                {!uploadedFile ? (
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="flex gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <Camera className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <p className="text-sm text-muted-foreground">Faça upload de uma foto ou arquivo do comprovante</p>
-                      <p className="text-xs text-muted-foreground">
-                        A IA extrairá automaticamente os dados da transação
-                      </p>
-                      <Input
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="receipt-upload"
-                      />
-                      <Label htmlFor="receipt-upload" className="cursor-pointer">
-                        <Button variant="outline" size="sm" asChild>
-                          <span>Selecionar Arquivo</span>
-                        </Button>
-                      </Label>
+            <div className="space-y-3">
+              {!uploadedFile ? (
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex gap-2">
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <Camera className="h-8 w-8 text-muted-foreground" />
                     </div>
-                  </div>
-                ) : (
-                  <div className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        <span className="text-sm font-medium">{uploadedFile.name}</span>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={removeFile}>
-                        <X className="h-4 w-4" />
+                    <p className="text-sm text-muted-foreground">Faça upload de uma foto ou arquivo do comprovante</p>
+                    <p className="text-xs text-muted-foreground">
+                      A IA extrairá automaticamente os dados da transação
+                    </p>
+                    <Input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="receipt-upload"
+                    />
+                    <Label htmlFor="receipt-upload" className="cursor-pointer">
+                      <Button variant="outline" size="sm" asChild>
+                        <span>Selecionar Arquivo</span>
                       </Button>
-                    </div>
-
-                    {isProcessing && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Processando com IA...
-                      </div>
-                    )}
-
-                    {extractedData && (
-                      <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-medium">Dados Extraídos:</h4>
-                          <Button variant="outline" size="sm" onClick={applyExtractedData}>
-                            Aplicar Dados
-                          </Button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Descrição:</span>
-                            <p className="font-medium">{extractedData.description}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Valor:</span>
-                            <p className="font-medium">R$ {extractedData.amount.toFixed(2)}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Categoria:</span>
-                            <p className="font-medium capitalize">{extractedData.category}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Estabelecimento:</span>
-                            <p className="font-medium">{extractedData.merchant}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    </Label>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
-                <div className="flex flex-col items-center gap-2">
-                  <Crown className="h-6 w-6 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Upload de comprovantes disponível no plano Profissional
-                  </p>
-                  <Button variant="outline" size="sm">
-                    Fazer Upgrade
-                  </Button>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">{uploadedFile.name}</span>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={removeFile}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {isProcessing && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processando com IA...
+                    </div>
+                  )}
+
+                  {extractedData && (
+                    <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-medium">Dados Extraídos:</h4>
+                        <Button variant="outline" size="sm" onClick={applyExtractedData}>
+                          Aplicar Dados
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Descrição:</span>
+                          <p className="font-medium">{extractedData.description}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Valor:</span>
+                          <p className="font-medium">R$ {extractedData.amount.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Categoria:</span>
+                          <p className="font-medium capitalize">{extractedData.category}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Estabelecimento:</span>
+                          <p className="font-medium">{extractedData.merchant}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid gap-2">
@@ -373,7 +356,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           {type === "expense" && (
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={(value) => setStatus(value as "pending" | "completed" | "overdue" | "due_soon")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
@@ -389,7 +372,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
 
           <div className="grid gap-2">
             <Label htmlFor="priority">Prioridade</Label>
-            <Select value={priority} onValueChange={setPriority}>
+            <Select value={priority} onValueChange={(value) => setPriority(value as "low" | "medium" | "high")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
