@@ -10,8 +10,9 @@ interface Notification {
   type: 'info' | 'warning' | 'success' | 'error'
   title: string
   message: string
-  read: boolean
+  is_read: boolean  // Alterado de 'read' para 'is_read' (consistente com types.ts)
   created_at: string
+  updated_at: string
 }
 
 export function useNotifications() {
@@ -68,11 +69,11 @@ export function useNotifications() {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('id', id)
 
       if (error) throw error
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
     } catch (error) {
       console.error('Erro ao marcar como lida:', error)
     }
@@ -85,12 +86,12 @@ export function useNotifications() {
 
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('user_id', user.id)
-        .eq('read', false)
+        .eq('is_read', false)
 
       if (error) throw error
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
     } catch (error) {
       console.error('Erro ao marcar todas como lidas:', error)
     }
@@ -121,7 +122,8 @@ export function useNotifications() {
           type: 'warning',
           title: 'Saldo Negativo',
           message: `Suas despesas estão R$ ${Math.abs(kpis.saldoMensal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} acima das receitas este mês.`,
-          read: false
+          is_read: false,
+          updated_at: new Date().toISOString()
         })
       }
 
@@ -133,7 +135,8 @@ export function useNotifications() {
             type: 'warning',
             title: 'Gasto Elevado Detectado',
             message: `Você está gastando ${topCategory.percentage.toFixed(1)}% do orçamento com ${topCategory.category}.`,
-            read: false
+            is_read: false,
+            updated_at: new Date().toISOString()
           })
         }
       }
@@ -147,7 +150,8 @@ export function useNotifications() {
               type: 'warning',
               title: 'Transação próxima do vencimento',
               message: `A transação "${tx.description}" vence em breve (data: ${new Date(tx.date).toLocaleDateString('pt-BR')}).`,
-              read: false
+              is_read: false,
+              updated_at: new Date().toISOString()
             })
           }
           if (tx.status === 'overdue') {
@@ -155,7 +159,8 @@ export function useNotifications() {
               type: 'error',
               title: 'Transação atrasada',
               message: `A transação "${tx.description}" está atrasada (data: ${new Date(tx.date).toLocaleDateString('pt-BR')}).`,
-              read: false
+              is_read: false,
+              updated_at: new Date().toISOString()
             })
           }
         })
@@ -169,7 +174,8 @@ export function useNotifications() {
             type: 'success',
             title: 'Meta Quase Atingida!',
             message: `Você está a ${(100 - progress).toFixed(1)}% de completar a meta "${goal.title}".`,
-            read: false
+            is_read: false,
+            updated_at: new Date().toISOString()
           })
         }
       })
@@ -183,7 +189,7 @@ export function useNotifications() {
     loadNotifications()
   }, [])
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter(n => !n.is_read).length
 
   return {
     notifications,

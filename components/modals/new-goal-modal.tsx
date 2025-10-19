@@ -62,10 +62,11 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
         description: description || undefined,
         target_amount: parseFloat(targetAmount),
         current_amount: parseFloat(currentAmount) || 0,
+        target_date: deadline || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         deadline: deadline || undefined,
         category_id: categoryId || undefined,
-        priority,
-        is_completed: false
+        status: 'active',
+        priority
       })
       
       // Reset form

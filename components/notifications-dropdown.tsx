@@ -111,7 +111,7 @@ export function NotificationsDropdown() {
               <div
                 key={notification.id}
                 className={`p-4 border-b hover:bg-muted/50 transition-colors ${
-                  !notification.read ? "bg-primary/5" : ""
+                  !notification.is_read ? "bg-primary/5" : ""
                 }`}
               >
                 <div className="flex items-start space-x-3">
@@ -119,7 +119,7 @@ export function NotificationsDropdown() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p
-                        className={`text-sm font-medium ${!notification.read ? "text-foreground" : "text-muted-foreground"}`}
+                        className={`text-sm font-medium ${!notification.is_read ? "text-foreground" : "text-muted-foreground"}`}
                       >
                         {notification.title}
                       </p>
@@ -135,7 +135,7 @@ export function NotificationsDropdown() {
                     <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-xs text-muted-foreground">{getTimeAgo(notification.created_at)}</span>
-                      {!notification.read && (
+                      {!notification.is_read && (
                         <Button
                           variant="ghost"
                           size="sm"

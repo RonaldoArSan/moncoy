@@ -182,8 +182,9 @@ export interface Notification {
   type: 'info' | 'warning' | 'success' | 'error'
   title: string
   message: string
-  is_read: boolean
+  is_read: boolean  // Anteriormente 'read' no schema - migration corrigirá para is_read
   created_at: string
+  updated_at: string
   action_url?: string | null
 }
 

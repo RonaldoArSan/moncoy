@@ -245,15 +245,15 @@ export default function SupportPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">#{ticket.id.slice(0, 8)}</span>
-                    <Badge variant={ticket.status === "Resolvido" ? "default" : "secondary"} className="text-xs">
-                      {ticket.status === "Resolvido" ? (
+                    <Badge variant={ticket.status === "resolved" ? "default" : "secondary"} className="text-xs">
+                      {ticket.status === "resolved" ? (
                         <CheckCircle className="w-3 h-3 mr-1" />
                       ) : (
                         <Clock className="w-3 h-3 mr-1" />
                       )}
-                      {ticket.status}
+                      {ticket.status === "open" ? "Aberto" : ticket.status === "in_progress" ? "Em Progresso" : ticket.status === "resolved" ? "Resolvido" : "Fechado"}
                     </Badge>
-                    <Badge variant={ticket.priority === "Alta" || ticket.priority === "Urgente" ? "destructive" : "outline"} className="text-xs">
+                    <Badge variant={ticket.priority === "Alta" || ticket.priority === "Crítica" ? "destructive" : "outline"} className="text-xs">
                       {ticket.priority}
                     </Badge>
                   </div>

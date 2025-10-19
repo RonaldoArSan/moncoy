@@ -48,7 +48,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium")
 
   const { currentPlan } = useUserPlan()
-  const hasReceiptAnalysis = useFeatureAccess("receiptAnalysis")
+  const hasReceiptAnalysis = false // Feature not available yet
   const { categories, createTransaction, refreshCategories, createRecurringTransaction } = useTransactions()
   
   const filteredCategories = categories.filter(c => c.type === type)
@@ -103,7 +103,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           description,
           amount: parseFloat(amount),
           type,
-          category_id: categoryId || undefined,
+          category_id: categoryId || '',
           frequency,
           start_date: date,
           end_date: endDate || undefined,
@@ -118,10 +118,12 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           description,
           amount: parseFloat(amount),
           type,
-          category_id: categoryId || undefined,
+          category_id: categoryId || '',
           date,
           status: type === 'expense' ? status : 'completed',
           priority,
+          payment_method: '',
+          is_recurring: true,
           notes: `Transação recorrente: ${notes || ''}`.trim()
         })
       } else {
@@ -129,10 +131,12 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           description,
           amount: parseFloat(amount),
           type,
-          category_id: categoryId || undefined,
+          category_id: categoryId || '',
           date,
           status: type === 'expense' ? status : 'completed',
           priority,
+          payment_method: '',
+          is_recurring: false,
           notes: notes || undefined
         })
       }
@@ -373,7 +377,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
           {type === "expense" && (
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
@@ -389,7 +393,7 @@ export function NewTransactionModal({ open, onOpenChange }: NewTransactionModalP
 
           <div className="grid gap-2">
             <Label htmlFor="priority">Prioridade</Label>
-            <Select value={priority} onValueChange={setPriority}>
+            <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -85,7 +85,7 @@ export function ManageCategoriesModal({ open, onOpenChange, type }: ManageCatego
       setSubmitting(true)
       const newCat = await categoriesApi.createCategory({
         name: newCategory.trim(),
-        type,
+        type: type as 'income' | 'expense',
         color: selectedColor
       })
       setCategories([...categories, newCat])
