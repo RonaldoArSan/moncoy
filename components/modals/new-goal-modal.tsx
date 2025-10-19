@@ -63,9 +63,10 @@ export function NewGoalModal({ open, onOpenChange }: NewGoalModalProps) {
         target_amount: parseFloat(targetAmount),
         current_amount: parseFloat(currentAmount) || 0,
         deadline: deadline || undefined,
+        target_date: deadline || '',
         category_id: categoryId || undefined,
         priority,
-        is_completed: false
+        status: 'active'
       })
       
       // Reset form
