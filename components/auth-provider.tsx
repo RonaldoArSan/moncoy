@@ -256,6 +256,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       
+      // Determinar URL de redirecionamento após autenticação
+      // IMPORTANTE: A URL do Supabase (https://[projeto].supabase.co/auth/v1/callback)
+      // DEVE estar registrada no Google Cloud Console em "Authorized redirect URIs"
+      // Para mais informações, consulte: CONFIGURACAO-GOOGLE-OAUTH.md
       const redirectUrl = mode === 'admin' 
         ? `${window.location.origin}/admin`
         : `${window.location.origin}/`
