@@ -4,13 +4,47 @@
  * Script de verificação da configuração do Google OAuth 2.0
  * 
  * Execute: node scripts/check-oauth-config.js
+ * ou: npm run check-oauth
  * 
  * Este script valida se todas as configurações necessárias
  * para o Google OAuth estão presentes e corretas.
  */
 
+const fs = require('fs')
+const path = require('path')
+
+// Função para carregar variáveis de ambiente do .env.local
+function loadEnvFile() {
+  const envPath = path.join(__dirname, '..', '.env.local')
+  const env = {}
+  
+  if (!fs.existsSync(envPath)) {
+    return env
+  }
+  
+  const content = fs.readFileSync(envPath, 'utf8')
+  const lines = content.split('\n')
+  
+  lines.forEach(line => {
+    // Ignorar comentários e linhas vazias
+    if (line.trim().startsWith('#') || !line.trim()) {
+      return
+    }
+    
+    const match = line.match(/^([^=]+)=(.*)$/)
+    if (match) {
+      const key = match[1].trim()
+      const value = match[2].trim()
+      env[key] = value
+    }
+  })
+  
+  return env
+}
+
 // Carregar variáveis de ambiente
-require('dotenv').config({ path: '.env.local' })
+const env = loadEnvFile()
+const hasEnvFile = Object.keys(env).length > 0
 
 const validation = {
   isValid: true,
@@ -21,17 +55,37 @@ const validation = {
 
 console.log('\n🔐 ===== VERIFICAÇÃO DE CONFIGURAÇÃO GOOGLE OAUTH 2.0 =====\n')
 
+if (!hasEnvFile) {
+  console.log('⚠️  Arquivo .env.local não encontrado!\n')
+  console.log('📝 AÇÃO NECESSÁRIA:')
+  console.log('')
+  console.log('1. Copie o arquivo de exemplo:')
+  console.log('   cp .env.example .env.local')
+  console.log('')
+  console.log('2. Edite .env.local e adicione suas credenciais')
+  console.log('')
+  console.log('3. Execute este script novamente:')
+  console.log('   npm run check-oauth')
+  console.log('')
+  console.log('📖 Para mais informações, consulte:')
+  console.log('   - CONFIGURACAO-GOOGLE-OAUTH.md')
+  console.log('   - docs/GOOGLE-OAUTH-SETUP.md')
+  console.log('')
+  console.log('════════════════════════════════════════════════════════════\n')
+  process.exit(1)
+}
+
 // Verificar variáveis obrigatórias
 console.log('📋 Verificando variáveis de ambiente obrigatórias...\n')
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+if (!env.NEXT_PUBLIC_SUPABASE_URL) {
   validation.errors.push('NEXT_PUBLIC_SUPABASE_URL não encontrada')
   validation.isValid = false
 } else {
-  console.log('✅ NEXT_PUBLIC_SUPABASE_URL: ' + process.env.NEXT_PUBLIC_SUPABASE_URL)
+  console.log('✅ NEXT_PUBLIC_SUPABASE_URL: ' + env.NEXT_PUBLIC_SUPABASE_URL)
 }
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+if (!env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   validation.errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY não encontrada')
   validation.isValid = false
 } else {
@@ -43,22 +97,22 @@ console.log('')
 // Verificar variáveis opcionais mas recomendadas
 console.log('📋 Verificando variáveis opcionais (recomendadas)...\n')
 
-if (process.env.NEXT_PUBLIC_APP_NAME) {
-  console.log('✅ NEXT_PUBLIC_APP_NAME: ' + process.env.NEXT_PUBLIC_APP_NAME)
+if (env.NEXT_PUBLIC_APP_NAME) {
+  console.log('✅ NEXT_PUBLIC_APP_NAME: ' + env.NEXT_PUBLIC_APP_NAME)
 } else {
   validation.warnings.push('NEXT_PUBLIC_APP_NAME não configurada')
   console.log('⚠️  NEXT_PUBLIC_APP_NAME: não configurada (opcional)')
 }
 
-if (process.env.NEXT_PUBLIC_APP_DOMAIN) {
-  console.log('✅ NEXT_PUBLIC_APP_DOMAIN: ' + process.env.NEXT_PUBLIC_APP_DOMAIN)
+if (env.NEXT_PUBLIC_APP_DOMAIN) {
+  console.log('✅ NEXT_PUBLIC_APP_DOMAIN: ' + env.NEXT_PUBLIC_APP_DOMAIN)
 } else {
   validation.warnings.push('NEXT_PUBLIC_APP_DOMAIN não configurada')
   console.log('⚠️  NEXT_PUBLIC_APP_DOMAIN: não configurada (opcional)')
 }
 
-if (process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-  console.log('✅ NEXT_PUBLIC_ADMIN_EMAIL: ' + process.env.NEXT_PUBLIC_ADMIN_EMAIL)
+if (env.NEXT_PUBLIC_ADMIN_EMAIL) {
+  console.log('✅ NEXT_PUBLIC_ADMIN_EMAIL: ' + env.NEXT_PUBLIC_ADMIN_EMAIL)
 } else {
   validation.warnings.push('NEXT_PUBLIC_ADMIN_EMAIL não configurada')
   console.log('⚠️  NEXT_PUBLIC_ADMIN_EMAIL: não configurada (necessária para admin)')
@@ -68,8 +122,8 @@ console.log('')
 
 // Gerar URLs necessárias
 if (validation.isValid) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const domain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'moncoyfinance.com'
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+  const domain = env.NEXT_PUBLIC_APP_DOMAIN || 'moncoyfinance.com'
   const supabaseCallbackUrl = `${supabaseUrl}/auth/v1/callback`
 
   console.log('🎯 URLs para configurar no Google Cloud Console:\n')
