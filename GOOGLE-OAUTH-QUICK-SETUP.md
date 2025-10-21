@@ -99,6 +99,11 @@ http://localhost:3001/auth/callback
 https://qlweowbsfpumojgibikk.supabase.co/auth/v1/callback
 ```
 
+> 📖 **Guia Detalhado**: Para instruções completas sobre onde encontrar cada configuração no Supabase Dashboard, consulte:
+> - [Configurar Supabase Dashboard](docs/SUPABASE-DASHBOARD-CONFIG.md)
+> - [Guia Rápido Supabase](SUPABASE-QUICK-REFERENCE.md)
+> - [Mapa de Configuração Visual](docs/CONFIG-MAP.md)
+
 ---
 
 ## 🧪 Teste
@@ -111,3 +116,8 @@ Deve aparecer: **"Prosseguir para MoncoyFinance"** ✅
 ---
 
 Guia completo: docs/GOOGLE-CONSOLE-URLS.md
+
+📖 **Configuração Supabase**: 
+- [Onde encontrar Redirect URLs no Supabase Dashboard](docs/SUPABASE-DASHBOARD-CONFIG.md)
+- [Guia Rápido de Configuração Supabase](SUPABASE-QUICK-REFERENCE.md)
+- [Mapa Visual de Configuração](docs/CONFIG-MAP.md)

@@ -30,6 +30,10 @@ Moncoy Finance é uma plataforma de gestão financeira pessoal com recursos de i
    ```
 3. Configure as variáveis de ambiente:
    - Crie um arquivo `.env.local` com as chaves do Supabase e Stripe.
+   - **Guias de configuração**:
+     - 🚀 [Supabase - Guia Rápido](SUPABASE-QUICK-REFERENCE.md)
+     - 🔧 [Configurar Supabase Dashboard](docs/SUPABASE-DASHBOARD-CONFIG.md)
+     - 🌐 [Configurar Google OAuth](GOOGLE-OAUTH-QUICK-SETUP.md)
 4. Rode o projeto:
    ```bash
    pnpm run dev
@@ -51,6 +55,20 @@ moncoy-finance-landing-page/
   styles/
   ...
 ```
+
+## 📖 Guias de Configuração
+
+### Autenticação e OAuth
+- 🚀 **[Supabase - Guia Rápido](SUPABASE-QUICK-REFERENCE.md)** - Acesso rápido a links e configurações
+- 🔧 **[Configurar Supabase Dashboard](docs/SUPABASE-DASHBOARD-CONFIG.md)** - Onde encontrar Redirect URLs
+- 🌐 **[Configurar Google OAuth](GOOGLE-OAUTH-QUICK-SETUP.md)** - URLs para Google Console
+- 🔐 **[Configuração Completa Google Console](docs/GOOGLE-CONSOLE-URLS.md)** - Guia detalhado
+- 🚨 **[Corrigir Erros OAuth](docs/FIX-GOOGLE-OAUTH-ERROR.md)** - Solução de problemas
+
+### Desenvolvimento
+- 📋 **[Produção](docs/README-PRODUCTION.md)** - Deploy e variáveis de ambiente
+- 🧪 **[Alterações Realizadas](docs/ALTERACOES-REALIZADAS.md)** - Histórico de mudanças
+- 📊 **[Análise de Código](docs/ANALISE-CODIGO.md)** - Estrutura e padrões
 
 ## Contribuição
 Pull requests são bem-vindos! Para grandes mudanças, abra uma issue primeiro para discutir o que você gostaria de modificar.
