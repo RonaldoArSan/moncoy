@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
+import { handleCorsPreFlight, addCorsHeaders } from '@/lib/cors'
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreFlight(request.headers.get('origin'))
+}
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin')
+  
   try {
     const { customerId } = await request.json()
 
     if (!customerId) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Customer ID é obrigatório' },
         { status: 400 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     const stripe = getStripe()
@@ -20,10 +28,11 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (!user) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Usuário não autenticado' },
         { status: 401 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Verificar se o customer ID pertence ao usuário
@@ -34,10 +43,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (userData?.stripe_customer_id !== customerId) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Customer ID inválido' },
         { status: 403 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Criar sessão do portal de cobrança
@@ -46,12 +56,14 @@ export async function POST(request: NextRequest) {
       return_url: `${request.headers.get('origin')}/settings`,
     })
 
-    return NextResponse.json({ url: portalSession.url })
+    const response = NextResponse.json({ url: portalSession.url })
+    return addCorsHeaders(response, origin)
   } catch (error) {
     console.error('Erro ao criar sessão do portal de cobrança:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
     )
+    return addCorsHeaders(response, origin)
   }
 }

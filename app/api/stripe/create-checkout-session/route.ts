@@ -1,21 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
+import { handleCorsPreFlight, addCorsHeaders } from '@/lib/cors'
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreFlight(request.headers.get('origin'))
+}
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin') || 'http://localhost:3000'
+  
   try {
     const { priceId, plan } = await request.json()
 
     if (!priceId) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Price ID é obrigatório' },
         { status: 400 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     const stripe = getStripe()
-
-    // Obter a origem da requisição
-    const origin = request.headers.get('origin') || 'http://localhost:3000'
 
     // Criar sessão do Stripe
     const session = await stripe.checkout.sessions.create({
@@ -39,12 +44,14 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({ sessionId: session.id })
+    const response = NextResponse.json({ sessionId: session.id })
+    return addCorsHeaders(response, origin)
   } catch (error) {
     console.error('Erro ao criar sessão do checkout:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
     )
+    return addCorsHeaders(response, origin)
   }
 }

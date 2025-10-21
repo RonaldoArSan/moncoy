@@ -256,9 +256,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       
-      const redirectUrl = mode === 'admin' 
-        ? `${window.location.origin}/admin`
-        : `${window.location.origin}/`
+      // Determine the correct redirect URL based on environment and mode
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const redirectPath = mode === 'admin' ? '/admin' : '/'
+      const redirectUrl = `${baseUrl}/auth/callback`
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
