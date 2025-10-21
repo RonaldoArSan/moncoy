@@ -256,9 +256,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       
+      // Use a URL correta do site em produção
+      const baseUrl = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : process.env.NEXT_PUBLIC_SITE_URL || 'https://moncoyfinance.com'
+      
       const redirectUrl = mode === 'admin' 
-        ? `${window.location.origin}/admin`
-        : `${window.location.origin}/`
+        ? `${baseUrl}/auth/callback?next=/admin`
+        : `${baseUrl}/auth/callback`
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -269,7 +274,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             prompt: 'consent',
             ...(process.env.NEXT_PUBLIC_GOOGLE_HD && { hd: process.env.NEXT_PUBLIC_GOOGLE_HD })
           },
-          scopes: 'openid profile email'
+          scopes: 'openid profile email',
+          skipBrowserRedirect: false
         }
       })
 
@@ -277,6 +283,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { success: true }
     } catch (error: any) {
+      logger.error('Google sign in error:', error)
       return { success: false, error: error.message }
     } finally {
       setLoading(false)

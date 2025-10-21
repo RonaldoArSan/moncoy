@@ -12,29 +12,46 @@ function AuthCallbackContent() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // Verificar se há erro nos parâmetros
+        const error = searchParams.get('error')
+        const errorDescription = searchParams.get('error_description')
+        
+        if (error) {
+          logger.error('OAuth error:', { error, errorDescription })
+          router.push(`/login?error=${encodeURIComponent(errorDescription || error)}`)
+          return
+        }
+
         const code = searchParams.get('code')
         const type = searchParams.get('type')
+        const next = searchParams.get('next')
 
         if (code) {
-          // Exchange code for session
-          const { error } = await supabase.auth.exchangeCodeForSession(code)
+          // Exchange code for session using singleton client
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
           
-          if (error) {
-            logger.error('Error exchanging code for session:', error)
+          if (exchangeError) {
+            logger.error('Error exchanging code for session:', exchangeError)
             router.push('/login?error=auth-callback-error')
             return
           }
+
+          logger.dev('Session exchanged successfully:', data.session?.user?.email)
 
           // Check the type of authentication callback
           if (type === 'recovery') {
             // Password reset - redirect to reset password page
             router.push('/reset-password')
+          } else if (next) {
+            // Redirect to next URL if provided
+            router.push(next)
           } else {
             // Regular login - redirect to dashboard
             router.push('/')
           }
         } else {
           // No code present, redirect to login
+          logger.warn('No code in callback, redirecting to login')
           router.push('/login')
         }
       } catch (error) {
