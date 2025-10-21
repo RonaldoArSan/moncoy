@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { AIUsageRecord } from '@/lib/supabase/types'
+import { handleCorsPreFlight, addCorsHeaders } from '@/lib/cors'
 
 // Plan limits configuration
 const PLAN_LIMITS = {
@@ -10,10 +11,20 @@ const PLAN_LIMITS = {
 } as const
 
 /**
+ * OPTIONS /api/ai/usage
+ * Handle CORS preflight request
+ */
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreFlight(request.headers.get('origin'))
+}
+
+/**
  * GET /api/ai/usage
  * Returns current AI usage stats for the authenticated user
  */
 export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin')
+  
   try {
     const supabase = await createClient()
     
@@ -21,10 +32,11 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       console.error('Auth error in AI usage GET:', authError)
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Não autenticado' },
         { status: 401 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Get user's plan from users table
@@ -35,10 +47,11 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (userError || !userData) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Usuário não encontrado' },
         { status: 404 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     const userPlan = userData.plan as 'basic' | 'professional' | 'premium'
@@ -54,7 +67,7 @@ export async function GET(request: NextRequest) {
     if (usageError && usageError.code === '42P01') {
       console.warn('ai_usage table does not exist yet. Please run migration.')
       const planConfig = PLAN_LIMITS[userPlan]
-      return NextResponse.json({
+      const response = NextResponse.json({
         allowed: true,
         remaining: planConfig.limit,
         limit: planConfig.limit,
@@ -64,6 +77,7 @@ export async function GET(request: NextRequest) {
         lastQuestionDate: null,
         warning: 'Migration pending - using temporary values'
       })
+      return addCorsHeaders(response, origin)
     }
 
     // Create record if doesn't exist
@@ -80,10 +94,11 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (createError) {
-        return NextResponse.json(
+        const response = NextResponse.json(
           { error: 'Erro ao criar registro de uso' },
           { status: 500 }
         )
+        return addCorsHeaders(response, origin)
       }
 
       usageData = newUsage
@@ -110,10 +125,11 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (resetError) {
-        return NextResponse.json(
+        const response = NextResponse.json(
           { error: 'Erro ao resetar contador' },
           { status: 500 }
         )
+        return addCorsHeaders(response, origin)
       }
 
       usageData = resetData
@@ -127,7 +143,7 @@ export async function GET(request: NextRequest) {
     const remaining = Math.max(0, planConfig.limit - usageData.question_count)
     const allowed = remaining > 0
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       allowed,
       remaining,
       limit: planConfig.limit,
@@ -136,12 +152,14 @@ export async function GET(request: NextRequest) {
       plan: userPlan,
       lastQuestionDate: usageData.last_question_date
     })
+    return addCorsHeaders(response, origin)
   } catch (error) {
     console.error('Error in GET /api/ai/usage:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
     )
+    return addCorsHeaders(response, origin)
   }
 }
 
@@ -150,16 +168,19 @@ export async function GET(request: NextRequest) {
  * Increments the AI usage counter for the authenticated user
  */
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin')
+  
   try {
     const supabase = await createClient()
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Não autenticado' },
         { status: 401 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Get user's plan
@@ -186,19 +207,21 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (usageError || !usageData) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Registro de uso não encontrado' },
         { status: 404 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Check if already at limit
     const planConfig = PLAN_LIMITS[userPlan]
     if (usageData.question_count >= planConfig.limit) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Limite de perguntas atingido', allowed: false },
         { status: 429 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Increment counter
@@ -213,26 +236,29 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (updateError) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Erro ao atualizar contador' },
         { status: 500 }
       )
+      return addCorsHeaders(response, origin)
     }
 
     // Calculate remaining
     const remaining = Math.max(0, planConfig.limit - updatedUsage.question_count)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       remaining,
       used: updatedUsage.question_count,
       limit: planConfig.limit
     })
+    return addCorsHeaders(response, origin)
   } catch (error) {
     console.error('Error in POST /api/ai/usage:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
     )
+    return addCorsHeaders(response, origin)
   }
 }
