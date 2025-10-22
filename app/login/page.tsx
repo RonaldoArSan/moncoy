@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,8 @@ import { Eye, EyeOff, Mail, Lock, Chrome, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
+import { signInAction } from "./actions"
+import { useToast } from "@/hooks/use-toast"
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -20,9 +22,11 @@ function LoginForm() {
   const [error, setError] = useState("")
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const [passwordUpdated, setPasswordUpdated] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { loading, signIn, signInWithGoogle } = useAuth()
+  const { loading, signInWithGoogle } = useAuth()
+  const { toast } = useToast()
 
   useEffect(() => {
     if (searchParams.get('payment') === 'success') {
@@ -31,19 +35,39 @@ function LoginForm() {
     if (searchParams.get('message') === 'password-updated') {
       setPasswordUpdated(true)
     }
+    
+    // Mostrar erro do OAuth se houver
+    const oauthError = searchParams.get('error')
+    if (oauthError) {
+      setError(decodeURIComponent(oauthError))
+    }
   }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    const result = await signIn(email, password)
-    
-    if (result.success) {
-      router.push("/")
-    } else {
-      setError(result.error || "Erro ao fazer login")
+    if (!email.trim()) {
+      setError('Email é obrigatório')
+      return
     }
+    if (!password.trim()) {
+      setError('Senha é obrigatória')
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        const result = await signInAction(email, password)
+        
+        if (result?.error) {
+          setError(result.error)
+        }
+        // Se não houver erro, o redirect acontece automaticamente
+      } catch (err: any) {
+        setError(err.message || 'Erro ao fazer login')
+      }
+    })
   }
 
   const handleGoogleLogin = async () => {
@@ -162,8 +186,8 @@ function LoginForm() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full h-11" disabled={loading}>
-                {loading ? (
+              <Button type="submit" className="w-full h-11" disabled={isPending || loading}>
+                {isPending || loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Entrando...
