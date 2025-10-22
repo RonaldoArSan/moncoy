@@ -11,6 +11,28 @@ export async function GET(request: NextRequest) {
   const errorCode = requestUrl.searchParams.get('error_code')
   const next = requestUrl.searchParams.get('next') ?? '/'
   
+  // 🚨 VERIFICAR VARIÁVEIS DE AMBIENTE
+  const hasSupabaseUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
+  const hasSupabaseKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrlLength = process.env.NEXT_PUBLIC_SUPABASE_URL?.length || 0
+  
+  if (!hasSupabaseUrl || !hasSupabaseKey) {
+    logger.error('🚨 VARIÁVEIS DE AMBIENTE FALTANDO:', {
+      hasSupabaseUrl,
+      hasSupabaseKey,
+      supabaseUrlLength,
+      env: process.env.NODE_ENV,
+      vercel: process.env.VERCEL,
+    })
+    
+    return NextResponse.redirect(
+      new URL(
+        `/login?error=${encodeURIComponent('Erro de configuração do servidor. Contate o suporte.')}`,
+        requestUrl.origin
+      )
+    )
+  }
+  
   // Capturar todos os parâmetros para debug
   const allParams: Record<string, string> = {}
   requestUrl.searchParams.forEach((value, key) => {
