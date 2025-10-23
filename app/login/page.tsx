@@ -47,6 +47,8 @@ function LoginForm() {
     e.preventDefault()
     setError("")
 
+    console.log('🔑 Login attempt started', { email })
+
     if (!email.trim()) {
       setError('Email é obrigatório')
       return
@@ -58,13 +60,20 @@ function LoginForm() {
 
     startTransition(async () => {
       try {
+        console.log('📤 Calling signInAction...')
         const result = await signInAction(email, password)
         
+        console.log('📥 signInAction result:', result)
+        
         if (result?.error) {
+          console.error('❌ Login error:', result.error)
           setError(result.error)
+        } else {
+          console.log('✅ Login successful, redirect should happen')
         }
         // Se não houver erro, o redirect acontece automaticamente
       } catch (err: any) {
+        console.error('💥 Unexpected error:', err)
         setError(err.message || 'Erro ao fazer login')
       }
     })
