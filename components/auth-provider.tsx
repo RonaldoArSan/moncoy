@@ -216,21 +216,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Senha é obrigatória')
       }
       
+      console.log('🔐 AuthProvider: Attempting signIn', {
+        email: email.trim(),
+        hasPassword: !!password,
+        passwordLength: password.length
+      })
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password
       })
 
       if (error) {
+        console.error('❌ AuthProvider: signIn error:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        })
+        
         // Melhorar mensagens de erro
         if (error.message.includes('Invalid login credentials')) {
-          throw new Error('Email ou senha incorretos')
+          throw new Error('Email ou senha incorretos. Verifique suas credenciais.')
         }
         if (error.message.includes('Email not confirmed')) {
           throw new Error('Email não confirmado. Verifique sua caixa de entrada.')
         }
+        if (error.message.includes('User not found')) {
+          throw new Error('Usuário não encontrado. Verifique o email digitado.')
+        }
         throw error
       }
+
+      if (!data.user) {
+        console.error('❌ AuthProvider: No user data returned')
+        throw new Error('Erro ao autenticar. Tente novamente.')
+      }
+
+      console.log('✅ AuthProvider: signIn successful', {
+        userId: data.user.id,
+        email: data.user.email
+      })
 
       return { success: true }
     } catch (error: any) {
