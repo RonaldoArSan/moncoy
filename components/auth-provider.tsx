@@ -104,6 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (event === 'SIGNED_OUT' || !session?.user) {
           console.log('👋 User signed out')
+          console.log('📍 Current pathname:', pathname)
+          console.log('🔧 Current mode:', mode)
           setUser(null)
           setUserProfile(null)
           setUserSettings(null)
@@ -121,8 +123,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             '/auth/callback'
           ]
           const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route))
+          console.log('🔍 isPublicRoute check:', { pathname, isPublicRoute, publicRoutes })
           
           if (!isPublicRoute) {
+            console.log('⚠️ Not a public route, redirecting based on mode:', mode)
             if (mode === 'admin') {
               console.log('↪️ Redirecting to admin login')
               router.push('/admin/login')
@@ -130,6 +134,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               console.log('↪️ Redirecting to user login')
               router.push('/login')
             }
+          } else {
+            console.log('✅ Public route detected, no redirect needed')
           }
         } else if (event === 'SIGNED_IN' && session?.user) {
           console.log('✨ User signed in:', session.user.email)
