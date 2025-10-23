@@ -63,7 +63,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       try {
         console.log('🔄 Initializing auth...')
-        const { data: { session } } = await supabase.auth.getSession()
+        
+        // Primeiro tenta getSession (lê dos cookies)
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        console.log('🔍 getSession result:', {
+          hasSession: !!session,
+          userId: session?.user?.id,
+          email: session?.user?.email,
+          error: sessionError?.message
+        })
+        
+        // Se não encontrar sessão nos cookies, tenta getUser (faz chamada à API)
+        if (!session) {
+          console.log('⚠️ No session in cookies, trying getUser...')
+          const { data: { user }, error: userError } = await supabase.auth.getUser()
+          
+          console.log('🔍 getUser result:', {
+            hasUser: !!user,
+            userId: user?.id,
+            email: user?.email,
+            error: userError?.message
+          })
+          
+          if (user && mounted && !isProcessing) {
+            console.log('✅ User found via getUser:', user.email)
+            isProcessing = true
+            await handleAuthUser(user)
+            isProcessing = false
+            setLoading(false)
+            return
+          }
+        }
         
         if (mounted && !isProcessing) {
           if (session?.user) {
