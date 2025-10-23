@@ -190,7 +190,11 @@ function LoginForm() {
               </div>
 
               <div className="flex items-center justify-between">
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                <Link 
+                  href="/forgot-password" 
+                  className="text-sm text-primary hover:underline"
+                  onClick={() => console.log('🔗 Forgot password link clicked')}
+                >
                   Esqueceu a senha?
                 </Link>
               </div>
