@@ -38,7 +38,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (pathname?.startsWith('/admin')) {
       setMode('admin')
-    } else if (pathname?.startsWith('/landingpage') || pathname === '/privacy' || pathname === '/terms') {
+    } else if (
+      pathname?.startsWith('/landingpage') || 
+      pathname === '/privacy' || 
+      pathname === '/terms' ||
+      pathname === '/forgot-password' ||
+      pathname === '/reset-password' ||
+      pathname?.startsWith('/auth/callback')
+    ) {
       setMode('public')
     } else {
       setMode('user')
@@ -102,7 +109,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserSettings(null)
           
           // Redirect based on mode APENAS se não estiver em página pública
-          const publicRoutes = ['/landingpage', '/privacy', '/terms', '/login', '/register', '/admin/login']
+          const publicRoutes = [
+            '/landingpage', 
+            '/privacy', 
+            '/terms', 
+            '/login', 
+            '/register', 
+            '/admin/login',
+            '/forgot-password',
+            '/reset-password',
+            '/auth/callback'
+          ]
           const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route))
           
           if (!isPublicRoute) {
