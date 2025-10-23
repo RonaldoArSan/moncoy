@@ -25,7 +25,7 @@ function LoginForm() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { loading, signInWithGoogle } = useAuth()
+  const { loading, signInWithGoogle, initError } = useAuth()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -41,7 +41,12 @@ function LoginForm() {
     if (oauthError) {
       setError(decodeURIComponent(oauthError))
     }
-  }, [searchParams])
+    
+    // Mostrar erro de inicialização se houver
+    if (initError) {
+      setError(initError)
+    }
+  }, [searchParams, initError])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,12 +78,22 @@ function LoginForm() {
   const handleGoogleLogin = async () => {
     setError("")
     
-    const result = await signInWithGoogle()
-    
-    if (!result.success) {
-      setError(result.error || "Erro ao fazer login com Google")
+    try {
+      const result = await signInWithGoogle()
+      
+      if (!result.success) {
+        const errorMsg = result.error || "Erro ao fazer login com Google"
+        setError(errorMsg)
+        
+        // Log error for debugging
+        console.error('Google login failed:', result.error)
+      }
+      // Google OAuth will redirect automatically on success
+    } catch (err: any) {
+      const errorMsg = err.message || "Erro inesperado ao fazer login com Google"
+      setError(errorMsg)
+      console.error('Unexpected error during Google login:', err)
     }
-    // Google OAuth will redirect automatically on success
   }
 
   return (

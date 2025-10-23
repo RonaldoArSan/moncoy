@@ -35,6 +35,7 @@ export interface AuthContextType {
   userProfile: User | null
   loading: boolean
   isAdmin: boolean
+  initError: string | null
   
   // Métodos de autenticação
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>

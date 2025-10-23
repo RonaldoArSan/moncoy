@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
+import { supabase, getInitError } from '@/lib/supabase/client'
 import { userApi } from '@/lib/api'
 import { logger } from '@/lib/logger'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
@@ -30,9 +30,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<AppMode>('public')
+  const [initError, setInitError] = useState<string | null>(null)
   
   const router = useRouter()
   const pathname = usePathname()
+
+  // Check for client initialization errors
+  useEffect(() => {
+    const clientError = getInitError()
+    if (clientError) {
+      setInitError(clientError)
+      setLoading(false)
+    }
+  }, [])
 
   // Determinar o modo da aplicação baseado na URL
   useEffect(() => {
@@ -69,8 +79,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           setLoading(false)
         }
-      } catch (error) {
+      } catch (error: any) {
         logger.error('Error initializing auth:', error)
+        
+        // Check if it's an environment configuration error
+        if (error.message?.includes('configurada') || error.message?.includes('configuração')) {
+          setInitError(
+            'Erro de configuração do servidor. ' +
+            'Por favor, entre em contato com o suporte.'
+          )
+        } else if (error.message?.includes('JSON') || error.message?.includes('Unexpected token')) {
+          setInitError(
+            'Erro ao conectar com o servidor. ' +
+            'Verifique sua conexão e tente novamente.'
+          )
+        } else {
+          setInitError(
+            'Erro ao inicializar autenticação. ' +
+            'Por favor, recarregue a página.'
+          )
+        }
+        
         if (mounted) {
           setLoading(false)
           isProcessing = false
@@ -256,6 +285,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       
+      // Validate Supabase configuration before attempting OAuth
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        throw new Error(
+          'Configuração do Supabase não encontrada. ' +
+          'Entre em contato com o suporte.'
+        )
+      }
+      
       // Use a URL correta do site em produção
       const baseUrl = typeof window !== 'undefined' 
         ? window.location.origin 
@@ -264,6 +301,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const redirectUrl = mode === 'admin' 
         ? `${baseUrl}/auth/callback?next=/admin`
         : `${baseUrl}/auth/callback`
+
+      logger.dev('Initiating Google OAuth with redirect:', redirectUrl)
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -279,12 +318,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })
 
-      if (error) throw error
+      if (error) {
+        // Check for specific error types
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          throw new Error(
+            'Erro de conexão. Verifique sua internet e tente novamente.'
+          )
+        }
+        
+        if (error.message.includes('Unexpected token')) {
+          throw new Error(
+            'Erro de configuração do servidor. ' +
+            'Por favor, tente novamente ou entre em contato com o suporte.'
+          )
+        }
+        
+        throw error
+      }
 
+      logger.dev('Google OAuth initiated successfully')
       return { success: true }
     } catch (error: any) {
-      logger.error('Google sign in error:', error)
-      return { success: false, error: error.message }
+      logger.error('Google sign in error:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      })
+      
+      // Provide user-friendly error messages
+      let userMessage = error.message
+      
+      if (error.message.includes('Variáveis de ambiente')) {
+        userMessage = 'Erro de configuração. Entre em contato com o suporte.'
+      } else if (error.message.includes('fetch')) {
+        userMessage = 'Erro de conexão. Verifique sua internet e tente novamente.'
+      } else if (error.message.includes('JSON') || error.message.includes('Unexpected token')) {
+        userMessage = 'Erro ao processar resposta do servidor. Tente novamente.'
+      }
+      
+      return { success: false, error: userMessage }
     } finally {
       setLoading(false)
     }
@@ -407,6 +479,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userProfile,
     loading,
     isAdmin,
+    initError,
     signIn,
     signUp,
     signInWithGoogle,
