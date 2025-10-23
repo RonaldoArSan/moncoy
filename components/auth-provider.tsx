@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('🔔 Auth state change:', event, session?.user?.email)
         logger.dev('Auth state change:', event)
 
-        if (event === 'SIGNED_OUT' || !session?.user) {
+        if (event === 'SIGNED_OUT' || (!session?.user && event !== 'INITIAL_SESSION')) {
           console.log('👋 User signed out')
           console.log('📍 Current pathname:', pathname)
           console.log('🔧 Current mode:', mode)
@@ -137,6 +137,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else {
             console.log('✅ Public route detected, no redirect needed')
           }
+        } else if (event === 'INITIAL_SESSION' && !session?.user) {
+          console.log('📋 Initial session: No user found')
+          setUser(null)
+          setUserProfile(null)
+          setUserSettings(null)
         } else if (event === 'SIGNED_IN' && session?.user) {
           console.log('✨ User signed in:', session.user.email)
           isProcessing = true
