@@ -70,8 +70,8 @@ export async function middleware(req: NextRequest) {
       allParams: Object.fromEntries(searchParams.entries())
     })
 
-    // Handle password recovery flow
-    if (type === 'recovery' || (accessToken && refreshToken && !error)) {
+    // Handle password recovery flow - ONLY if type=recovery
+    if (type === 'recovery' && accessToken && refreshToken && !error) {
       console.log('🔄 Password recovery detected, redirecting to /reset-password')
       url.pathname = '/reset-password'
       url.searchParams.set('access_token', accessToken!)
