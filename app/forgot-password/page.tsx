@@ -23,12 +23,17 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
 
     try {
+      console.log('📧 Sending password reset email...')
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Error sending reset email:', error)
+        throw error
+      }
 
+      console.log('✅ Reset email sent successfully')
       setIsEmailSent(true)
     } catch (error: any) {
       setError(error.message || "Erro ao enviar email de recuperação")
@@ -42,11 +47,17 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
     
     try {
+      console.log('📧 Resending password reset email...')
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Error resending email:', error)
+        throw error
+      }
+      
+      console.log('✅ Reset email resent successfully')
     } catch (error: any) {
       setError(error.message || "Erro ao reenviar email")
     } finally {
