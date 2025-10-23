@@ -55,14 +55,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initializeAuth = async () => {
       try {
+        console.log('🔄 Initializing auth...')
         const { data: { session } } = await supabase.auth.getSession()
         
         if (mounted && !isProcessing) {
           if (session?.user) {
+            console.log('✅ Session found:', session.user.email)
             isProcessing = true
             await handleAuthUser(session.user)
             isProcessing = false
           } else {
+            console.log('❌ No session found')
             setUser(null)
             setUserProfile(null)
             setUserSettings(null)
@@ -70,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setLoading(false)
         }
       } catch (error) {
+        console.error('❌ Error initializing auth:', error)
         logger.error('Error initializing auth:', error)
         if (mounted) {
           setLoading(false)
@@ -83,22 +87,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        if (!mounted || isProcessing) return
+        if (!mounted || isProcessing) {
+          console.log('⏭️ Skipping auth change (not mounted or processing):', event)
+          return
+        }
 
+        console.log('🔔 Auth state change:', event, session?.user?.email)
         logger.dev('Auth state change:', event)
 
         if (event === 'SIGNED_OUT' || !session?.user) {
+          console.log('👋 User signed out')
           setUser(null)
           setUserProfile(null)
           setUserSettings(null)
           
-          // Redirect based on mode
-          if (mode === 'admin') {
-            router.push('/admin/login')
-          } else if (mode === 'user') {
-            router.push('/login')
+          // Redirect based on mode APENAS se não estiver em página pública
+          const publicRoutes = ['/landingpage', '/privacy', '/terms', '/login', '/register', '/admin/login']
+          const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route))
+          
+          if (!isPublicRoute) {
+            if (mode === 'admin') {
+              console.log('↪️ Redirecting to admin login')
+              router.push('/admin/login')
+            } else if (mode === 'user') {
+              console.log('↪️ Redirecting to user login')
+              router.push('/login')
+            }
           }
         } else if (event === 'SIGNED_IN' && session?.user) {
+          console.log('✨ User signed in:', session.user.email)
           isProcessing = true
           await handleAuthUser(session.user)
           isProcessing = false
@@ -109,10 +126,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 
     return () => {
+      console.log('🧹 Cleaning up auth subscription')
       mounted = false
       subscription.unsubscribe()
     }
-  }, [mode, router])
+  }, [mode, router, pathname])
 
   // Processar usuário autenticado
   const handleAuthUser = async (authUser: any) => {
