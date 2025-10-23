@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const error = requestUrl.searchParams.get('error')
   const errorDescription = requestUrl.searchParams.get('error_description')
   const errorCode = requestUrl.searchParams.get('error_code')
+  const type = requestUrl.searchParams.get('type')
   const next = requestUrl.searchParams.get('next') ?? '/'
   
   // 🚨 VERIFICAR VARIÁVEIS DE AMBIENTE
@@ -43,6 +44,7 @@ export async function GET(request: NextRequest) {
   logger.dev('🔐 Auth callback received:', { 
     hasCode: !!code,
     codeLength: code?.length || 0,
+    type,
     error, 
     errorDescription,
     errorCode,
@@ -129,9 +131,16 @@ export async function GET(request: NextRequest) {
         email: data?.user?.email,
         provider: data?.user?.app_metadata?.provider,
         sessionExpiresAt: data?.session?.expires_at,
+        isPasswordRecovery: type === 'recovery',
       })
 
-      // Redirecionar para a página de destino
+      // Se for password recovery, redirecionar para /reset-password
+      if (type === 'recovery') {
+        logger.dev('🔄 Password recovery flow detected, redirecting to /reset-password')
+        return NextResponse.redirect(new URL('/reset-password', requestUrl.origin))
+      }
+
+      // Redirecionar para a página de destino (OAuth normal)
       const redirectUrl = new URL(next, requestUrl.origin)
       logger.dev('↪️ Redirecting to:', {
         path: redirectUrl.pathname,
