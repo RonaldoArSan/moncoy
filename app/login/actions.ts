@@ -15,12 +15,24 @@ export async function signInAction(email: string, password: string) {
   })
 
   if (error) {
-    console.error('❌ Sign in error:', error.message)
+    console.error('❌ Sign in error:', {
+      message: error.message,
+      status: error.status,
+      name: error.name,
+      // @ts-ignore
+      code: error.code,
+      // @ts-ignore
+      details: error.details
+    })
+    
     if (error.message.includes('Invalid login credentials')) {
-      return { error: 'Email ou senha incorretos' }
+      return { error: 'Email ou senha incorretos. Verifique suas credenciais e tente novamente.' }
     }
     if (error.message.includes('Email not confirmed')) {
       return { error: 'Email não confirmado. Verifique sua caixa de entrada.' }
+    }
+    if (error.message.includes('User not found')) {
+      return { error: 'Usuário não encontrado. Cadastre-se primeiro.' }
     }
     return { error: error.message }
   }
