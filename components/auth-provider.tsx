@@ -184,9 +184,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(formattedUser)
       console.log('✅ [AuthProvider] User state updated')
       
-      // Carregar perfil do usuário (exceto para modo público)
-      if (mode !== 'public') {
-        console.log('📋 [AuthProvider] Loading user profile (mode:', mode, ')')
+      // Verificar se está em página pública (não carregar perfil)
+      const isPublicPage = pathname?.startsWith('/landingpage') || 
+        pathname === '/privacy' || 
+        pathname === '/terms' ||
+        pathname === '/forgot-password' ||
+        pathname === '/reset-password' ||
+        pathname?.startsWith('/auth/callback')
+      
+      // Carregar perfil do usuário (exceto para modo público ou páginas públicas)
+      if (mode !== 'public' && !isPublicPage) {
+        console.log('📋 [AuthProvider] Loading user profile (mode:', mode, 'pathname:', pathname, ')')
         try {
           const profile = await userApi.getCurrentUser()
           console.log('✅ [AuthProvider] Profile loaded:', { id: profile?.id, plan: profile?.plan })
