@@ -76,11 +76,20 @@ export async function middleware(req: NextRequest) {
     })
 
     // Handle password recovery flow
-    if (type === 'recovery' || (accessToken && refreshToken && !error)) {
+    if (type === 'recovery') {
       console.log('🔄 Password recovery detected, redirecting to /reset-password')
+      
+      // Verificar se os tokens estão presentes
+      if (!accessToken || !refreshToken) {
+        console.error('⚠️ Recovery type but missing tokens')
+        url.pathname = '/login'
+        url.searchParams.set('error', 'Tokens de recuperação inválidos ou ausentes')
+        return NextResponse.redirect(url)
+      }
+      
       url.pathname = '/reset-password'
-      url.searchParams.set('access_token', accessToken!)
-      url.searchParams.set('refresh_token', refreshToken!)
+      url.searchParams.set('access_token', accessToken)
+      url.searchParams.set('refresh_token', refreshToken)
       return NextResponse.redirect(url)
     }
 
@@ -91,13 +100,6 @@ export async function middleware(req: NextRequest) {
       url.searchParams.set('error', errorDescription || error)
       return NextResponse.redirect(url)
     }
-  }
-
-  // Production WWW redirect
-  if (isProd && host.startsWith('www.')) {
-    url.hostname = host.replace(/^www\./, '')
-    url.protocol = 'https:'
-    return NextResponse.redirect(url, 308)
   }
 
   return res
