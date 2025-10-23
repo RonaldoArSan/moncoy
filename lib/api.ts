@@ -5,9 +5,17 @@ import type { Transaction, Goal, Investment, InvestmentTransaction, Category, Us
 // User API functions
 export const userApi = {
   async getCurrentUser(): Promise<User | null> {
+    console.log('🔍 [API] Getting current user...')
+    
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return null
+    console.log('🔍 [API] Auth user:', { id: user?.id, email: user?.email, hasUser: !!user })
+    
+    if (!user) {
+      console.log('❌ [API] No auth user found')
+      return null
+    }
 
+    console.log('📡 [API] Fetching user profile from database...')
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -15,18 +23,23 @@ export const userApi = {
       .maybeSingle()
 
     if (error) {
+      console.error('❌ [API] Error fetching user profile:', error)
       throw error
     }
     
     if (!data) {
+      console.log('⚠️ [API] User profile not found, creating...')
       // If user doesn't exist in public.users, create profile
       return await userApi.createUserProfile(user)
     }
     
+    console.log('✅ [API] User profile found:', { id: data.id, email: data.email, plan: data.plan })
     return data
   },
 
   async createUserProfile(authUser: any): Promise<User> {
+    console.log('🆕 [API] Creating user profile...', { id: authUser.id, email: authUser.email })
+    
     const userData = {
       id: authUser.id,
       name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Usuário',
@@ -36,19 +49,27 @@ export const userApi = {
       photo_url: authUser.user_metadata?.avatar_url || null // Foto do Google
     }
 
+    console.log('📝 [API] User data to insert:', userData)
+
     const { data, error } = await supabase
       .from('users')
       .upsert(userData, { onConflict: 'id' })
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('❌ [API] Error creating user profile:', error)
+      throw error
+    }
+
+    console.log('✅ [API] User profile created successfully:', data.id)
 
     // Create default categories and settings (only if they don't exist)
     try {
       await userApi.createDefaultData(authUser.id)
     } catch (err) {
       // Ignore conflicts - data might already exist
+      console.log('ℹ️ [API] Default data already exists or error creating:', err)
       logger.dev('Default data already exists or error creating:', err)
     }
     

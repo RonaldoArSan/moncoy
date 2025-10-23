@@ -163,8 +163,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Processar usuário autenticado
   const handleAuthUser = async (authUser: any) => {
     try {
+      console.log('👤 [AuthProvider] Handling auth user:', { id: authUser.id, email: authUser.email })
+      
       // Evitar processamento duplo do mesmo usuário
       if (user?.id === authUser.id && userProfile) {
+        console.log('⏭️ [AuthProvider] User already processed, skipping')
         return
       }
 
@@ -179,30 +182,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(formattedUser)
+      console.log('✅ [AuthProvider] User state updated')
       
       // Carregar perfil do usuário (exceto para modo público)
       if (mode !== 'public') {
+        console.log('📋 [AuthProvider] Loading user profile (mode:', mode, ')')
         try {
           const profile = await userApi.getCurrentUser()
+          console.log('✅ [AuthProvider] Profile loaded:', { id: profile?.id, plan: profile?.plan })
           setUserProfile(profile)
 
           // Carregar configurações do usuário
           if (profile) {
+            console.log('⚙️ [AuthProvider] Loading user settings...')
             await loadUserSettings(profile.id)
           }
         } catch (error) {
+          console.error('❌ [AuthProvider] Error loading user profile:', error)
           logger.error('Error loading user profile:', error)
           // Se não conseguir carregar o perfil, criar um
           try {
+            console.log('🆕 [AuthProvider] Attempting to create user profile...')
             const newProfile = await userApi.createUserProfile(authUser)
+            console.log('✅ [AuthProvider] Profile created:', newProfile.id)
             setUserProfile(newProfile)
             await loadUserSettings(newProfile.id)
           } catch (createError) {
+            console.error('❌ [AuthProvider] Error creating user profile:', createError)
             logger.error('Error creating user profile:', createError)
           }
         }
+      } else {
+        console.log('🔓 [AuthProvider] Public mode, skipping profile load')
       }
     } catch (error) {
+      console.error('❌ [AuthProvider] Error handling auth user:', error)
       logger.error('Error handling auth user:', error)
     }
   }
