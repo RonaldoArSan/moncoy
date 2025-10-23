@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
+  let res = NextResponse.next()
   const host = req.headers.get('host') || ''
   const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1'
   const url = req.nextUrl.clone()
@@ -15,42 +15,47 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 308)
   }
 
-  // Criar cliente Supabase com middleware APENAS para rotas de auth
-  const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/')
-  
-  if (isAuthRoute) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return req.cookies.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            res.cookies.set({
-              name,
-              value,
-              ...options,
-              sameSite: 'lax',
-              secure: isProd
-            })
-          },
-          remove(name: string, options: CookieOptions) {
-            res.cookies.set({
-              name,
-              value: '',
-              ...options,
-              maxAge: 0
-            })
-          },
+  // Criar cliente Supabase com middleware para TODAS as rotas
+  // Isso garante que os cookies de sessão sejam sempre atualizados
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return req.cookies.get(name)?.value
         },
-      }
-    )
+        set(name: string, value: string, options: CookieOptions) {
+          res.cookies.set({
+            name,
+            value,
+            ...options,
+            sameSite: 'lax',
+            secure: isProd
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          res.cookies.set({
+            name,
+            value: '',
+            ...options,
+            maxAge: 0
+          })
+        },
+      },
+    }
+  )
 
-    // Refresh session APENAS em rotas de auth
-    await supabase.auth.getSession()
-  }
+  // Refresh session em todas as rotas para garantir que cookies estejam atualizados
+  // Isso é especialmente importante após login/logout
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  console.log('🔍 [Middleware] Session check:', {
+    path: req.nextUrl.pathname,
+    hasSession: !!session,
+    userId: session?.user?.id,
+    email: session?.user?.email
+  })
 
   // Handle password reset redirection with tokens
   if (req.nextUrl.pathname === '/auth/callback') {

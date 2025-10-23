@@ -7,8 +7,22 @@ export const userApi = {
   async getCurrentUser(): Promise<User | null> {
     console.log('🔍 [API] Getting current user...')
     
-    const { data: { user } } = await supabase.auth.getUser()
-    console.log('🔍 [API] Auth user:', { id: user?.id, email: user?.email, hasUser: !!user })
+    // Primeiro verifica a sessão
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    console.log('🔍 [API] Session check:', { 
+      hasSession: !!session, 
+      sessionUserId: session?.user?.id,
+      sessionEmail: session?.user?.email,
+      sessionError: sessionError?.message
+    })
+    
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    console.log('🔍 [API] Auth user:', { 
+      id: user?.id, 
+      email: user?.email, 
+      hasUser: !!user,
+      userError: userError?.message 
+    })
     
     if (!user) {
       console.log('❌ [API] No auth user found')
