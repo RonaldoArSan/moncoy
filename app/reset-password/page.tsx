@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import supabase from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState("")
@@ -22,20 +22,37 @@ function ResetPasswordForm() {
   
   const router = useRouter()
   const searchParams = useSearchParams()
+  const supabase = createClient()
 
   useEffect(() => {
     // Verificar se há tokens de recuperação na URL
     const accessToken = searchParams.get('access_token')
     const refreshToken = searchParams.get('refresh_token')
     
+    console.log('🔐 Reset password page loaded:', {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      allParams: Object.fromEntries(searchParams.entries())
+    })
+    
     if (accessToken && refreshToken) {
+      console.log('🔄 Setting session with tokens from URL')
       // Definir a sessão com os tokens
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken
+      }).then((result: { data: unknown; error: unknown }) => {
+        if (result.error) {
+          console.error('❌ Error setting session:', result.error)
+          setError('Erro ao validar tokens de recuperação')
+        } else {
+          console.log('✅ Session set successfully:', result.data)
+        }
       })
+    } else {
+      console.warn('⚠️ No tokens found in URL')
     }
-  }, [searchParams])
+  }, [searchParams, supabase])
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,13 +70,18 @@ function ResetPasswordForm() {
 
     try {
       setLoading(true)
+      console.log('🔄 Updating password...')
 
       const { error } = await supabase.auth.updateUser({
         password: password
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Error updating password:', error)
+        throw error
+      }
 
+      console.log('✅ Password updated successfully')
       setSuccess(true)
       
       // Redirecionar após 3 segundos
@@ -68,6 +90,7 @@ function ResetPasswordForm() {
       }, 3000)
 
     } catch (error: any) {
+      console.error('❌ Reset password error:', error)
       setError(error.message || "Erro ao redefinir senha")
     } finally {
       setLoading(false)

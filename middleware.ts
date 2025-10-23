@@ -58,12 +58,32 @@ export async function middleware(req: NextRequest) {
     const accessToken = searchParams.get('access_token')
     const refreshToken = searchParams.get('refresh_token')
     const type = searchParams.get('type')
+    const error = searchParams.get('error')
+    const errorDescription = searchParams.get('error_description')
 
-    if (type === 'recovery' && accessToken && refreshToken) {
-      // Redirect to reset password page with tokens
+    console.log('🔐 /auth/callback hit:', {
+      type,
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      error,
+      errorDescription,
+      allParams: Object.fromEntries(searchParams.entries())
+    })
+
+    // Handle password recovery flow
+    if (type === 'recovery' || (accessToken && refreshToken && !error)) {
+      console.log('🔄 Password recovery detected, redirecting to /reset-password')
       url.pathname = '/reset-password'
-      url.searchParams.set('access_token', accessToken)
-      url.searchParams.set('refresh_token', refreshToken)
+      url.searchParams.set('access_token', accessToken!)
+      url.searchParams.set('refresh_token', refreshToken!)
+      return NextResponse.redirect(url)
+    }
+
+    // Handle errors
+    if (error) {
+      console.error('❌ OAuth error in callback:', error, errorDescription)
+      url.pathname = '/login'
+      url.searchParams.set('error', errorDescription || error)
       return NextResponse.redirect(url)
     }
   }
