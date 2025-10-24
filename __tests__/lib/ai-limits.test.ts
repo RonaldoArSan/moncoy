@@ -152,6 +152,8 @@ describe('AI Limits (Legacy Local)', () => {
 
 describe('AI Limits API Integration', () => {
   beforeEach(() => {
+    // Clear the module cache to get fresh imports
+    jest.resetModules()
     global.fetch = jest.fn()
   })
 
@@ -175,8 +177,9 @@ describe('AI Limits API Integration', () => {
         json: async () => mockResponse
       })
 
-      const { checkAILimit } = await import('@/lib/ai-limits')
-      const result = await checkAILimit()
+      // Directly import the actual implementation for this test
+      const aiLimitsModule = jest.requireActual('@/lib/ai-limits')
+      const result = await aiLimitsModule.checkAILimit()
 
       expect(global.fetch).toHaveBeenCalledWith('/api/ai/usage', {
         method: 'GET',
@@ -193,9 +196,9 @@ describe('AI Limits API Integration', () => {
         status: 500
       })
 
-      const { checkAILimit } = await import('@/lib/ai-limits')
+      const aiLimitsModule = jest.requireActual('@/lib/ai-limits')
       
-      await expect(checkAILimit()).rejects.toThrow()
+      await expect(aiLimitsModule.checkAILimit()).rejects.toThrow()
     })
   })
 
@@ -213,8 +216,8 @@ describe('AI Limits API Integration', () => {
         json: async () => mockResponse
       })
 
-      const { incrementAIUsage } = await import('@/lib/ai-limits')
-      const result = await incrementAIUsage()
+      const aiLimitsModule = jest.requireActual('@/lib/ai-limits')
+      const result = await aiLimitsModule.incrementAIUsage()
 
       expect(global.fetch).toHaveBeenCalledWith('/api/ai/usage', {
         method: 'POST',
@@ -231,9 +234,9 @@ describe('AI Limits API Integration', () => {
         json: async () => ({ error: 'Limite de perguntas atingido' })
       })
 
-      const { incrementAIUsage } = await import('@/lib/ai-limits')
+      const aiLimitsModule = jest.requireActual('@/lib/ai-limits')
       
-      await expect(incrementAIUsage()).rejects.toThrow()
+      await expect(aiLimitsModule.incrementAIUsage()).rejects.toThrow()
     })
   })
 })

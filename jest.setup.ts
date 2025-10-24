@@ -43,6 +43,28 @@ jest.mock('@/lib/supabase/client', () => ({
   },
 }))
 
+// Mock AI limits module - use jest.mock instead of spyOn to avoid "Cannot redefine property" errors
+jest.mock('@/lib/ai-limits', () => {
+  const originalModule = jest.requireActual('@/lib/ai-limits')
+  return {
+    ...originalModule,
+    checkAILimit: jest.fn().mockResolvedValue({
+      allowed: true,
+      remaining: 5,
+      limit: 5,
+      used: 0,
+      resetDate: '2025-10-31T00:00:00Z',
+      plan: 'basic'
+    }),
+    incrementAIUsage: jest.fn().mockResolvedValue({
+      success: true,
+      remaining: 4,
+      used: 1,
+      limit: 5
+    }),
+  }
+})
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'

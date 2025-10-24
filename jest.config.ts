@@ -18,6 +18,7 @@ const config: Config = {
   testMatch: [
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',
+    '!**/__tests__/utils/**',
   ],
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',

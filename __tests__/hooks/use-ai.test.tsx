@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useAI } from '@/hooks/use-ai'
-import * as aiLimits from '@/lib/ai-limits'
+import { checkAILimit, incrementAIUsage } from '@/lib/ai-limits'
 import { mockUser, mockTransaction } from '../utils/test-utils'
 
 // Mock dependencies
@@ -23,6 +23,10 @@ jest.mock('@/contexts/settings-context', () => ({
 jest.mock('@/hooks/use-toast', () => ({
   toast: jest.fn()
 }))
+
+// Type the mocked functions
+const mockCheckAILimit = checkAILimit as jest.MockedFunction<typeof checkAILimit>
+const mockIncrementAIUsage = incrementAIUsage as jest.MockedFunction<typeof incrementAIUsage>
 
 describe('useAI Hook', () => {
   beforeEach(() => {
@@ -54,7 +58,7 @@ describe('useAI Hook', () => {
         plan: 'basic'
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit').mockResolvedValueOnce(mockUsage)
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
 
       const { result } = renderHook(() => useAI())
 
@@ -108,8 +112,8 @@ describe('useAI Hook', () => {
         analysis: { summary: 'Test analysis' }
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit').mockResolvedValueOnce(mockUsage)
-      jest.spyOn(aiLimits, 'incrementAIUsage').mockResolvedValueOnce({
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
+      mockIncrementAIUsage.mockResolvedValueOnce({
         success: true,
         remaining: 4,
         used: 1,
@@ -127,7 +131,7 @@ describe('useAI Hook', () => {
       const analysis = await result.current.analyzeTransactions(transactions, 'spending_analysis')
 
       expect(analysis).toEqual({ summary: 'Test analysis' })
-      expect(aiLimits.incrementAIUsage).toHaveBeenCalled()
+      expect(mockIncrementAIUsage).toHaveBeenCalled()
     })
 
     it('should block when AI limit is reached', async () => {
@@ -140,9 +144,25 @@ describe('useAI Hook', () => {
         plan: 'basic'
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit').mockResolvedValueOnce(mockUsage)
+      // Mock for initial load on mount
+      mockCheckAILimit.mockResolvedValueOnce({
+        allowed: true,
+        remaining: 5,
+        limit: 5,
+        used: 0,
+        resetDate: '2025-10-31T00:00:00Z',
+        plan: 'basic'
+      })
+      // Mock for the check inside analyzeTransactions
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
 
       const { result } = renderHook(() => useAI())
+      
+      // Wait for initial load to complete
+      await waitFor(() => {
+        expect(result.current.usageLoading).toBe(false)
+      })
+
       const transactions = [mockTransaction]
 
       await expect(
@@ -171,8 +191,11 @@ describe('useAI Hook', () => {
         analysis: { summary: 'Test analysis' }
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit').mockResolvedValueOnce(mockUsage)
-      jest.spyOn(aiLimits, 'incrementAIUsage').mockResolvedValueOnce(mockUpdatedUsage)
+      // Mock for initial load on mount
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
+      // Mock for the check inside analyzeTransactions
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
+      mockIncrementAIUsage.mockResolvedValueOnce(mockUpdatedUsage)
 
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -180,6 +203,12 @@ describe('useAI Hook', () => {
       })
 
       const { result } = renderHook(() => useAI())
+      
+      // Wait for initial load to complete
+      await waitFor(() => {
+        expect(result.current.usageLoading).toBe(false)
+      })
+
       const transactions = [mockTransaction]
 
       await result.current.analyzeTransactions(transactions, 'spending_analysis')
@@ -213,8 +242,8 @@ describe('useAI Hook', () => {
         analysis: { summary: 'Test analysis' }
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit').mockResolvedValueOnce(mockUsage)
-      jest.spyOn(aiLimits, 'incrementAIUsage').mockResolvedValueOnce(mockUpdatedUsage)
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
+      mockIncrementAIUsage.mockResolvedValueOnce(mockUpdatedUsage)
 
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -244,7 +273,7 @@ describe('useAI Hook', () => {
         plan: 'basic'
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit').mockResolvedValueOnce(mockUsage)
+      mockCheckAILimit.mockResolvedValueOnce(mockUsage)
 
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
@@ -280,7 +309,7 @@ describe('useAI Hook', () => {
         plan: 'basic'
       }
 
-      jest.spyOn(aiLimits, 'checkAILimit')
+      mockCheckAILimit
         .mockResolvedValueOnce(mockUsage1)
         .mockResolvedValueOnce(mockUsage2)
 

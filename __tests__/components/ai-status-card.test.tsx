@@ -1,5 +1,7 @@
+import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { AIStatusCard } from '@/components/ai-status-card'
+import { AuthProvider } from '@/components/auth-provider'
 import { mockUser, mockProUser, mockPremiumUser } from '../utils/test-utils'
 
 // Mock dependencies
@@ -34,6 +36,15 @@ jest.mock('@/hooks/use-ai', () => ({
   }))
 }))
 
+// Helper to render with AuthProvider
+const renderWithAuth = (component: React.ReactElement) => {
+  return render(
+    <AuthProvider>
+      {component}
+    </AuthProvider>
+  )
+}
+
 describe('AIStatusCard Component', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -50,7 +61,7 @@ describe('AIStatusCard Component', () => {
         user: recentUser
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/12 dias/i)).toBeInTheDocument() // 22 - 10 = 12 days remaining
       expect(screen.getByText(/aprende seus hábitos/i)).toBeInTheDocument()
@@ -66,7 +77,7 @@ describe('AIStatusCard Component', () => {
         user: oldUser
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.queryByText(/dias/i)).not.toBeInTheDocument()
       expect(screen.getByText(/5\/5/i)).toBeInTheDocument() // Remaining questions
@@ -100,7 +111,7 @@ describe('AIStatusCard Component', () => {
         isAvailable: true
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/7\/7/i)).toBeInTheDocument()
       expect(screen.queryByText(/aprende seus hábitos/i)).not.toBeInTheDocument()
@@ -134,7 +145,7 @@ describe('AIStatusCard Component', () => {
         isAvailable: true
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/50\/50/i)).toBeInTheDocument()
     })
@@ -155,7 +166,7 @@ describe('AIStatusCard Component', () => {
         isAvailable: true
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/3\/5/i)).toBeInTheDocument()
     })
@@ -174,7 +185,7 @@ describe('AIStatusCard Component', () => {
         isAvailable: true
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/0\/5/i)).toBeInTheDocument()
       expect(screen.getByText(/limite atingido/i)).toBeInTheDocument()
@@ -194,7 +205,7 @@ describe('AIStatusCard Component', () => {
         isAvailable: true
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/31\/10\/2025/i)).toBeInTheDocument()
     })
@@ -208,7 +219,7 @@ describe('AIStatusCard Component', () => {
         isAvailable: true
       })
 
-      render(<AIStatusCard />)
+      renderWithAuth(<AIStatusCard />)
 
       expect(screen.getByText(/carregando/i)).toBeInTheDocument()
     })
