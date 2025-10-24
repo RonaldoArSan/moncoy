@@ -107,7 +107,24 @@ async function createProducts() {
   }
 
   console.log('\n📋 RESUMO DOS PREÇOS CRIADOS:\n')
-  console.log('Copie estes Price IDs para o arquivo lib/stripe-config.ts:\n')
+  console.log('=' .repeat(70))
+  console.log('\n✅ Produtos criados com sucesso!\n')
+  
+  console.log('📝 COPIE ESTAS LINHAS PARA O SEU ARQUIVO .env.local:\n')
+  console.log('-'.repeat(70))
+  
+  if (results[0]) {
+    console.log(`STRIPE_PRICE_BASIC=${results[0].priceId}`)
+  }
+  if (results[1]) {
+    console.log(`STRIPE_PRICE_PRO=${results[1].priceId}`)
+  }
+  if (results[2]) {
+    console.log(`STRIPE_PRICE_PREMIUM=${results[2].priceId}`)
+  }
+  
+  console.log('-'.repeat(70))
+  console.log('\n📋 OU atualize o arquivo lib/stripe-config.ts:\n')
   console.log('```typescript')
   console.log('export const STRIPE_CONFIG = {')
   console.log('  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || \'\',')
@@ -128,7 +145,8 @@ async function createProducts() {
   console.log('}')
   console.log('```\n')
 
-  console.log('✅ Concluído! Atualize o arquivo lib/stripe-config.ts com os IDs acima.')
+  console.log('✅ Concluído! Atualize o arquivo .env.local com os IDs acima.')
+  console.log('🔄 Depois reinicie o servidor: npm run dev')
   console.log('🔗 Ver no dashboard: https://dashboard.stripe.com/test/products\n')
 }
 
