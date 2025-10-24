@@ -31,6 +31,13 @@ jest.mock('@/lib/supabase/client', () => ({
       signOut: jest.fn(),
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({
+        data: {
+          subscription: {
+            unsubscribe: jest.fn()
+          }
+        }
+      })),
     },
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),
