@@ -1,0 +1,79 @@
+// Learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom'
+
+// Mock Next.js router
+jest.mock('next/navigation', () => ({
+  useRouter() {
+    return {
+      push: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+      back: jest.fn(),
+      pathname: '/',
+      query: {},
+      asPath: '/',
+    }
+  },
+  useSearchParams() {
+    return new URLSearchParams()
+  },
+  usePathname() {
+    return '/'
+  },
+}))
+
+// Mock Supabase client
+jest.mock('@/lib/supabase/client', () => ({
+  supabase: {
+    auth: {
+      getUser: jest.fn(),
+      getSession: jest.fn(),
+      signOut: jest.fn(),
+      signInWithPassword: jest.fn(),
+      signUp: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({
+        data: {
+          subscription: {
+            unsubscribe: jest.fn()
+          }
+        }
+      })),
+    },
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+    })),
+  },
+}))
+
+// Mock AI limits module - use jest.mock instead of spyOn to avoid "Cannot redefine property" errors
+jest.mock('@/lib/ai-limits', () => {
+  const originalModule = jest.requireActual('@/lib/ai-limits')
+  return {
+    ...originalModule,
+    checkAILimit: jest.fn().mockResolvedValue({
+      allowed: true,
+      remaining: 5,
+      limit: 5,
+      used: 0,
+      resetDate: '2025-10-31T00:00:00Z',
+      plan: 'basic'
+    }),
+    incrementAIUsage: jest.fn().mockResolvedValue({
+      success: true,
+      remaining: 4,
+      used: 1,
+      limit: 5
+    }),
+  }
+})
+
+// Mock environment variables
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test_xxx'
+process.env.OPENAI_API_KEY = 'sk-test-xxx'

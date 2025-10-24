@@ -4,9 +4,9 @@ export const STRIPE_CONFIG = {
   
   // IDs dos preços do Stripe (price_xxx, não prod_xxx)
   prices: {
-    BASIC: 'price_1S0mqhLhhuHU7ecWyUZSdXQG',     // R$ 19,90/mês (temporário)
-    PRO: 'price_1S0mqhLhhuHU7ecWyUZSdXQG',        // R$ 49,90/mês
-    PREMIUM: 'price_1S0mqhLhhuHU7ecWyUZSdXQG',    // R$ 59,90/mês (temporário)
+    BASIC: 'price_1SLZeCFJKEapQRHvb7CK6y50',     // R$ 19,90/mês
+    PRO: 'price_1SLZeDFJKEapQRHvdvErugbX',        // R$ 49,90/mês
+    PREMIUM: 'price_1SLZeDFJKEapQRHvyM0yLAv0',    // R$ 59,90/mês
   }
 }
 
