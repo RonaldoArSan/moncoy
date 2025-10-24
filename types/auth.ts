@@ -27,6 +27,7 @@ export interface RegisterData {
   openaiKey?: string
   phone?: string
   accountType?: 'personal' | 'business'
+  stripeCustomerId?: string
 }
 
 export interface AuthContextType {

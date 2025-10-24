@@ -8,23 +8,38 @@ function SuccessContent() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
   const [loading, setLoading] = useState(true)
+  const [redirecting, setRedirecting] = useState(false)
 
   useEffect(() => {
-    // Simular carregamento
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 2000)
+    if (sessionId) {
+      // Redirecionar automaticamente para registro com session_id
+      const timer = setTimeout(() => {
+        setRedirecting(true)
+        window.location.href = `/register?session_id=${sessionId}`
+      }, 3000)
 
-    return () => clearTimeout(timer)
-  }, [])
+      return () => clearTimeout(timer)
+    } else {
+      // Sem session_id, apenas mostrar sucesso
+      const timer = setTimeout(() => {
+        setLoading(false)
+      }, 2000)
 
-  if (loading) {
+      return () => clearTimeout(timer)
+    }
+  }, [sessionId])
+
+  if (loading || redirecting) {
     return (
       <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
         <div className="text-center text-white">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold">Processando seu pagamento...</h2>
-          <p className="text-blue-100">Aguarde um momento</p>
+          <h2 className="text-2xl font-bold">
+            {redirecting ? 'Redirecionando para cadastro...' : 'Processando seu pagamento...'}
+          </h2>
+          <p className="text-blue-100">
+            {redirecting ? 'Complete seu cadastro para acessar sua conta' : 'Aguarde um momento'}
+          </p>
         </div>
       </div>
     )

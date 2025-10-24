@@ -3,10 +3,13 @@ export const STRIPE_CONFIG = {
   publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
   
   // IDs dos preços do Stripe (price_xxx, não prod_xxx)
+  // IMPORTANTE: Crie estes produtos no Stripe Dashboard ou execute: node scripts/create-stripe-products.js
   prices: {
-    BASIC: 'price_1S0mqhLhhuHU7ecWyUZSdXQG',     // R$ 19,90/mês (temporário)
-    PRO: 'price_1S0mqhLhhuHU7ecWyUZSdXQG',        // R$ 49,90/mês
-    PREMIUM: 'price_1S0mqhLhhuHU7ecWyUZSdXQG',    // R$ 59,90/mês (temporário)
+    // Temporariamente todos apontam para o mesmo preço de teste
+    // Após criar os produtos, substitua pelos IDs reais
+    BASIC: process.env.STRIPE_PRICE_BASIC || 'price_TESTE',
+    PRO: process.env.STRIPE_PRICE_PRO || 'price_TESTE',
+    PREMIUM: process.env.STRIPE_PRICE_PREMIUM || 'price_TESTE',
   }
 }
 

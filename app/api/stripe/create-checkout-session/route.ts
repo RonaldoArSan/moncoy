@@ -29,6 +29,9 @@ export async function POST(request: NextRequest) {
       mode: 'subscription',
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cancel`,
+      billing_address_collection: 'auto',
+      customer_email: undefined, // Stripe capturará automaticamente
+      allow_promotion_codes: true,
       metadata: {
         plan: plan || 'professional',
       },
@@ -36,14 +39,19 @@ export async function POST(request: NextRequest) {
         metadata: {
           plan: plan || 'professional',
         },
+        trial_period_days: 30, // 30 dias grátis
       },
     })
 
     return NextResponse.json({ sessionId: session.id })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao criar sessão do checkout:', error)
+    
+    // Retornar mensagem mais descritiva
+    const errorMessage = error.message || 'Erro interno do servidor'
+    
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
