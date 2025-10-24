@@ -48,19 +48,32 @@ export async function POST(request: NextRequest) {
         
         if (session.mode === 'subscription') {
           const customerId = session.customer as string
-          const userId = session.metadata?.user_id
+          const customerEmail = session.customer_details?.email || session.customer_email
           const plan = session.metadata?.plan || 'professional'
 
-          if (userId) {
-            // Atualizar usuário com customer ID e plano
-            await supabase
+          // Tentar encontrar usuário pelo email (caso já tenha se cadastrado)
+          if (customerEmail) {
+            const { data: existingUser } = await supabase
               .from('users')
-              .update({
-                stripe_customer_id: customerId,
-                plan: plan,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', userId)
+              .select('id, stripe_customer_id')
+              .eq('email', customerEmail)
+              .single()
+
+            if (existingUser && !existingUser.stripe_customer_id) {
+              // Usuário existe mas não tem customer_id, atualizar
+              await supabase
+                .from('users')
+                .update({
+                  stripe_customer_id: customerId,
+                  plan: plan,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', existingUser.id)
+              
+              console.log('✅ Customer ID vinculado ao usuário existente:', existingUser.id)
+            } else {
+              console.log('ℹ️ Usuário ainda não cadastrado, aguardando registro')
+            }
           }
         }
         break

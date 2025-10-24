@@ -30,12 +30,38 @@ function RegisterForm() {
   const [error, setError] = useState("")
   const [step, setStep] = useState(1)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [sessionData, setSessionData] = useState<any>(null)
+  const [loadingSession, setLoadingSession] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { loading, signUp, signInWithGoogle } = useAuth()
 
+  // Buscar dados da sessão do Stripe se session_id estiver presente
   useEffect(() => {
-    if (searchParams.get('payment') === 'success') {
+    const sessionId = searchParams.get('session_id')
+    
+    if (sessionId) {
+      setLoadingSession(true)
+      fetch(`/api/stripe/verify-session?session_id=${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.email) {
+            setSessionData(data)
+            setFormData(prev => ({
+              ...prev,
+              email: data.email,
+              plan: data.plan === 'premium' ? 'professional' : data.plan // Temporário: mapear premium para professional
+            }))
+            setPaymentSuccess(true)
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao verificar sessão:', error)
+        })
+        .finally(() => {
+          setLoadingSession(false)
+        })
+    } else if (searchParams.get('payment') === 'success') {
       setPaymentSuccess(true)
       setFormData(prev => ({ ...prev, plan: "professional" }))
     }
@@ -64,12 +90,13 @@ function RegisterForm() {
       email: formData.email,
       password: formData.password,
       plan: formData.plan,
-      openaiKey: formData.openaiKey || undefined
+      openaiKey: formData.openaiKey || undefined,
+      stripeCustomerId: sessionData?.customerId // Passar customer ID do Stripe
     })
     
     if (result.success) {
-      alert("Conta criada com sucesso! Verifique seu email para confirmar.")
-      router.push("/login")
+      // Redirecionar para página de confirmação de email
+      router.push("/auth/confirm-email?email=" + encodeURIComponent(formData.email))
     } else {
       setError(result.error || "Erro ao criar conta")
     }
@@ -142,7 +169,13 @@ function RegisterForm() {
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {paymentSuccess && (
+            {loadingSession && (
+              <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md flex items-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Verificando dados do pagamento...
+              </div>
+            )}
+            {paymentSuccess && !loadingSession && (
               <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
                 ✅ Pagamento confirmado! Complete seu cadastro para acessar.
               </div>
@@ -211,7 +244,14 @@ function RegisterForm() {
                         className="pl-10"
                         autoComplete="email"
                         required
+                        disabled={!!sessionData?.email}
+                        readOnly={!!sessionData?.email}
                       />
+                      {sessionData?.email && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Email vinculado ao pagamento do Stripe
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -338,7 +378,7 @@ function RegisterForm() {
                             <div>
                               <div className="flex items-center gap-2">
                                 <h3 className="font-semibold">Plano Profissional</h3>
-                                <Badge variant="default">R$ 29,99/mês</Badge>
+                                <Badge variant="default">R$ 49,90/mês</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
                                 IA, análise de comprovantes e recursos avançados
@@ -420,7 +460,7 @@ function RegisterForm() {
                     </p>
                     <p>
                       <span className="text-muted-foreground">Plano:</span>{" "}
-                      {formData.plan === "basic" ? "Básico (Gratuito)" : paymentSuccess ? "Profissional (Pago)" : "Profissional (R$ 29,99/mês)"}
+                      {formData.plan === "basic" ? "Básico (Gratuito)" : paymentSuccess ? "Profissional (Pago)" : "Profissional (R$ 49,90/mês)"}
                     </p>
                   </div>
                 </div>

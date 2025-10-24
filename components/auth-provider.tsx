@@ -305,12 +305,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             plan: data.plan,
             openai_key: data.openaiKey,
             phone: data.phone,
-            account_type: data.accountType
+            account_type: data.accountType,
+            stripe_customer_id: data.stripeCustomerId // Adicionar customer ID do Stripe
           }
         }
       })
 
       if (authError) throw authError
+
+      // Se houver um customer ID do Stripe, atualizar o perfil do usuário
+      if (authData.user && data.stripeCustomerId) {
+        await supabase
+          .from('users')
+          .update({ stripe_customer_id: data.stripeCustomerId })
+          .eq('id', authData.user.id)
+      }
 
       return { success: true }
     } catch (error: any) {
